@@ -24,9 +24,10 @@
             matplotlib
             psycopg2
             bcrypt
+            sqlalchemy
+            asyncpg
+            python-dotenv
           ];
-          nativeCheckInputs = with python3Packages; [ pytest ];
-          checkPhase = "pytest tests";
         };
       in {
         packages.default = telegramBot;
@@ -44,6 +45,9 @@
             matplotlib
             psycopg2
             bcrypt
+            sqlalchemy
+            asyncpg
+            python-dotenv
           ];
 
           nativeCheckInputs = with python3Packages; [

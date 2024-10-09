@@ -1,7 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
-from utils.constants import (
+from src.utils.constants import (
     FEEDBACK_MESSAGE, ENVIRONMENT_MESSAGE, PROFILE_MESSAGE,
     OPEN_ENVIRONMENT_BUTTON, UPDATE_PROFILE_BUTTON, MY_REQUESTS_BUTTON, MY_RESPONSES_BUTTON
 )

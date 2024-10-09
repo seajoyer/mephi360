@@ -1,5 +1,5 @@
 from telegram import ReplyKeyboardMarkup
-from utils.constants import BUTTON_ENVIRONMENT, BUTTON_PROFILE, BUTTON_FEEDBACK, BUTTON_ABOUT, BUTTON_LOGIN
+from src.utils.constants import BUTTON_ENVIRONMENT, BUTTON_PROFILE, BUTTON_FEEDBACK, BUTTON_ABOUT, BUTTON_LOGIN
 
 def get_main_menu_keyboard(logged_in: bool = False) -> ReplyKeyboardMarkup:
     if logged_in:
