@@ -9,7 +9,8 @@ from src.bot.handlers.start import start
 from src.bot.handlers.menu_handlers import (
     feedback_handler, environment_handler, profile_handler,
     open_environment_callback, update_profile_callback,
-    my_requests_callback, my_responses_callback
+    my_requests_callback, my_responses_callback,
+    profile_updated_callback, profile_update_error_callback  # Add these new imports
 )
 from src.bot.handlers.auth_handlers import (
     login_button_handler, login_handler, password_handler,
@@ -57,6 +58,8 @@ async def setup_application():
     application.add_handler(CallbackQueryHandler(update_profile_callback, pattern='^update_profile$'))
     application.add_handler(CallbackQueryHandler(my_requests_callback, pattern='^my_requests$'))
     application.add_handler(CallbackQueryHandler(my_responses_callback, pattern='^my_responses$'))
+    application.add_handler(CallbackQueryHandler(profile_updated_callback, pattern='^profile_updated$'))
+    application.add_handler(CallbackQueryHandler(profile_update_error_callback, pattern='^profile_update_error$'))
 
     return application
 

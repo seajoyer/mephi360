@@ -1,4 +1,4 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from telegram.ext import ContextTypes
 from src.utils.constants import (
     FEEDBACK_MESSAGE, ENVIRONMENT_MESSAGE, PROFILE_MESSAGE,
@@ -47,16 +47,6 @@ async def profile_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await update.message.reply_text("Ошибка: пользователь не найден в базе данных.")
             return
 
-        try:
-            profile_data = await get_student_profile(user.login, decrypt_password(user.password_encrypted))
-            user.name = profile_data['full_name']
-            user.study_group = profile_data['group']
-            await session.commit())
-        except Exception as e:
-            logger.error(f"Error updating profile: {str(e)}")
-            await update.message.reply_text("Произошла ошибка при обновлении профиля. Пожалуйста, попробуйте позже.")
-            return
-
         request_stats = user.get_request_stats()
         response_stats = user.get_response_stats()
 
@@ -83,6 +73,14 @@ async def profile_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 async def update_profile_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
+
+    # Change button text to "минутку..."
+    keyboard = [
+        [InlineKeyboardButton("минутку...", callback_data='updating_profile')],
+        [InlineKeyboardButton(MY_REQUESTS_BUTTON, callback_data='my_requests')],
+        [InlineKeyboardButton(MY_RESPONSES_BUTTON, callback_data='my_responses')]
+    ]
+    await query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(keyboard))
 
     async with get_db() as session:
         result = await session.execute(select(User).where(User.telegram_id == update.effective_user.id))
@@ -112,10 +110,23 @@ async def update_profile_callback(update: Update, context: ContextTypes.DEFAULT_
                 responses=response_text
             )
 
-            await query.edit_message_text(profile_text)
+            # Change button text to "обновлено ✨"
+            keyboard = [
+                [InlineKeyboardButton("Обновлено ✨", callback_data='profile_updated')],
+                [InlineKeyboardButton(MY_REQUESTS_BUTTON, callback_data='my_requests')],
+                [InlineKeyboardButton(MY_RESPONSES_BUTTON, callback_data='my_responses')]
+            ]
+            await query.edit_message_text(profile_text, reply_markup=InlineKeyboardMarkup(keyboard))
+
         except Exception as e:
             logger.error(f"Error updating profile: {str(e)}")
-            await query.edit_message_text("Произошла ошибка при обновлении профиля. Пожалуйста, попробуйте позже.")
+            # Change button text to "ошибка 🤷🏽‍♂️"
+            keyboard = [
+                [InlineKeyboardButton("Ошибка 🤷🏽‍♂️", callback_data='profile_update_error')],
+                [InlineKeyboardButton(MY_REQUESTS_BUTTON, callback_data='my_requests')],
+                [InlineKeyboardButton(MY_RESPONSES_BUTTON, callback_data='my_responses')]
+            ]
+            await query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(keyboard))
 
 async def open_environment_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
@@ -137,3 +148,12 @@ async def my_responses_callback(update: Update, context: ContextTypes.DEFAULT_TY
 
     # TODO: Implement my responses logic
     await query.edit_message_text("Ваши отклики: (Здесь будет реализована логика отображения откликов)")
+
+# Add these new handlers to handle the non-clickable buttons
+async def profile_updated_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()  # This will just close the "loading" animation on the button
+
+async def profile_update_error_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()  # This will just close the "loading" animation on the button

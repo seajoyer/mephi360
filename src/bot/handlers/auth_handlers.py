@@ -18,17 +18,29 @@ rate_limiter = RateLimiter(max_calls=5, period=60)  # 5 attempts per minute
 
 async def login_button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if await is_user_logged_in(update.effective_user.id):
-        await update.message.reply_text("Вы уже вошли в систему.")
+        if update.message:
+            await update.message.reply_text("Вы уже вошли в систему.")
+        elif update.callback_query:
+            await update.callback_query.message.edit_text("Вы уже вошли в систему.")
         return ConversationHandler.END
 
     if not await rate_limiter.is_allowed(update.effective_user.id):
-        await update.message.reply_text("Слишком много попыток входа. Пожалуйста, попробуйте позже.")
+        if update.message:
+            await update.message.reply_text("Слишком много попыток входа. Пожалуйста, попробуйте позже.")
+        elif update.callback_query:
+            await update.callback_query.message.edit_text("Слишком много попыток входа. Пожалуйста, попробуйте позже.")
         return ConversationHandler.END
 
     keyboard = [[InlineKeyboardButton("Отмена", callback_data='cancel_login')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = await update.message.reply_text(LOGIN_MESSAGE, reply_markup=reply_markup)
-    context.user_data['login_message_id'] = message.message_id
+
+    if update.message:
+        message = await update.message.reply_text(LOGIN_MESSAGE, reply_markup=reply_markup)
+        context.user_data['login_message_id'] = message.message_id
+    elif update.callback_query:
+        await update.callback_query.message.edit_text(LOGIN_MESSAGE, reply_markup=reply_markup)
+        context.user_data['login_message_id'] = update.callback_query.message.message_id
+
     return LOGIN
 
 async def login_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
