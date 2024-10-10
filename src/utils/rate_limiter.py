@@ -1,5 +1,8 @@
 from collections import defaultdict
 from time import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 class RateLimiter:
     def __init__(self, max_calls, period):

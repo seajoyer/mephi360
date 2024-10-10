@@ -2,6 +2,9 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from src.models.user import Base
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Ad(Base):
     __tablename__ = "ads"

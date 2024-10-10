@@ -1,10 +1,18 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-
 from src.utils.constants import (
     FEEDBACK_MESSAGE, ENVIRONMENT_MESSAGE, PROFILE_MESSAGE,
     OPEN_ENVIRONMENT_BUTTON, UPDATE_PROFILE_BUTTON, MY_REQUESTS_BUTTON, MY_RESPONSES_BUTTON
 )
+from src.utils.database import get_db
+from src.models.user import User
+from sqlalchemy import select
+from src.utils.home_mephi_auth import get_student_profile
+from src.utils.auth import is_user_logged_in
+from src.utils.auth_utils import decrypt_password
+import logging
+
+logger = logging.getLogger(__name__)
 
 async def feedback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(FEEDBACK_MESSAGE)
@@ -22,29 +30,92 @@ async def environment_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
     )
 
 async def profile_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # TODO: Implement user data retrieval from database
-    user_data = {
-        "name": update.effective_user.full_name,
-        "group": "Б22-505",  # Placeholder
-        "rating": 10,  # Placeholder
-        "languages": 3,  # Placeholder
-        "physics": 2,  # Placeholder
-        "math": 5,  # Placeholder
-        "informatics": 4,  # Placeholder
-        "humanities": 1,  # Placeholder
-        "others": 2,  # Placeholder
-    }
+    if not await is_user_logged_in(update.effective_user.id):
+        keyboard = [[InlineKeyboardButton("Войти", callback_data='login')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(
+            "Пожалуйста, войдите в систему, чтобы просмотреть профиль.",
+            reply_markup=reply_markup
+        )
+        return
 
-    profile_text = PROFILE_MESSAGE.format(**user_data)
+    async with get_db() as session:
+        result = await session.execute(select(User).where(User.telegram_id == update.effective_user.id))
+        user = result.scalar_one_or_none()
 
-    keyboard = [
-        [InlineKeyboardButton(UPDATE_PROFILE_BUTTON, callback_data='update_profile')],
-        [InlineKeyboardButton(MY_REQUESTS_BUTTON, callback_data='my_requests')],
-        [InlineKeyboardButton(MY_RESPONSES_BUTTON, callback_data='my_responses')]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+        if not user:
+            await update.message.reply_text("Ошибка: пользователь не найден в базе данных.")
+            return
 
-    await update.message.reply_text(profile_text, reply_markup=reply_markup)
+        try:
+            profile_data = await get_student_profile(user.login, decrypt_password(user.password_encrypted))
+            user.name = profile_data['full_name']
+            user.study_group = profile_data['group']
+            await session.commit())
+        except Exception as e:
+            logger.error(f"Error updating profile: {str(e)}")
+            await update.message.reply_text("Произошла ошибка при обновлении профиля. Пожалуйста, попробуйте позже.")
+            return
+
+        request_stats = user.get_request_stats()
+        response_stats = user.get_response_stats()
+
+        request_text = "Нет запросов" if not request_stats else "\n".join([f"{subject}: {count}" for subject, count in request_stats.items()])
+        response_text = "Нет откликов" if not response_stats else "\n".join([f"{subject}: {count}" for subject, count in response_stats.items()])
+
+        profile_text = PROFILE_MESSAGE.format(
+            name=user.name,
+            group=user.study_group,
+            rating=user.user_rating,
+            requests=request_text,
+            responses=response_text
+        )
+
+        keyboard = [
+            [InlineKeyboardButton(UPDATE_PROFILE_BUTTON, callback_data='update_profile')],
+            [InlineKeyboardButton(MY_REQUESTS_BUTTON, callback_data='my_requests')],
+            [InlineKeyboardButton(MY_RESPONSES_BUTTON, callback_data='my_responses')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await update.message.reply_text(profile_text, reply_markup=reply_markup)
+
+async def update_profile_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()
+
+    async with get_db() as session:
+        result = await session.execute(select(User).where(User.telegram_id == update.effective_user.id))
+        user = result.scalar_one_or_none()
+
+        if not user:
+            await query.edit_message_text("Вы не авторизованы. Пожалуйста, войдите в систему.")
+            return
+
+        try:
+            profile_data = await get_student_profile(user.login, decrypt_password(user.password_encrypted))
+            user.name = profile_data['full_name']
+            user.study_group = profile_data['group']
+            await session.commit()
+
+            request_stats = user.get_request_stats()
+            response_stats = user.get_response_stats()
+
+            request_text = "Нет запросов" if not request_stats else "\n".join([f"{subject}: {count}" for subject, count in request_stats.items()])
+            response_text = "Нет откликов" if not response_stats else "\n".join([f"{subject}: {count}" for subject, count in response_stats.items()])
+
+            profile_text = PROFILE_MESSAGE.format(
+                name=user.name,
+                group=user.study_group,
+                rating=user.user_rating,
+                requests=request_text,
+                responses=response_text
+            )
+
+            await query.edit_message_text(profile_text)
+        except Exception as e:
+            logger.error(f"Error updating profile: {str(e)}")
+            await query.edit_message_text("Произошла ошибка при обновлении профиля. Пожалуйста, попробуйте позже.")
 
 async def open_environment_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
@@ -52,13 +123,6 @@ async def open_environment_callback(update: Update, context: ContextTypes.DEFAUL
 
     # TODO: Implement environment opening logic
     await query.edit_message_text("Среда открыта! (Здесь будет реализована логика открытия среды)")
-
-async def update_profile_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    query = update.callback_query
-    await query.answer()
-
-    # TODO: Implement profile update logic
-    await query.edit_message_text("Профиль обновлен! (Здесь будет реализована логика обновления профиля)")
 
 async def my_requests_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query

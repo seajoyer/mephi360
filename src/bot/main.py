@@ -1,7 +1,8 @@
 import asyncio
 import logging
 import signal
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ConversationHandler
+from telegram import Update
+from telegram.ext import ContextTypes, ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ConversationHandler
 
 from src.config import TELEGRAM_BOT_TOKEN
 from src.bot.handlers.start import start
@@ -12,10 +13,11 @@ from src.bot.handlers.menu_handlers import (
 )
 from src.bot.handlers.auth_handlers import (
     login_button_handler, login_handler, password_handler,
-    cancel_handler, LOGIN, PASSWORD
+    cancel_handler, cancel_login_callback, LOGIN, PASSWORD
 )
 from src.utils.constants import BUTTON_FEEDBACK, BUTTON_ENVIRONMENT, BUTTON_PROFILE, BUTTON_LOGIN
 from src.utils.database import init_db
+from src.utils.auth import is_user_logged_in
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -35,12 +37,19 @@ async def setup_application():
     application.add_handler(MessageHandler(filters.Regex(f'^{BUTTON_PROFILE}$'), profile_handler))
 
     conv_handler = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex(f'^{BUTTON_LOGIN}$'), login_button_handler)],
+        entry_points=[
+            MessageHandler(filters.Regex(f'^{BUTTON_LOGIN}$'), login_button_handler),
+            CallbackQueryHandler(login_button_handler, pattern='^login$')
+        ],
         states={
             LOGIN: [MessageHandler(filters.TEXT & ~filters.COMMAND, login_handler)],
             PASSWORD: [MessageHandler(filters.TEXT & ~filters.COMMAND, password_handler)],
         },
-        fallbacks=[CommandHandler('cancel', cancel_handler)],
+        fallbacks=[
+            CommandHandler('cancel', cancel_handler),
+            CallbackQueryHandler(cancel_login_callback, pattern='^cancel_login$'),
+            MessageHandler(filters.ALL, cancel_handler)
+        ],
     )
     application.add_handler(conv_handler)
 
@@ -63,19 +72,14 @@ async def main() -> None:
     stop_event = asyncio.Event()
 
     for sig in (signal.SIGINT, signal.SIGTERM):
-        loop.add_signal_handler(sig, lambda: stop_event.set())
+        loop.add_signal_handler(sig, lambda: asyncio.create_task(stop_application(sig, None)))
 
     try:
         await application.initialize()
-        await application.start()  # Start the bot
-        logger.info("Bot started successfully. Press Ctrl+C to stop.")
-
-        # Start polling explicitly
+        await application.start()
         await application.updater.start_polling()
-
-        # Wait until a signal is received
+        logger.info("Bot started successfully. Press Ctrl+C to stop.")
         await stop_event.wait()
-
     except Exception as e:
         logger.error(f"Error running bot: {str(e)}")
     finally:

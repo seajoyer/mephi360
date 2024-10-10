@@ -6,6 +6,9 @@ from contextlib import asynccontextmanager
 from src.config import DATABASE_URL
 from src.models.user import Base as UserBase
 from src.models.ad import Base as AdBase
+import logging
+
+logger = logging.getLogger(__name__)
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 AsyncSessionLocal = sessionmaker(

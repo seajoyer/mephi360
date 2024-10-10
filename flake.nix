@@ -27,6 +27,8 @@
             sqlalchemy
             asyncpg
             python-dotenv
+            aiohttp
+            cryptography
           ];
         };
       in {
@@ -48,6 +50,8 @@
             sqlalchemy
             asyncpg
             python-dotenv
+            aiohttp
+            cryptography
           ];
 
           nativeCheckInputs = with python3Packages; [
