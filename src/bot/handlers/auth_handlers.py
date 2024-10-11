@@ -107,14 +107,12 @@ async def password_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         )
     except Exception as e:
         logger.error(f"Error during authentication: {str(e)}")
-        await context.bot.edit_message_text(
+        await context.bot.delete_message(
             chat_id=update.effective_chat.id,
             message_id=context.user_data['login_message_id'],
-            text=AUTH_ERROR_MESSAGE,
-            reply_markup=None
         )
         await update.message.reply_text(
-            "Попробуйте еще раз",
+            text=AUTH_ERROR_MESSAGE,
             reply_markup=get_main_menu_keyboard(logged_in=False)
         )
     finally:

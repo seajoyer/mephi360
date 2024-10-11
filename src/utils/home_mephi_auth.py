@@ -2,6 +2,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 import logging
 import urllib.parse
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -73,27 +74,24 @@ async def get_student_profile(username, password):
                 logger.debug(f"Заголовок страницы: {soup.title.string if soup.title else 'Не найден'}")
 
                 name_element = soup.find('h3', class_='text-center light')
+
                 if name_element:
-                    surname = name_element.find('span', title=username)
-                    if surname:
-                        surname = surname.text.strip()
-                        name = name_element.find('br').next_sibling.strip()
-                        full_name = f"{name} {surname}"
-                    else:
-                        full_name = name_element.text.strip()
+                    raw_text = name_element.get_text(separator=" ").strip()
+                    full_name = re.sub(r'\s+', ' ', raw_text)
+                    logger.debug(f"Имя получено: {full_name}")
                 else:
                     logger.error("Не удалось найти элемент с именем и фамилией")
                     full_name = "Не удалось извлечь имя и фамилию"
 
                 group_element = soup.find('a', class_='btn btn-primary btn-outline', href=lambda x: x and x.startswith('/study_groups/'))
                 if group_element:
-                    group = group_element.text.strip()
+                    group = group_element.text.strip().split(".")[0]
                 else:
                     logger.error("Не удалось найти элемент с номером группы")
                     group = "Не удалось извлечь номер группы"
 
                 logger.info(f"Успешно получен профиль студента: {full_name}, группа: {group}")
-                return {'full_name': full_name, 'group': group.split(".")[0]}
+                return {'full_name': full_name, 'group': group}
         except Exception as e:
             logger.error(f"Ошибка при получении профиля студента: {e}")
             raise

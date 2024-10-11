@@ -50,8 +50,8 @@ async def profile_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         request_stats = user.get_request_stats()
         response_stats = user.get_response_stats()
 
-        request_text = "Нет запросов" if not request_stats else "\n".join([f"{subject}: {count}" for subject, count in request_stats.items()])
-        response_text = "Нет откликов" if not response_stats else "\n".join([f"{subject}: {count}" for subject, count in response_stats.items()])
+        request_text = "Пока нет запросов" if not request_stats else "Запросы:" + "\n".join([f"{subject}: {count}" for subject, count in request_stats.items()])
+        response_text = "Пока нет откликов" if not response_stats else "Отклики:" + "\n".join([f"{subject}: {count}" for subject, count in response_stats.items()])
 
         profile_text = PROFILE_MESSAGE.format(
             name=user.name,
@@ -99,8 +99,8 @@ async def update_profile_callback(update: Update, context: ContextTypes.DEFAULT_
             request_stats = user.get_request_stats()
             response_stats = user.get_response_stats()
 
-            request_text = "Нет запросов" if not request_stats else "\n".join([f"{subject}: {count}" for subject, count in request_stats.items()])
-            response_text = "Нет откликов" if not response_stats else "\n".join([f"{subject}: {count}" for subject, count in response_stats.items()])
+            request_text = "Пока нет запросов" if not request_stats else "Запросы:" + "\n".join([f"{subject}: {count}" for subject, count in request_stats.items()])
+            response_text = "Пока нет откликов" if not response_stats else "Отклики:" + "\n".join([f"{subject}: {count}" for subject, count in response_stats.items()])
 
             profile_text = PROFILE_MESSAGE.format(
                 name=user.name,
@@ -112,7 +112,7 @@ async def update_profile_callback(update: Update, context: ContextTypes.DEFAULT_
 
             # Change button text to "обновлено ✨"
             keyboard = [
-                [InlineKeyboardButton("Обновлено ✨", callback_data='profile_updated')],
+                [InlineKeyboardButton("обновлено ✨", callback_data='profile_updated')],
                 [InlineKeyboardButton(MY_REQUESTS_BUTTON, callback_data='my_requests')],
                 [InlineKeyboardButton(MY_RESPONSES_BUTTON, callback_data='my_responses')]
             ]
@@ -122,7 +122,7 @@ async def update_profile_callback(update: Update, context: ContextTypes.DEFAULT_
             logger.error(f"Error updating profile: {str(e)}")
             # Change button text to "ошибка 🤷🏽‍♂️"
             keyboard = [
-                [InlineKeyboardButton("Ошибка 🤷🏽‍♂️", callback_data='profile_update_error')],
+                [InlineKeyboardButton("ошибка 🤷🏽‍♂️", callback_data='profile_update_error')],
                 [InlineKeyboardButton(MY_REQUESTS_BUTTON, callback_data='my_requests')],
                 [InlineKeyboardButton(MY_RESPONSES_BUTTON, callback_data='my_responses')]
             ]
