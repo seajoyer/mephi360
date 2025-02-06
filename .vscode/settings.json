@@ -1,0 +1,7 @@
+{
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.diagnosticMode": "workspace",
+  "python.pythonPath": "/nix/store/4q9qcm0y1iwjazcp9wmlxsyi0n12z2mn-python3-3.12.5-env/bin/python",
+  "python.formatting.provider": "black",
+  "editor.formatOnSave": true
+}

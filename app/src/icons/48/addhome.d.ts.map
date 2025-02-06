@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "addhome.d.ts",
+  "sourceRoot": "",
+  "sources": [
+    "../../../src/icons/48/addhome.tsx"
+  ],
+  "names": [],
+  "mappings": ";AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,YAAY,CAAC;AAElC,eAAO,MAAM,iBAAiB,qBAAsB,IAAI,gBAMvD,CAAC"
+}

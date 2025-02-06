@@ -1,0 +1,16 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--tg-theme-secondary-bg-color);
+}
+
+.fixed-height-cell {
+  min-height: 72px !important;
+  height: 78px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.fixed-height-cell > * {
+  min-height: unset !important;
+}

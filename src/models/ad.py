@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from src.models.user import Base
+from src.utils.database import Base
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,6 +20,7 @@ class Ad(Base):
     created_by = Column(Integer, ForeignKey('users.user_id'))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # Use simple string references
     subject = relationship("Subject", back_populates="ads")
     creator = relationship("User", back_populates="ads")
 

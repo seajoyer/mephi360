@@ -2,7 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, ConversationHandler
 from src.utils.constants import LOGIN_MESSAGE, PASSWORD_MESSAGE, AUTH_PROCESSING_MESSAGE, AUTH_ERROR_MESSAGE, GREETING_MESSAGE
 from src.utils.database import get_db
-from src.models.user import User
+from src.models import User, TelegramAccount
 from src.bot.keyboards.main_menu import get_main_menu_keyboard
 from src.utils.rate_limiter import RateLimiter
 from sqlalchemy import select
@@ -75,25 +75,79 @@ async def password_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         profile_data = await get_student_profile(context.user_data['login'], context.user_data['password'])
 
         async with get_db() as session:
-            result = await session.execute(select(User).where(User.telegram_id == update.effective_user.id))
+            result = await session.execute(select(User).where(User.login == context.user_data['login']))
             user = result.scalar_one_or_none()
 
             if user:
-                user.login = context.user_data['login']
+                # Check if there's an active Telegram account for this user
+                active_account = await session.execute(
+                    select(TelegramAccount).where(
+                        (TelegramAccount.user_id == user.user_id) &
+                        (TelegramAccount.is_active == True)
+                    )
+                )
+                active_account = active_account.scalar_one_or_none()
+
+                if active_account and active_account.telegram_id != update.effective_user.id:
+                    await context.bot.delete_message(
+                        chat_id=update.effective_chat.id,
+                        message_id=context.user_data['login_message_id']
+                    )
+                    await update.message.reply_text(
+                        "Этот аккаунт уже активен в другом Telegram аккаунте. Пожалуйста, выйдите из системы в другом аккаунте перед входом здесь.",
+                        reply_markup=get_main_menu_keyboard(logged_in=False)
+                    )
+                    return ConversationHandler.END
+
+                # Update or create TelegramAccount
+                telegram_account = await session.execute(
+                    select(TelegramAccount).where(TelegramAccount.telegram_id == update.effective_user.id)
+                )
+                telegram_account = telegram_account.scalar_one_or_none()
+
+                if telegram_account:
+                    telegram_account.user_id = user.user_id
+                    telegram_account.is_active = True
+                else:
+                    new_telegram_account = TelegramAccount(
+                        telegram_id=update.effective_user.id,
+                        user_id=user.user_id,
+                        is_active=True
+                    )
+                    session.add(new_telegram_account)
+
                 user.password_encrypted = encrypt_password(context.user_data['password'])
                 user.name = profile_data['full_name']
                 user.study_group = profile_data['group']
-                logger.info(f"Updated user information for user {user.telegram_id}")
+                logger.info(f"Updated user information for user {user.user_id}")
             else:
                 new_user = User(
-                    telegram_id=update.effective_user.id,
                     login=context.user_data['login'],
                     password_encrypted=encrypt_password(context.user_data['password']),
                     name=profile_data['full_name'],
                     study_group=profile_data['group']
                 )
                 session.add(new_user)
-                logger.info(f"Added new user {new_user.telegram_id} to database")
+                await session.flush()  # This will assign user_id to new_user
+
+                # Update or create TelegramAccount
+                telegram_account = await session.execute(
+                    select(TelegramAccount).where(TelegramAccount.telegram_id == update.effective_user.id)
+                )
+                telegram_account = telegram_account.scalar_one_or_none()
+
+                if telegram_account:
+                    telegram_account.user_id = new_user.user_id
+                    telegram_account.is_active = True
+                else:
+                    new_telegram_account = TelegramAccount(
+                        telegram_id=update.effective_user.id,
+                        user_id=new_user.user_id,
+                        is_active=True
+                    )
+                    session.add(new_telegram_account)
+
+                logger.info(f"Added new user and telegram account for user {new_user.user_id}")
 
             await session.commit()
 
