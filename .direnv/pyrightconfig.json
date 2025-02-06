@@ -1,10 +1,10 @@
 {
-  "include": ["src"],
+  "include": ["telegram-bot/src"],
   "exclude": ["**/__pycache__", "**/.mypy_cache", "**/.pytest_cache"],
   "typeCheckingMode": "basic",
   "useLibraryCodeForTypes": true,
-  "venvPath": "/nix/store/4q9qcm0y1iwjazcp9wmlxsyi0n12z2mn-python3-3.12.5-env",
-  "pythonPath": "/nix/store/4q9qcm0y1iwjazcp9wmlxsyi0n12z2mn-python3-3.12.5-env/bin/python",
+  "venvPath": "/nix/store/0w0y632wp8q12813kpfzah3gpbfikk0y-python3-3.12.5-env",
+  "pythonPath": "/nix/store/0w0y632wp8q12813kpfzah3gpbfikk0y-python3-3.12.5-env/bin/python",
   "pythonVersion": "3.12",
   "reportMissingImports": true,
   "reportMissingTypeStubs": false
