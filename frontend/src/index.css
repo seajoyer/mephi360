@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+body {
+  background: var(--tg-theme-secondary-bg-color, white);
+  padding: 0;
+  margin: 0;
+}
+
+/* /\* Target the avatar container only when platform is 'base' *\/ */
+/* .tgui-aaa795d78c356ac1 { */
+/*   /\* Reduce padding on both sides *\/ */
+/*   padding-left: 0px !important;  /\* Adjust this value as needed *\/ */
+/*   padding-right: 0px !important; /\* Adjust this value as needed *\/ */
+/* } */
+
+/* /\* If you need to adjust the main content spacing as well *\/ */
+/* .tgui-8735a62be5a8b8a7 { */
+/*   /\* Adjust the left margin/padding of the content area if needed *\/ */
+/*   margin-left: 0px !important;   /\* Adjust this value as needed *\/ */
+/* } */

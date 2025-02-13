@@ -1,0 +1,26 @@
+import type { FC } from 'react';
+
+import { LargeTitle, Subheadline } from '@telegram-apps/telegram-ui';
+
+export const InfoText: FC = () => {
+    return (
+        <div className="flex flex-col items-center gap-1.5 pt-13 pb-13 text-center">
+            <Subheadline
+                level="1"
+                weight="3"
+                style={{
+                    color: 'var(--tgui--hint_color)',
+                }}
+            >
+                Дней до сессии
+            </Subheadline>
+
+            <LargeTitle
+                weight="2"
+                style={{ fontSize: 43, textAlign: 'center', letterSpacing: '0.0em'}}
+            >
+                <span style={{ color: 'var(--tgui--hint_color)' }}>≈</span>107
+            </LargeTitle>
+        </div>
+    );
+};
