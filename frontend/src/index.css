@@ -6,15 +6,27 @@ body {
   margin: 0;
 }
 
-/* /\* Target the avatar container only when platform is 'base' *\/ */
-/* .tgui-aaa795d78c356ac1 { */
-/*   /\* Reduce padding on both sides *\/ */
-/*   padding-left: 0px !important;  /\* Adjust this value as needed *\/ */
-/*   padding-right: 0px !important; /\* Adjust this value as needed *\/ */
-/* } */
+/**
+ Input field justifications
+*/
+/* Match Button's text size */
+.tgui-c4863cd4c893a047 {
+  font-size: var(--tgui--subheadline--font-size);
+}
 
-/* /\* If you need to adjust the main content spacing as well *\/ */
-/* .tgui-8735a62be5a8b8a7 { */
-/*   /\* Adjust the left margin/padding of the content area if needed *\/ */
-/*   margin-left: 0px !important;   /\* Adjust this value as needed *\/ */
-/* } */
+.tgui-0f5050defacbf813 {
+  padding: var(--input-padding, 10px);
+  transition: padding 0.3s ease-in-out;
+}
+
+/* Ensure the input maintains proper height */
+.tgui-9b2ad13855aef059 {
+  min-height: unset !important;
+  height: 42px;
+}
+
+/* Center the search icon in collapsed state */
+.tgui-8f04eff653cfa5e5 {
+  display: flex;
+  align-items: center;
+}

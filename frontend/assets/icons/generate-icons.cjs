@@ -8,7 +8,7 @@ const { JSDOM } = require('jsdom');
 const CONFIG = {
   srcDir: 'svg',
   distDir: '.',
-  sizes: ['16', '24', '20', '28', '32', '48'], // supported icon sizes
+  sizes: ['12' ,'16', '24', '20', '28', '32', '48'], // supported icon sizes
 };
 
 async function main() {

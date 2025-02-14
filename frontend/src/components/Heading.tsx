@@ -11,7 +11,7 @@ export const Heading: FC = () => {
     return (
         <>
             <TopControl />
-                <InfoText />
+            <InfoText />
         </>
     );
 };

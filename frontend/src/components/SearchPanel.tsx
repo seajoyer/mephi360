@@ -1,92 +1,133 @@
-import { Subheadline, Button, List, Input, Tappable } from '@telegram-apps/telegram-ui';
-
-import { Icon20Chevron_vertical } from '@/../assets/icons/20/chevron_vertical';
+import React, { useState, useRef, useEffect } from 'react';
+import { Input, Button, Subheadline, Tappable } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/../assets/icons/24/search';
-import { Icon24Close } from '@/../assets/icons/24/close';
+import { Icon12Cancel } from '@/../assets/icons/12/cancel';
+import { Icon20Chevron_vertical } from '@/../assets/icons/20/chevron_vertical';
 
+export const SearchPanel = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const inputRef = useRef(null);
+  const containerRef = useRef(null);
 
-import { useState } from 'react'
-import type { FC } from 'react';
+  const handleSearchClick = () => {
+    setIsExpanded(true);
+    if (containerRef.current) {
+      const container = containerRef.current;
+      const containerRect = container.getBoundingClientRect();
+      const stickyTop = 8;
 
-export const SearchPanel: FC = () => {
+      if (containerRect.top < stickyTop) {
+        return;
+      }
 
-    /* const [interests, setInterests] = useState<MultiselectOption[]>([]); */
+      window.scrollTo({
+        top: window.scrollY + containerRect.top - stickyTop,
+        behavior: 'smooth'
+      });
+    }
+  };
 
-    const [value, setValue] = useState('');
+  const handleCloseClick = (e) => {
+    e?.stopPropagation(); // Make it optional since we might call it programmatically
+    setIsExpanded(false);
+    setSearchValue('');
+    if (inputRef.current) inputRef.current.blur();
+  };
 
-    return (
-        <div className="sticky top-2 z-10">
-            <div className="absolute inset-x-0 -top-2 -bottom-2" style={{ backgroundColor: 'var(--tgui--secondary_bg_color)' }} />
-            <div className="flex relative gap-2 pl-2">
-                <Button
-                    mode="gray"
-                    size="m"
+  useEffect(() => {
+    if (isExpanded && inputRef.current) {
+      const focusTimeout = setTimeout(() => inputRef.current.focus(), 300);
+      return () => clearTimeout(focusTimeout);
+    }
+  }, [isExpanded]);
+
+  return (
+    <div className="sticky top-2 z-10" ref={containerRef}>
+      <div
+        className="absolute inset-x-0 -top-2 -bottom-2"
+        style={{ backgroundColor: 'var(--tgui--secondary_bg_color)' }}
+      />
+      <div className="flex relative gap-2 -mb-1 px-0">
+        <div
+          className="transition-all duration-300 ease-in-out"
+          style={{
+            width: isExpanded ? '100%' : '42px',
+            flexShrink: 0
+          }}
+        >
+          <div className="relative">
+            {/* Clickable overlay for collapsed state */}
+            {!isExpanded && (
+              <div
+                className="absolute inset-0 z-10 cursor-pointer"
+                onClick={handleSearchClick}
+                aria-label="Expand search"
+              />
+            )}
+
+            <Input
+              ref={inputRef}
+              placeholder={isExpanded ? "Поиск..." : ""}
+              value={searchValue}
+              // status={isExpanded ? 'default' : 'focused'}
+              onChange={(e) => setSearchValue(e.target.value)}
+              before={
+                <div className={`transition-transform duration-300 ${
+                  isExpanded ? '' : 'translate-x-[calc(50%-12px)]'
+                }`}>
+                  <Icon24Search />
+                </div>
+              }
+              after={
+                isExpanded && (
+                  <Tappable
+                    Component="div"
                     style={{
-                        padding: 8
+                      display: 'flex',
+                      position: 'relative', // Ensure it's above the input
+                      zIndex: 20 // Higher than the collapse overlay
                     }}
-                >
-                    <Icon24Search />
-                </Button>
-                <Button
-                    mode="gray"
-                    size="m"
-                    after={<Icon20Chevron_vertical />}
-                    style={{
-                        padding: 8
-                    }}
-                >
-                    <Subheadline
-                        level="2"
-                        style={{
-                            color: 'var(--tgui--hint_color)',
-                        }}
-                    >
-                        <span className='font-medium'>Все кафедры</span>
-                    </Subheadline>
-                </Button>
-
-                {/* <Chip
-                mode="elevated"
-                style={{
-                    padding: 8
-                }}
-            >
-                <Icon24Search />
-            </Chip> */}
-                {/* <Chip
-                mode="elevated"
-                after={<Icon16Chevron_vertical />}
-                style={{
-                    placeSelf: 'center',
-                    padding: 8
-                }}
-            >
-                <Subheadline
-                    level="2"
-                >
-                    <span className='font-medium'>Все кафедры</span>
-                </Subheadline>
-            </Chip> */}
-                {/* <Multiselect
-                placeholder='Все кафедры'
-                value={interests}
-                closeDropdownAfterSelect
-                selectedBehavior='hide'
-
-                options={[
-                { label: 'Кафедра иностранных языков №50', value: '1' },
-                { label: 'Кафедра физики №23', value: '2' },
-                { label: 'Кафедра высшей математики №30', value: '3' },
-                { label: 'Кафедра общей физики №6', value: '4' },
-                { label: 'Кафедра прикладной математики № 31', value: '5' },
-                { label: 'Кафедра философии, онтологии и теории познания №54', value: '6' },
-                ]}
-
-                // onChange={(selected: any) => setGender(selected)}
-                onChange={(e: MultiselectOption[]) => setInterests(e)}
-                >
-            </Multiselect> */}
-            </div>
+                    onClick={handleCloseClick}
+                  >
+                    <Icon12Cancel />
+                  </Tappable>
+                )
+              }
+              style={{
+                '--input-padding': isExpanded ? '14px' : '0px',
+              }}
+            />
+          </div>
         </div>
-    );
+
+        {/* Department Selector */}
+        <div className={`transition-all duration-300 ease-in-out flex-grow min-w-0 ${
+          isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}>
+          <Button
+            mode="gray"
+            size="m"
+            after={<Icon20Chevron_vertical />}
+            style={{
+              padding: 8,
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <Subheadline
+              level="2"
+              style={{ color: 'var(--tgui--hint_color)' }}
+            >
+              <span className="font-medium">Все кафедры</span>
+            </Subheadline>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 };
+
+export default SearchPanel;
