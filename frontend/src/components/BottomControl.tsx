@@ -10,7 +10,11 @@ import { Tabbar } from '@telegram-apps/telegram-ui';
 
 import type { FC } from 'react';
 
-export const BottomControl: FC = () => {
+interface BottomControlProps {
+    className?: string;
+}
+
+export const BottomControl: FC<BottomControlProps> = ({ className = '' }) => {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -51,18 +55,20 @@ export const BottomControl: FC = () => {
     ];
 
     return (
-        <FixedLayout>
-            <Tabbar>
-                {tabs.map(({ id, path, icon }) => (
-                    <Tabbar.Item
-                        key={id}
-                        selected={path === location.pathname}
-                        onClick={() => navigate(path)}
-                    >
-                        {icon}
-                    </Tabbar.Item>
-                ))}
-            </Tabbar>
-        </FixedLayout>
+        <div className={`transition-all duration-200 ease-in-out ${className}`}>
+            <FixedLayout vertical="bottom">
+                <Tabbar>
+                    {tabs.map(({ id, path, icon }) => (
+                        <Tabbar.Item
+                            key={id}
+                            selected={path === location.pathname}
+                            onClick={() => navigate(path)}
+                        >
+                            {icon}
+                        </Tabbar.Item>
+                    ))}
+                </Tabbar>
+            </FixedLayout>
+        </div>
     );
 };

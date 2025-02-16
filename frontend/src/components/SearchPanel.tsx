@@ -1,14 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef } from 'react';
 import { Input, Button, Subheadline, Tappable } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/../assets/icons/24/search';
 import { Icon24Close } from '@/../assets/icons/24/close';
 import { Icon20Chevron_vertical } from '@/../assets/icons/20/chevron_vertical';
 
-export const SearchPanel = () => {
+export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const inputRef = useRef(null);
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Combine the forwarded ref with our local ref
+  useEffect(() => {
+    if (ref && typeof ref === 'function') {
+      if (containerRef.current) {
+        ref(containerRef.current);
+      }
+    } else if (ref && containerRef.current) {
+      (ref as React.MutableRefObject<HTMLDivElement>).current = containerRef.current;
+    }
+  }, [ref]);
 
   const handleSearchClick = () => {
     setIsExpanded(true);
@@ -28,7 +39,7 @@ export const SearchPanel = () => {
     }
   };
 
-  const handleCloseClick = (e) => {
+  const handleCloseClick = (e?: React.MouseEvent) => {
     e?.stopPropagation(); // Make it optional since we might call it programmatically
     setIsExpanded(false);
     setSearchValue('');
@@ -125,6 +136,6 @@ export const SearchPanel = () => {
       </div>
     </div>
   );
-};
+});
 
 export default SearchPanel;
