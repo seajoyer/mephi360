@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Input, Button, Subheadline, Tappable } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/../assets/icons/24/search';
-import { Icon12Cancel } from '@/../assets/icons/12/cancel';
+import { Icon24Close } from '@/../assets/icons/24/close';
 import { Icon20Chevron_vertical } from '@/../assets/icons/20/chevron_vertical';
 
 export const SearchPanel = () => {
@@ -37,7 +37,7 @@ export const SearchPanel = () => {
 
   useEffect(() => {
     if (isExpanded && inputRef.current) {
-      const focusTimeout = setTimeout(() => inputRef.current.focus(), 300);
+      const focusTimeout = setTimeout(() => inputRef.current.focus(), 200);
       return () => clearTimeout(focusTimeout);
     }
   }, [isExpanded]);
@@ -50,7 +50,7 @@ export const SearchPanel = () => {
       />
       <div className="flex relative gap-2 -mb-1 px-0">
         <div
-          className="transition-all duration-300 ease-in-out"
+          className="transition-all duration-200 ease-in-out"
           style={{
             width: isExpanded ? '100%' : '42px',
             flexShrink: 0
@@ -70,10 +70,9 @@ export const SearchPanel = () => {
               ref={inputRef}
               placeholder={isExpanded ? "Поиск..." : ""}
               value={searchValue}
-              // status={isExpanded ? 'default' : 'focused'}
               onChange={(e) => setSearchValue(e.target.value)}
               before={
-                <div className={`transition-transform duration-300 ${
+                <div className={`transition-transform duration-200 ${
                   isExpanded ? '' : 'translate-x-[calc(50%-12px)]'
                 }`}>
                   <Icon24Search />
@@ -85,24 +84,21 @@ export const SearchPanel = () => {
                     Component="div"
                     style={{
                       display: 'flex',
-                      position: 'relative', // Ensure it's above the input
-                      zIndex: 20 // Higher than the collapse overlay
+                      position: 'relative',
+                      zIndex: 20,
                     }}
                     onClick={handleCloseClick}
                   >
-                    <Icon12Cancel />
+                    <Icon24Close style={{color: 'var(--tgui--section_fg_color)'}}/>
                   </Tappable>
                 )
               }
-              style={{
-                '--input-padding': isExpanded ? '14px' : '0px',
-              }}
             />
           </div>
         </div>
 
         {/* Department Selector */}
-        <div className={`transition-all duration-300 ease-in-out flex-grow min-w-0 ${
+        <div className={`transition-all duration-200 ease-in-out flex-grow min-w-0 ${
           isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}>
           <Button
@@ -114,7 +110,8 @@ export const SearchPanel = () => {
               width: '100%',
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center'
+              alignItems: 'center',
+              background: 'var(--tgui--section_bg_color)'
             }}
           >
             <Subheadline

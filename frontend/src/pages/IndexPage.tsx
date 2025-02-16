@@ -1,12 +1,9 @@
 import type { FC } from 'react';
-
 import { List } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
-
 import { SearchPanel } from '@/components/SearchPanel';
 import { Heading } from '@/components/Heading';
 import { TeachersList } from '@/components/TeachersList';
-/* import { BottomControl } from '@/components/BottomControl'; */
 import { NavigationButtons } from '@/components/NavigationButtons';
 
 export const IndexPage: FC = () => {

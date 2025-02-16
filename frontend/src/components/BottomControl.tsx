@@ -55,7 +55,6 @@ export const BottomControl: FC = () => {
             <Tabbar>
                 {tabs.map(({ id, path, icon }) => (
                     <Tabbar.Item
-                        // className='inset-y-[0.08em]'
                         key={id}
                         selected={path === location.pathname}
                         onClick={() => navigate(path)}
