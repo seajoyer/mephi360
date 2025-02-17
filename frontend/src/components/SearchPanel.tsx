@@ -43,7 +43,13 @@ export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
     e?.stopPropagation(); // Make it optional since we might call it programmatically
     setIsExpanded(false);
     setSearchValue('');
-    if (inputRef.current) inputRef.current.blur();
+    if (inputRef.current) {
+      inputRef.current.blur();
+      // Force keyboard to hide on mobile
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }
   };
 
   useEffect(() => {
@@ -59,7 +65,7 @@ export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
         className="absolute inset-x-0 -top-2 -bottom-2"
         style={{ backgroundColor: 'var(--tgui--secondary_bg_color)' }}
       />
-      <div className="flex relative gap-2 -mb-1 px-0">
+      <div className="flex relative gap-2 -mb-1 px-0 overflow-hidden">
         <div
           className="transition-all duration-200 ease-in-out"
           style={{

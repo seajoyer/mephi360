@@ -33,7 +33,7 @@ export const IndexPage: FC = () => {
 
     return (
         <Page back={false}>
-            <div className={showBottomControl ? 'pb-14' : ''}>
+            <div className={showBottomControl ? 'pb-12' : ''}>
                 <List>
                     <Heading />
                     <NavigationButtons />
