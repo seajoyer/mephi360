@@ -4,9 +4,9 @@ import {
   themeParams,
   miniApp,
   initData,
-  $debug,
   init as initSDK,
-swipeBehavior
+  swipeBehavior,
+  setDebug,
 } from '@telegram-apps/sdk-react';
 
 /**
@@ -14,7 +14,7 @@ swipeBehavior
  */
 export function init(debug: boolean): void {
   // Set @telegram-apps/sdk-react debug mode.
-  $debug.set(debug);
+  setDebug(debug);
 
   // Initialize special event handlers for Telegram Desktop, Android, iOS, etc.
   // Also, configure the package.
@@ -25,15 +25,9 @@ export function init(debug: boolean): void {
     throw new Error('ERR_NOT_SUPPORTED');
   }
 
-  if (swipeBehavior.mount.isAvailable())
-    swipeBehavior.mount();
-  if (swipeBehavior.enableVertical.isAvailable())
-    swipeBehavior.enableVertical();
-
   // Mount all components used in the project.
-  backButton.mount();
-  miniApp.mount();
-  themeParams.mount();
+  if (backButton.mount.isAvailable())
+    backButton.mount();
   initData.restore();
 
   void (async () => {
@@ -54,8 +48,39 @@ export function init(debug: boolean): void {
     }
   })();
 
+  void (async () => {
+    try {
+      if (themeParams.mount.isAvailable()) {
+        await themeParams.mount();
 
-  // Define components-related CSS variables.
-  miniApp.bindCssVars();
-  themeParams.bindCssVars();
+        if (themeParams.bindCssVars.isAvailable())
+          themeParams.bindCssVars();
+      }
+    } catch (e) {
+      console.error('Something went wrong mounting the themeParams', e);
+    }
+  })();
+
+  void (async () => {
+    try {
+      if (miniApp.mount.isAvailable()) {
+        await miniApp.mount();
+
+        if (miniApp.bindCssVars.isAvailable()) {
+          miniApp.bindCssVars();
+        }
+      }
+    } catch (e) {
+      console.error('Something went wrong mounting the miniApp', e);
+    }
+  })();
+
+  if (swipeBehavior.mount.isAvailable())
+    swipeBehavior.mount();
+  if (swipeBehavior.enableVertical.isAvailable())
+    swipeBehavior.enableVertical();
+
+  if (miniApp.ready.isAvailable()) {
+    miniApp.ready();
+  }
 }

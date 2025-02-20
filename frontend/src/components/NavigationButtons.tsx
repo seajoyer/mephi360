@@ -1,9 +1,9 @@
 import { InlineButtons } from '@telegram-apps/telegram-ui';
 import { InlineButtonsItem } from '@telegram-apps/telegram-ui/dist/components/Blocks/InlineButtons/components/InlineButtonsItem/InlineButtonsItem';
 
-import { Icon24Heart } from '@/../assets/icons/24/heart';
-import { Icon24Largegroup } from '@/../assets/icons/24/largegroup';
-import { Icon24Folder } from '@/../assets/icons/24/folder';
+import { Icon24Heart } from '@/icons/24/heart';
+import { Icon24Largegroup } from '@/icons/24/largegroup';
+import { Icon24Folder } from '@/icons/24/folder';
 
 import type { FC } from 'react';
 

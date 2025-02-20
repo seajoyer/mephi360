@@ -4,8 +4,8 @@ import type { FC } from 'react';
 
 /* import { Link } from '@/components/Link/Link.tsx'; */
 
-import { Icon24Channel } from '@/../assets/icons/24/channel';
-import { Icon24Support } from '@/../assets/icons/24/support';
+import { Icon24Channel } from '@/icons/24/channel';
+import { Icon24Support } from '@/icons/24/support';
 
 export const TopControl: FC = () => {
     return (

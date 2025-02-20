@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, forwardRef } from 'react';
 import { Input, Button, Subheadline, Tappable } from '@telegram-apps/telegram-ui';
-import { Icon24Search } from '@/../assets/icons/24/search';
-import { Icon24Close } from '@/../assets/icons/24/close';
-import { Icon20Chevron_vertical } from '@/../assets/icons/20/chevron_vertical';
+import { Icon24Search }           from '@/icons/24/search';
+import { Icon24Close }            from '@/icons/24/close';
+import { Icon20Chevron_vertical } from '@/icons/20/chevron_vertical';
 
 export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
   const [isExpanded, setIsExpanded] = useState(false);

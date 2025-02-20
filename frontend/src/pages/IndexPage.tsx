@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { FC } from 'react';
-import { List, FixedLayout } from '@telegram-apps/telegram-ui';
+import { List, FixedLayout, Section } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
 import { SearchPanel } from '@/components/SearchPanel';
 import { Heading } from '@/components/Heading';

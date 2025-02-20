@@ -8,9 +8,9 @@ export function EnvUnsupported() {
     let isDark = false;
     try {
       const lp = retrieveLaunchParams();
-      const { bgColor } = lp.themeParams;
-      platform = lp.platform;
-      isDark = bgColor && isRGB(bgColor) ? isColorDark(bgColor) : false;
+      const { bg_color } = lp.tgWebAppThemeParams;
+      platform = lp.tgWebAppPlatform;
+      isDark = bg_color && isRGB(bg_color) ? isColorDark(bg_color) : false;
     } catch { /* empty */
     }
 

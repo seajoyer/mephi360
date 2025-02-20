@@ -9,14 +9,14 @@ function getUserRows(user: User): DisplayDataRow[] {
   return [
     { title: 'id', value: user.id.toString() },
     { title: 'username', value: user.username },
-    { title: 'photo_url', value: user.photoUrl },
-    { title: 'last_name', value: user.lastName },
-    { title: 'first_name', value: user.firstName },
-    { title: 'is_bot', value: user.isBot },
-    { title: 'is_premium', value: user.isPremium },
-    { title: 'language_code', value: user.languageCode },
-    { title: 'allows_to_write_to_pm', value: user.allowsWriteToPm },
-    { title: 'added_to_attachment_menu', value: user.addedToAttachmentMenu },
+    { title: 'photo_url', value: user.photo_url },
+    { title: 'last_name', value: user.last_name },
+    { title: 'first_name', value: user.first_name },
+    { title: 'is_bot', value: user.is_bot },
+    { title: 'is_premium', value: user.is_premium },
+    { title: 'language_code', value: user.language_code },
+    { title: 'allows_to_write_to_pm', value: user.allows_write_to_pm },
+    { title: 'added_to_attachment_menu', value: user.added_to_attachment_menu },
   ];
 }
 
@@ -29,25 +29,25 @@ export const InitDataPage: FC = () => {
       return;
     }
     const {
-      authDate,
+      auth_date,
       hash,
-      queryId,
-      chatType,
-      chatInstance,
-      canSendAfter,
-      startParam,
+      query_id,
+      chat_type,
+      chat_instance,
+      can_send_after,
+      start_param,
     } = initDataState;
     return [
       { title: 'raw', value: initDataRaw },
-      { title: 'auth_date', value: authDate.toLocaleString() },
-      { title: 'auth_date (raw)', value: authDate.getTime() / 1000 },
+      { title: 'auth_date', value: auth_date.toLocaleString() },
+      { title: 'auth_date (raw)', value: auth_date.getTime() / 1000 },
       { title: 'hash', value: hash },
       { title: 'can_send_after', value: initData.canSendAfterDate()?.toISOString() },
-      { title: 'can_send_after (raw)', value: canSendAfter },
-      { title: 'query_id', value: queryId },
-      { title: 'start_param', value: startParam },
-      { title: 'chat_type', value: chatType },
-      { title: 'chat_instance', value: chatInstance },
+      { title: 'can_send_after (raw)', value: can_send_after },
+      { title: 'query_id', value: query_id },
+      { title: 'start_param', value: start_param},
+      { title: 'chat_type', value: chat_type },
+      { title: 'chat_instance', value: chat_instance },
     ];
   }, [initDataState, initDataRaw]);
 
@@ -72,7 +72,7 @@ export const InitDataPage: FC = () => {
       title,
       type,
       username,
-      photoUrl,
+      photo_url,
     } = initDataState.chat;
 
     return [
@@ -80,7 +80,7 @@ export const InitDataPage: FC = () => {
       { title: 'title', value: title },
       { title: 'type', value: type },
       { title: 'username', value: username },
-      { title: 'photo_url', value: photoUrl },
+      { title: 'photo_url', value: photo_url },
     ];
   }, [initData]);
 

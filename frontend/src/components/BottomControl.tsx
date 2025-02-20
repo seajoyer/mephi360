@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { FixedLayout } from '@telegram-apps/telegram-ui';
 
-import { Icon24Heart } from '@/../assets/icons/24/heart';
-import { Icon24Lifebuoy } from '@/../assets/icons/24/lifebuoy';
-import { Icon24Folder } from '@/../assets/icons/24/folder';
+import { Icon24Heart } from '@/icons/24/heart';
+import { Icon24Largegroup } from '@/icons/24/largegroup';
+import { Icon24Folder } from '@/icons/24/folder';
 
 import { useLocation } from "react-router-dom";
 import { Tabbar } from '@telegram-apps/telegram-ui';
@@ -35,7 +35,7 @@ export const BottomControl: FC<BottomControlProps> = ({ className = '' }) => {
             icon: (
                 <div className="flex flex-col items-center">
                     <div className="mb-0 min-h-6">
-                        <Icon24Lifebuoy />
+                        <Icon24Largegroup />
                     </div>
                     <span className="text-xs -mt-0">{"Кружки"}</span>
                 </div>
