@@ -131,12 +131,11 @@ export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
               background: 'var(--tgui--section_bg_color)'
             }}
           >
-            <Subheadline
-              level="2"
+            <div
               style={{ color: 'var(--tgui--hint_color)' }}
             >
               <span className="font-medium">Все кафедры</span>
-            </Subheadline>
+            </div>
           </Button>
         </div>
       </div>

@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import type { FC } from 'react';
-import { List, FixedLayout, Section } from '@telegram-apps/telegram-ui';
+import { List, FixedLayout } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
 import { SearchPanel } from '@/components/SearchPanel';
 import { Heading } from '@/components/Heading';
-import { TeachersList } from '@/components/TeachersList';
+import { TutorsList } from '@/components/TutorsList';
 import { NavigationButtons } from '@/components/NavigationButtons';
 import { BottomControl } from '@/components/BottomControl';
 
-export const IndexPage: FC = () => {
+export const ClubsPage: FC = () => {
     const [showBottomControl, setShowBottomControl] = useState(false);
     const searchPanelRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +38,7 @@ export const IndexPage: FC = () => {
                     <Heading />
                     <NavigationButtons />
                     <SearchPanel ref={searchPanelRef} />
-                    <TeachersList />
+                    <TutorsList />
                 </List>
             </div>
             <FixedLayout vertical="bottom">

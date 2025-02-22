@@ -8,79 +8,80 @@ import {
   swipeBehavior,
   setDebug,
 } from '@telegram-apps/sdk-react';
+import { intColorToRGBA, normalizeColor } from './helpers/colorUtils';
+import eruda from 'eruda';
 
-/**
- * Initializes the application and configures its dependencies.
- */
 export function init(debug: boolean): void {
-  // Set @telegram-apps/sdk-react debug mode.
+  // debug && eruda.init();
   setDebug(debug);
-
-  // Initialize special event handlers for Telegram Desktop, Android, iOS, etc.
-  // Also, configure the package.
   initSDK();
 
-  // Check if all required components are supported.
   if (!backButton.isSupported() || !miniApp.isSupported()) {
     throw new Error('ERR_NOT_SUPPORTED');
   }
 
-  // Mount all components used in the project.
-  if (backButton.mount.isAvailable())
-    backButton.mount();
-  initData.restore();
-
   void (async () => {
     try {
-      if (viewport.mount.isAvailable()) {
-        await viewport.mount();
+      initData.restore();
 
-        if (viewport.bindCssVars.isAvailable()) {
-          viewport.bindCssVars();
-        }
-
-        if (viewport.expand.isAvailable()) {
-          viewport.expand();
-        }
-      }
-    } catch (e) {
-      console.error('Something went wrong mounting the viewport', e);
-    }
-  })();
-
-  void (async () => {
-    try {
-      if (themeParams.mount.isAvailable()) {
-        await themeParams.mount();
-
-        if (themeParams.bindCssVars.isAvailable())
-          themeParams.bindCssVars();
-      }
-    } catch (e) {
-      console.error('Something went wrong mounting the themeParams', e);
-    }
-  })();
-
-  void (async () => {
-    try {
       if (miniApp.mount.isAvailable()) {
         await miniApp.mount();
+        console.log('Mini App mounted successfully');
 
+        // Convert and apply theme colors manually
+        const root = document.documentElement;
+        const applyThemeColors = () => {
+          // Get theme colors and convert them
+          const colors = {
+            '--tgui--hint_color': intColorToRGBA(normalizeColor(themeParams.hintColor())),
+            '--tgui--text_color': intColorToRGBA(normalizeColor(themeParams.textColor())),
+            '--tg-theme-bg-color': intColorToRGBA(normalizeColor(themeParams.backgroundColor())),
+            '--tg-theme-secondary-bg-color': intColorToRGBA(normalizeColor(themeParams.secondaryBackgroundColor())),
+            '--tg-theme-text-color': intColorToRGBA(normalizeColor(themeParams.textColor())),
+            '--tg-theme-hint-color': intColorToRGBA(normalizeColor(themeParams.hintColor())),
+            '--tg-theme-link-color': intColorToRGBA(normalizeColor(themeParams.linkColor())),
+            '--tg-theme-button-color': intColorToRGBA(normalizeColor(themeParams.buttonColor())),
+            '--tg-theme-button-text-color': intColorToRGBA(normalizeColor(themeParams.buttonTextColor())),
+          };
+
+          // Apply all colors
+          Object.entries(colors).forEach(([variable, value]) => {
+            root.style.setProperty(variable, value);
+          });
+        };
+
+        // Apply colors initially
+        applyThemeColors();
+
+        // Then bind regular CSS vars
         if (miniApp.bindCssVars.isAvailable()) {
           miniApp.bindCssVars();
         }
+
+        if (themeParams.bindCssVars.isAvailable()) {
+          themeParams.bindCssVars();
+        }
       }
-    } catch (e) {
-      console.error('Something went wrong mounting the miniApp', e);
+
+      if (viewport.mount.isAvailable()) {
+        await viewport.mount();
+        if (viewport.bindCssVars.isAvailable()) viewport.bindCssVars();
+        if (viewport.expand.isAvailable()) viewport.expand();
+      }
+
+    } catch (err) {
+      console.error('Initialization error:', err);
+      console.error('Mini App mount error:', miniApp.mountError());
     }
   })();
 
-  if (swipeBehavior.mount.isAvailable())
-    swipeBehavior.mount();
-  if (swipeBehavior.enableVertical.isAvailable())
-    swipeBehavior.enableVertical();
 
-  if (miniApp.ready.isAvailable()) {
-    miniApp.ready();
+  console.log('BackBittonAAAAAAAAAAAAAA:', backButton.mount.isAvailable())
+  if (backButton.mount.isAvailable()) backButton.mount();
+  if (swipeBehavior.mount.isAvailable()) {
+    swipeBehavior.mount();
+    if (swipeBehavior.enableVertical.isAvailable()) {
+      swipeBehavior.enableVertical();
+    }
   }
 }

@@ -5,15 +5,15 @@ import { Icon16Chevron_right } from '@/icons/16/chevron_right';
 import { Icon28Heart_fill } from '@/icons/28/heart_fill';
 import { Link } from '@/components/Link/Link';
 
-interface Teacher {
+interface Tutor {
     id: number;
     name: string;
     department: string;
     imageFileName: string;
 }
 
-// Mock teacher data (to be replaced by backend API in the future)
-const allTeachers: Teacher[] = [
+// Mock tutor data (to be replaced by backend API in the future)
+const allTutors: Tutor[] = [
     { id: 1, name: 'Щербачев О.В.', department: 'Кафедра общей физики №6', imageFileName: 'Pepe.jpg' },
     { id: 2, name: 'Горячев А.П.', department: 'Кафедра высшей математики №30', imageFileName: 'Горячев АП.png' },
     { id: 3, name: 'Иванова Т.М.', department: 'Кафедра высшей математики №30', imageFileName: 'Иванова ТМ.jpg' },
@@ -43,12 +43,12 @@ const allTeachers: Teacher[] = [
 ];
 
 // Mock data fetching function (keep as is)
-const fetchTeachers = (page: number, pageSize: number): Promise<Teacher[]> => {
+const fetchTutors = (page: number, pageSize: number): Promise<Tutor[]> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             const start = (page - 1) * pageSize;
             const end = start + pageSize;
-            resolve(allTeachers.slice(start, end));
+            resolve(allTutors.slice(start, end));
         }, 500);
     });
 };;
@@ -59,8 +59,8 @@ interface ScrollState {
     isOverscrolling: boolean;
 }
 
-export const TeachersList: FC = () => {
-    const [teachers, setTeachers] = useState<Teacher[]>([]);
+export const StuffList: FC = () => {
+    const [tutors, setTutors] = useState<Tutor[]>([]);
     const [hasMore, setHasMore] = useState(true);
     const [page, setPage] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
@@ -73,16 +73,16 @@ export const TeachersList: FC = () => {
     });
 
     useEffect(() => {
-        const loadInitialTeachers = async () => {
+        const loadInitialTutors = async () => {
             setIsLoading(true);
-            const initialTeachers = await fetchTeachers(1, 10);
-            setTeachers(initialTeachers);
-            if (initialTeachers.length < 10) {
+            const initialTutors = await fetchTutors(1, 10);
+            setTutors(initialTutors);
+            if (initialTutors.length < 10) {
                 setHasMore(false);
             }
             setIsLoading(false);
         };
-        loadInitialTeachers();
+        loadInitialTutors();
     }, []);
 
     useEffect(() => {
@@ -91,7 +91,7 @@ export const TeachersList: FC = () => {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting && !isLoading) {
-                    loadMoreTeachers();
+                    loadMoreTutors();
                 }
             },
             { threshold: 1.0 }
@@ -101,13 +101,13 @@ export const TeachersList: FC = () => {
         return () => observer.disconnect();
     }, [hasMore, isLoading]);
 
-    const loadMoreTeachers = async () => {
+    const loadMoreTutors = async () => {
         setIsLoading(true);
         const nextPage = page + 1;
-        const moreTeachers = await fetchTeachers(nextPage, 10);
-        setTeachers((prev) => [...prev, ...moreTeachers]);
+        const moreTutors = await fetchTutors(nextPage, 10);
+        setTutors((prev) => [...prev, ...moreTutors]);
         setPage(nextPage);
-        if (moreTeachers.length < 10) {
+        if (moreTutors.length < 10) {
             setHasMore(false);
         }
         setIsLoading(false);
@@ -175,24 +175,24 @@ export const TeachersList: FC = () => {
             }}
         >
             <Section>
-                {teachers.map((teacher) => (
-                    <div key={teacher.id}>
-                        <Link to={`/teacher/${teacher.id}`}>
+                {tutors.map((tutor) => (
+                    <div key={tutor.id}>
+                        <Link to={`/tutor/${tutor.id}`}>
                             <Cell
                                 before={
                                     <Avatar
                                         size={40}
-                                        src={`/assets/teachers/${teacher.imageFileName}`}
+                                        src={`/assets/tutors/${tutor.imageFileName}`}
                                         fallbackIcon={<span><Icon28Heart_fill /></span>}
                                     />
                                 }
-                                after={<Icon16Chevron_right />}
-                                description={teacher.department}
+                                after={<Icon16Chevron_right style={{color: 'var(--tg-theme-link-color)'}} />}
+                                description={tutor.department}
                             >
-                                {teacher.name}
+                                {tutor.name}
                             </Cell>
                         </Link>
-                        {teacher.id < teachers.length && <Divider />}
+                        {tutor.id < tutors.length && <Divider />}
                     </div>
                 ))}
             </Section>

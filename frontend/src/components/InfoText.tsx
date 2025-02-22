@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 
+import { themeParams } from '@telegram-apps/sdk-react';
 import { LargeTitle, Subheadline } from '@telegram-apps/telegram-ui';
 
 export const InfoText: FC = () => {
@@ -19,7 +20,9 @@ export const InfoText: FC = () => {
                 weight="2"
                 style={{ fontSize: 43, textAlign: 'center', letterSpacing: '0.0em'}}
             >
-                <span style={{ color: 'var(--tgui--hint_color)' }}>≈</span>107
+                <span style={{
+                    color: `var(--tgui--hint_color)`
+                }}>≈</span>107
             </LargeTitle>
         </div>
     );

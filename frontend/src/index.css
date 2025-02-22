@@ -6,12 +6,8 @@ body {
   margin: 0;
 }
 
-/**
- Input field justifications
-*/
-/* Match Button's text size */
 .tgui-c4863cd4c893a047 {
-  font-size: var(--tgui--subheadline--font-size);
+  font-size: var(--tgui--subheadline--font-size, pink);
 }
 
 .tgui-0f5050defacbf813 {
@@ -19,13 +15,11 @@ body {
   transition: padding 0.3s ease-in-out;
 }
 
-/* Ensure the input maintains proper height */
 .tgui-9b2ad13855aef059 {
   min-height: unset !important;
   height: 42px;
 }
 
-/* Center the search icon in collapsed state */
 .tgui-8f04eff653cfa5e5 {
   display: flex;
   align-items: center;
