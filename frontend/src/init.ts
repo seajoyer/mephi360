@@ -1,3 +1,4 @@
+
 import {
   backButton,
   viewport,
@@ -28,31 +29,6 @@ export function init(debug: boolean): void {
         await miniApp.mount();
         console.log('Mini App mounted successfully');
 
-        // Convert and apply theme colors manually
-        const root = document.documentElement;
-        const applyThemeColors = () => {
-          // Get theme colors and convert them
-          const colors = {
-            '--tgui--hint_color': intColorToRGBA(normalizeColor(themeParams.hintColor())),
-            '--tgui--text_color': intColorToRGBA(normalizeColor(themeParams.textColor())),
-            '--tg-theme-bg-color': intColorToRGBA(normalizeColor(themeParams.backgroundColor())),
-            '--tg-theme-secondary-bg-color': intColorToRGBA(normalizeColor(themeParams.secondaryBackgroundColor())),
-            '--tg-theme-text-color': intColorToRGBA(normalizeColor(themeParams.textColor())),
-            '--tg-theme-hint-color': intColorToRGBA(normalizeColor(themeParams.hintColor())),
-            '--tg-theme-link-color': intColorToRGBA(normalizeColor(themeParams.linkColor())),
-            '--tg-theme-button-color': intColorToRGBA(normalizeColor(themeParams.buttonColor())),
-            '--tg-theme-button-text-color': intColorToRGBA(normalizeColor(themeParams.buttonTextColor())),
-          };
-
-          // Apply all colors
-          Object.entries(colors).forEach(([variable, value]) => {
-            root.style.setProperty(variable, value);
-          });
-        };
-
-        // Apply colors initially
-        applyThemeColors();
-
         // Then bind regular CSS vars
         if (miniApp.bindCssVars.isAvailable()) {
           miniApp.bindCssVars();
@@ -76,7 +52,6 @@ export function init(debug: boolean): void {
   })();
 
 
-  console.log('BackBittonAAAAAAAAAAAAAA:', backButton.mount.isAvailable())
   if (backButton.mount.isAvailable()) backButton.mount();
   if (swipeBehavior.mount.isAvailable()) {
     swipeBehavior.mount();

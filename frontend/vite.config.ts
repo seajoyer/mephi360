@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import mkcert from 'vite-plugin-mkcert';
 import tailwindcss from '@tailwindcss/vite';
 import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import path, { resolve } from 'path';
 import os from 'os';
 
 // https://vitejs.dev/config/

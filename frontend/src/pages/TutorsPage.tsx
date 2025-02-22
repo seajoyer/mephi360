@@ -1,46 +1,32 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import type { FC } from 'react';
 import { List, FixedLayout } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
-import { SearchPanel } from '@/components/SearchPanel';
+import { BottomControl } from '@/components/BottomControl';
 import { TopPart } from '@/components/TopPart';
-import { BottomControl as TabBar } from '@/components/BottomControl';
-import BottomPart from '@/components/BottomPart';
+import { BottomPart } from '@/components/BottomPart';
+import { useScrollVisibility } from '@/hooks/useScrollVisibility';
 
 export const TutorsPage: FC = () => {
-    const [showBottomControl, setShowBottomControl] = useState(false);
     const searchPanelRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            if (searchPanelRef.current) {
-                const containerRect = searchPanelRef.current.getBoundingClientRect();
-                const stickyTop = 8;
-
-                // Show BottomControl when SearchPanel reaches the top
-                if (containerRect.top <= stickyTop) {
-                    setShowBottomControl(true);
-                } else {
-                    setShowBottomControl(false);
-                }
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    const showBottomControl = useScrollVisibility({
+        ref: searchPanelRef,
+        threshold: 8
+    });
 
     return (
         <Page back={false}>
             <div className={showBottomControl ? 'pb-12' : ''}>
                 <List>
                     <TopPart />
-                    <SearchPanel ref={searchPanelRef} />
                 </List>
-                    <BottomPart />
+                <BottomPart searchPanelRef={searchPanelRef} />
             </div>
             <FixedLayout vertical="bottom">
-                <TabBar className={`${showBottomControl ? 'opacity-100' : 'opacity-0 translate-y-15 pointer-events-none'}`} />
+                <BottomControl
+                    className={`transition-all duration-300 ease-in-out
+                        ${showBottomControl ? 'opacity-100' : 'opacity-0 translate-y-15 pointer-events-none'}`}
+                />
             </FixedLayout>
         </Page>
     );
