@@ -60,7 +60,7 @@ export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
   }, [isExpanded]);
 
   return (
-    <div className="sticky top-2 z-10" ref={containerRef}>
+    <div data-searchpanel className="sticky top-2 z-10" ref={containerRef}>
       <div
         className="absolute inset-x-0 -top-2 -bottom-2"
         style={{ backgroundColor: 'var(--tgui--secondary_bg_color)' }}

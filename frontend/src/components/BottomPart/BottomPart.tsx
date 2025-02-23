@@ -1,38 +1,28 @@
 import React, { forwardRef } from 'react';
 import { List } from '@telegram-apps/telegram-ui';
 import { SearchPanel } from '@/components/SearchPanel';
-import { NavigationButtons, SECTIONS } from './NavigationButtons';
+import { NavigationButtons } from './NavigationButtons';
 import { SectionContent } from './SectionContent';
-import { useSectionTransition } from '@/hooks/useSectionTransition';
 
 interface BottomPartProps {
     searchPanelRef: React.RefObject<HTMLDivElement>;
+    activeSection: string;
+    onSectionChange: (section: string) => void;
 }
 
 export const BottomPart = forwardRef<HTMLDivElement, BottomPartProps>(
-    ({ searchPanelRef }, ref) => {
-        const {
-            activeSection,
-            slideDirection,
-            isAnimating,
-            handleSectionChange
-        } = useSectionTransition({
-            sections: SECTIONS,
-            initialSection: 'tutors'
-        });
-
+    ({ searchPanelRef, activeSection, onSectionChange }, ref) => {
         return (
-            <div ref={ref} className="w-full">
-                <List>
+            <div ref={ref} className="w-full h-full">
+                <List className="h-full flex flex-col">
                     <NavigationButtons
                         activeSection={activeSection}
-                        onSectionChange={handleSectionChange}
+                        onSectionChange={onSectionChange}
                     />
                     <SearchPanel ref={searchPanelRef} />
                     <SectionContent
                         activeSection={activeSection}
-                        slideDirection={slideDirection}
-                        isAnimating={isAnimating}
+                        className="flex-1"
                     />
                 </List>
             </div>

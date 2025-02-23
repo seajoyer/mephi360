@@ -5,37 +5,32 @@ import { StuffList } from '@/components/StuffList';
 
 interface SectionContentProps {
     activeSection: string;
-    slideDirection: string;
-    isAnimating: boolean;
+    className?: string;
 }
 
 export const SectionContent: React.FC<SectionContentProps> = ({
     activeSection,
-    slideDirection,
-    isAnimating
+    className
 }) => {
-    const renderContent = () => {
-        switch (activeSection) {
-            case 'tutors':
-                return <TutorsList />;
-            case 'clubs':
-                return <ClubsList />;
-            case 'stuff':
-                return <StuffList />;
-            default:
-                return null;
-        }
-    };
-
     return (
-        <div className="relative overflow-hidden w-full">
+        <div className={`w-full ${className}`}>
             <div
-                className={`transform transition-transform duration-300 ease-in-out w-full
-                    ${isAnimating ?
-                        (slideDirection === 'left' ? '-translate-x-full' : 'translate-x-full')
-                        : 'translate-x-0'}`}
+                style={{ display: activeSection === 'tutors' ? 'block' : 'none' }}
+                className="h-full"
             >
-                {renderContent()}
+                <TutorsList />
+            </div>
+            <div
+                style={{ display: activeSection === 'clubs' ? 'block' : 'none' }}
+                className="h-full"
+            >
+                <ClubsList />
+            </div>
+            <div
+                style={{ display: activeSection === 'stuff' ? 'block' : 'none' }}
+                className="h-full"
+            >
+                <StuffList />
             </div>
         </div>
     );

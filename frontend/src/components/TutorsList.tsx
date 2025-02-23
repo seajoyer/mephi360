@@ -21,6 +21,9 @@ const allTutors: Tutor[] = Array.from({ length: 100 }, (_, index) => ({
 
 const ITEMS_PER_PAGE = 20;
 
+// Create a cache object to store loaded sections
+const sectionsCache: Record<string, Tutor[]> = {};
+
 const TutorCellSkeleton = () => (
     <div className="flex items-center p-4 w-full">
         <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
@@ -44,14 +47,15 @@ const LoadingState = () => (
 );
 
 export const TutorsList: React.FC = () => {
-    const [displayedTutors, setDisplayedTutors] = useState<Tutor[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // Get cached data if available
+    const cachedData = sectionsCache['tutors'] || [];
+    const [displayedTutors, setDisplayedTutors] = useState<Tutor[]>(cachedData);
+    const [isLoading, setIsLoading] = useState(cachedData.length === 0);
     const [hasMore, setHasMore] = useState(true);
     const containerRef = useRef<HTMLDivElement>(null);
     const loadingRef = useRef(false);
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadTriggerRef = useRef<HTMLDivElement>(null);
-    const isInitialLoadRef = useRef(true);
 
     const loadMoreTutors = useCallback(() => {
         if (loadingRef.current || !hasMore) return;
@@ -66,7 +70,10 @@ export const TutorsList: React.FC = () => {
             const nextItems = allTutors.slice(startIndex, endIndex);
 
             if (nextItems.length > 0) {
-                setDisplayedTutors(prev => [...prev, ...nextItems]);
+                const newTutors = [...displayedTutors, ...nextItems];
+                setDisplayedTutors(newTutors);
+                // Update cache
+                sectionsCache['tutors'] = newTutors;
                 setHasMore(endIndex < allTutors.length);
             } else {
                 setHasMore(false);
@@ -74,11 +81,10 @@ export const TutorsList: React.FC = () => {
 
             setIsLoading(false);
             loadingRef.current = false;
-            isInitialLoadRef.current = false;
-        }, 500);
-    }, [displayedTutors.length, hasMore]);
+        }, displayedTutors.length > 0 ? 0 : 500); // Only add delay for initial load when no cache
+    }, [displayedTutors.length, hasMore, displayedTutors]);
 
-    // Initial load
+    // Initial load only if no cached data
     useEffect(() => {
         if (displayedTutors.length === 0) {
             loadMoreTutors();
@@ -88,14 +94,14 @@ export const TutorsList: React.FC = () => {
     // Set up Intersection Observer
     useEffect(() => {
         const options = {
-            root: null, // Use viewport as root
+            root: null,
             rootMargin: '0px',
             threshold: 0
         };
 
         const observer = new IntersectionObserver((entries) => {
             const [entry] = entries;
-            if (entry.isIntersecting && !isInitialLoadRef.current && !loadingRef.current && hasMore) {
+            if (entry.isIntersecting && !loadingRef.current && hasMore) {
                 loadMoreTutors();
             }
         }, options);
@@ -105,12 +111,12 @@ export const TutorsList: React.FC = () => {
         return () => observer.disconnect();
     }, [loadMoreTutors, hasMore]);
 
-    // Observe load trigger element after initial load
+    // Observe load trigger element
     useEffect(() => {
         const observer = observerRef.current;
         const trigger = loadTriggerRef.current;
 
-        if (observer && trigger && !isInitialLoadRef.current) {
+        if (observer && trigger) {
             observer.observe(trigger);
             return () => observer.unobserve(trigger);
         }
@@ -161,7 +167,7 @@ export const TutorsList: React.FC = () => {
                     />
                 )}
 
-                {isLoading && <LoadingState />}
+                {isLoading && displayedTutors.length === 0 && <LoadingState />}
 
                 {!hasMore && displayedTutors.length > 0 && (
                     <div className="text-center py-4 text-gray-500">

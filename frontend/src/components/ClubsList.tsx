@@ -1,6 +1,5 @@
-import { Section, Cell, Avatar, Divider, Spinner } from '@telegram-apps/telegram-ui';
-import type { FC } from 'react';
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Section, Cell, Avatar, Divider } from '@telegram-apps/telegram-ui';
 import { Icon16Chevron_right } from '@/icons/16/chevron_right';
 import { Icon28Heart_fill } from '@/icons/28/heart_fill';
 import { Link } from '@/components/Link/Link';
@@ -12,170 +11,127 @@ interface Tutor {
     imageFileName: string;
 }
 
-// Mock tutor data (to be replaced by backend API in the future)
-const allTutors: Tutor[] = [
-    { id: 1, name: 'Щербачев О.В.', department: 'Кафедра общей физики №6', imageFileName: 'Pepe.jpg' },
-    { id: 2, name: 'Горячев А.П.', department: 'Кафедра высшей математики №30', imageFileName: 'Горячев АП.png' },
-    { id: 3, name: 'Иванова Т.М.', department: 'Кафедра высшей математики №30', imageFileName: 'Иванова ТМ.jpg' },
-    { id: 4, name: 'Прищепа А.Р.', department: 'Кафедра общей физики №6', imageFileName: 'Прищепа АР.jpg' },
-    { id: 5, name: 'Стёпин Е.В.', department: 'Кафедра прикладной математики №31', imageFileName: 'Степин ЕВ.jpg' },
-    { id: 6, name: 'Савин В.Ю.', department: 'Кафедра высшей математики №30', imageFileName: 'Савин ВЮ.jpg' },
-    { id: 7, name: 'Агапова В.М.', department: 'Кафедра иностранных языков №50', imageFileName: 'Агапова ВМ.jpg' },
-    { id: 8, name: 'Храмченков Д.В.', department: 'Кафедра физики №23', imageFileName: 'Храмченков ДВ.png' },
-    { id: 9, name: 'Шмалий В.В.', department: 'Кафедра философии, онтологии и теории познания №54', imageFileName: 'Шмалий ВВ.jpg' },
-    { id: 10, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 11, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 12, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 13, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 14, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 15, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 16, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 17, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 18, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 19, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 20, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 21, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 22, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 23, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 24, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 25, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-    { id: 26, name: 'Попруженко С.В.', department: 'Кафедра общей физики №6', imageFileName: 'Попруженко СВ.jpg' },
-];
+// Mock data - replace with your actual data or API call
+const allTutors: Tutor[] = Array.from({ length: 100 }, (_, index) => ({
+    id: index + 1,
+    name: `Club ${index + 1}`,
+    department: `Department ${Math.floor(index / 10) + 1}`,
+    imageFileName: 'default.jpg'
+}));
 
-// Mock data fetching function (keep as is)
-const fetchTutors = (page: number, pageSize: number): Promise<Tutor[]> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const start = (page - 1) * pageSize;
-            const end = start + pageSize;
-            resolve(allTutors.slice(start, end));
-        }, 500);
-    });
-};;
+const ITEMS_PER_PAGE = 20;
 
-interface ScrollState {
-    startY: number;
-    currentY: number;
-    isOverscrolling: boolean;
-}
+// Create a cache object to store loaded sections
+const sectionsCache: Record<string, Tutor[]> = {};
 
-export const ClubsList: FC = () => {
-    const [tutors, setTutors] = useState<Tutor[]>([]);
+const TutorCellSkeleton = () => (
+    <div className="flex items-center p-4 w-full">
+        <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
+        <div className="ml-3 flex-1">
+            <div className="h-5 bg-gray-200 rounded w-32 mb-1 animate-pulse" />
+            <div className="h-4 bg-gray-200 rounded w-48 animate-pulse" />
+        </div>
+        <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
+    </div>
+);
+
+const LoadingState = () => (
+    <>
+        {[...Array(3)].map((_, index) => (
+            <React.Fragment key={`skeleton-${index}`}>
+                <TutorCellSkeleton />
+                {index < 2 && <Divider />}
+            </React.Fragment>
+        ))}
+    </>
+);
+
+export const ClubsList: React.FC = () => {
+    // Get cached data if available
+    const cachedData = sectionsCache['tutors'] || [];
+    const [displayedTutors, setDisplayedTutors] = useState<Tutor[]>(cachedData);
+    const [isLoading, setIsLoading] = useState(cachedData.length === 0);
     const [hasMore, setHasMore] = useState(true);
-    const [page, setPage] = useState(1);
-    const [isLoading, setIsLoading] = useState(false);
-    const sentinelRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const scrollStateRef = useRef<ScrollState>({
-        startY: 0,
-        currentY: 0,
-        isOverscrolling: false
-    });
+    const loadingRef = useRef(false);
+    const observerRef = useRef<IntersectionObserver | null>(null);
+    const loadTriggerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const loadInitialTutors = async () => {
-            setIsLoading(true);
-            const initialTutors = await fetchTutors(1, 10);
-            setTutors(initialTutors);
-            if (initialTutors.length < 10) {
+    const loadMoreTutors = useCallback(() => {
+        if (loadingRef.current || !hasMore) return;
+
+        loadingRef.current = true;
+        setIsLoading(true);
+
+        // Simulate API delay
+        setTimeout(() => {
+            const startIndex = displayedTutors.length;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const nextItems = allTutors.slice(startIndex, endIndex);
+
+            if (nextItems.length > 0) {
+                const newTutors = [...displayedTutors, ...nextItems];
+                setDisplayedTutors(newTutors);
+                // Update cache
+                sectionsCache['tutors'] = newTutors;
+                setHasMore(endIndex < allTutors.length);
+            } else {
                 setHasMore(false);
             }
+
             setIsLoading(false);
-        };
-        loadInitialTutors();
-    }, []);
+            loadingRef.current = false;
+        }, displayedTutors.length > 0 ? 0 : 500); // Only add delay for initial load when no cache
+    }, [displayedTutors.length, hasMore, displayedTutors]);
 
+    // Initial load only if no cached data
     useEffect(() => {
-        if (!sentinelRef.current || !hasMore || isLoading) return;
+        if (displayedTutors.length === 0) {
+            loadMoreTutors();
+        }
+    }, [loadMoreTutors]);
 
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting && !isLoading) {
-                    loadMoreTutors();
-                }
-            },
-            { threshold: 1.0 }
-        );
+    // Set up Intersection Observer
+    useEffect(() => {
+        const options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0
+        };
 
-        observer.observe(sentinelRef.current);
+        const observer = new IntersectionObserver((entries) => {
+            const [entry] = entries;
+            if (entry.isIntersecting && !loadingRef.current && hasMore) {
+                loadMoreTutors();
+            }
+        }, options);
+
+        observerRef.current = observer;
+
         return () => observer.disconnect();
-    }, [hasMore, isLoading]);
+    }, [loadMoreTutors, hasMore]);
 
-    const loadMoreTutors = async () => {
-        setIsLoading(true);
-        const nextPage = page + 1;
-        const moreTutors = await fetchTutors(nextPage, 10);
-        setTutors((prev) => [...prev, ...moreTutors]);
-        setPage(nextPage);
-        if (moreTutors.length < 10) {
-            setHasMore(false);
+    // Observe load trigger element
+    useEffect(() => {
+        const observer = observerRef.current;
+        const trigger = loadTriggerRef.current;
+
+        if (observer && trigger) {
+            observer.observe(trigger);
+            return () => observer.unobserve(trigger);
         }
-        setIsLoading(false);
-    };
-
-    const handleTouchStart = (e: React.TouchEvent) => {
-        if (!containerRef.current) return;
-
-        const touch = e.touches[0];
-        scrollStateRef.current.startY = touch.clientY;
-        scrollStateRef.current.isOverscrolling = false;
-    };
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-        if (!containerRef.current) return;
-
-        const touch = e.touches[0];
-        const container = containerRef.current;
-        const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 1;
-
-        if (isAtBottom || isLoading) {
-            const deltaY = touch.clientY - scrollStateRef.current.startY;
-
-            if (deltaY > 0) {
-                e.preventDefault();
-                scrollStateRef.current.isOverscrolling = true;
-                scrollStateRef.current.currentY = touch.clientY;
-
-                // Calculate elastic transform based on drag distance
-                const resistance = 0.3;
-                const transform = `translateY(${deltaY * resistance}px)`;
-                container.style.transform = transform;
-            }
-        }
-    };
-
-    const handleTouchEnd = () => {
-        if (!containerRef.current || !scrollStateRef.current.isOverscrolling) return;
-
-        // Animate back to original position
-        const container = containerRef.current;
-        container.style.transition = 'transform 0.3s cubic-bezier(0.19, 1, 0.22, 1)';
-        container.style.transform = 'translateY(0)';
-
-        // Reset transition after animation
-        setTimeout(() => {
-            if (container) {
-                container.style.transition = '';
-            }
-        }, 300);
-
-        scrollStateRef.current.isOverscrolling = false;
-    };
+    }, [displayedTutors]);
 
     return (
         <div
             ref={containerRef}
             className="h-full overflow-y-auto"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
             style={{
-                overscrollBehavior: 'none',
                 WebkitOverflowScrolling: 'touch'
             }}
         >
             <Section>
-                {tutors.map((tutor) => (
+                {displayedTutors.map((tutor, index) => (
                     <div key={tutor.id}>
                         <Link to={`/tutor/${tutor.id}`}>
                             <Cell
@@ -186,22 +142,39 @@ export const ClubsList: FC = () => {
                                         fallbackIcon={<span><Icon28Heart_fill /></span>}
                                     />
                                 }
-                                after={<Icon16Chevron_right style={{color: 'var(--tg-theme-link-color)'}} />}
+                                after={
+                                    <Icon16Chevron_right
+                                        style={{color: 'var(--tg-theme-link-color)'}}
+                                    />
+                                }
                                 description={tutor.department}
                             >
                                 {tutor.name}
                             </Cell>
                         </Link>
-                        {tutor.id < tutors.length && <Divider />}
+                        {index < displayedTutors.length - 1 && <Divider />}
                     </div>
                 ))}
+
+                {hasMore && (
+                    <div
+                        ref={loadTriggerRef}
+                        className="relative"
+                        style={{
+                            height: '1px',
+                            opacity: 0
+                        }}
+                    />
+                )}
+
+                {isLoading && displayedTutors.length === 0 && <LoadingState />}
+
+                {!hasMore && displayedTutors.length > 0 && (
+                    <div className="text-center py-4 text-gray-500">
+                        No more tutors to load
+                    </div>
+                )}
             </Section>
-            {hasMore && <div ref={sentinelRef} style={{ height: '1px' }} />}
-            {isLoading && (
-                <div className="pb-4 justify-center flex items-center">
-                    <Spinner size="m" />
-                </div>
-            )}
         </div>
     );
 };
