@@ -5,13 +5,13 @@ import { Icon24Heart } from '@/icons/24/heart';
 import { Icon24Largegroup } from '@/icons/24/largegroup';
 import { Icon24Folder } from '@/icons/24/folder';
 
-interface BottomControlProps {
+interface BottomNavigationProps {
     className?: string;
     activeSection: string;
     onSectionChange: (section: string) => void;
 }
 
-export const BottomControl: FC<BottomControlProps> = ({
+export const BottomNavigation: FC<BottomNavigationProps> = ({
     className = '',
     activeSection,
     onSectionChange
@@ -53,20 +53,18 @@ export const BottomControl: FC<BottomControlProps> = ({
     ];
 
     return (
-        <div className={`transition-all duration-200 ease-in-out ${className}`}>
-            <FixedLayout vertical="bottom">
-                <Tabbar>
-                    {tabs.map(({ id, icon }) => (
-                        <Tabbar.Item
-                            key={id}
-                            selected={id === activeSection}
-                            onClick={() => onSectionChange(id)}
-                        >
-                            {icon}
-                        </Tabbar.Item>
-                    ))}
-                </Tabbar>
-            </FixedLayout>
-        </div>
+        <FixedLayout vertical="bottom" className={`${className}`}>
+            <Tabbar>
+                {tabs.map(({ id, icon }) => (
+                    <Tabbar.Item
+                        key={id}
+                        selected={id === activeSection}
+                        onClick={() => onSectionChange(id)}
+                    >
+                        {icon}
+                    </Tabbar.Item>
+                ))}
+            </Tabbar>
+        </FixedLayout>
     );
 };

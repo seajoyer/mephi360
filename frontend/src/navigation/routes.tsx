@@ -1,14 +1,15 @@
-import type { ComponentType, JSX } from 'react';
-
+import { RouteProps } from 'react-router-dom';
 import { StudyPage } from '@/pages/StudyPage';
+import { EnvUnsupported } from '@/components/EnvUnsupported';
 
-interface Route {
-  path: string;
-  Component: ComponentType;
-  title?: string;
-  icon?: JSX.Element;
-}
-
-export const routes: Route[] = [
-  { path: '/study/tutors', Component: StudyPage },
+// Define app routes
+export const routes: RouteProps[] = [
+    {
+        path: '/study/:section?',
+        element: <StudyPage />
+    },
+    {
+        path: '/env-unsupported',
+        element: <EnvUnsupported />
+    }
 ];

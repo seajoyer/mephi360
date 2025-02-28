@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, forwardRef } from 'react';
-import { Input, Button, Subheadline, Tappable } from '@telegram-apps/telegram-ui';
+import { Input, Button, Tappable } from '@telegram-apps/telegram-ui';
 import { Icon24Search }           from '@/icons/24/search';
 import { Icon24Close }            from '@/icons/24/close';
 import { Icon20Chevron_vertical } from '@/icons/20/chevron_vertical';
@@ -7,22 +7,26 @@ import { Icon20Chevron_vertical } from '@/icons/20/chevron_vertical';
 export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Combine the forwarded ref with our local ref
   useEffect(() => {
-    if (ref && typeof ref === 'function') {
-      if (containerRef.current) {
-        ref(containerRef.current);
+    if (ref) {
+      if (typeof ref === 'function') {
+        if (containerRef.current) {
+          ref(containerRef.current);
+        }
+      } else if (containerRef.current) {
+        ref.current = containerRef.current;
       }
-    } else if (ref && containerRef.current) {
-      (ref as React.MutableRefObject<HTMLDivElement>).current = containerRef.current;
     }
   }, [ref]);
 
   const handleSearchClick = () => {
     setIsExpanded(true);
+
+    // Scroll to keep search panel visible if needed
     if (containerRef.current) {
       const container = containerRef.current;
       const containerRect = container.getBoundingClientRect();
@@ -40,11 +44,13 @@ export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
   };
 
   const handleCloseClick = (e?: React.MouseEvent) => {
-    e?.stopPropagation(); // Make it optional since we might call it programmatically
+    if (e) e.stopPropagation();
     setIsExpanded(false);
     setSearchValue('');
+
     if (inputRef.current) {
       inputRef.current.blur();
+
       // Force keyboard to hide on mobile
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
@@ -52,20 +58,26 @@ export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
     }
   };
 
+  // Focus input when expanded
   useEffect(() => {
     if (isExpanded && inputRef.current) {
-      const focusTimeout = setTimeout(() => inputRef.current.focus(), 200);
+      const focusTimeout = setTimeout(() => {
+        if (inputRef.current) inputRef.current.focus();
+      }, 200);
       return () => clearTimeout(focusTimeout);
     }
   }, [isExpanded]);
 
   return (
     <div data-searchpanel className="sticky top-2 z-10" ref={containerRef}>
+      {/* Background overlay */}
       <div
         className="absolute inset-x-0 -top-2 -bottom-2"
         style={{ backgroundColor: 'var(--tgui--secondary_bg_color)' }}
       />
-      <div className="flex relative gap-2 -mb-1 px-0 overflow-hidden">
+
+      <div className="flex relative gap-2 px-0 overflow-hidden">
+        {/* Search input container */}
         <div
           className="transition-all duration-200 ease-in-out"
           style={{
@@ -114,9 +126,9 @@ export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
           </div>
         </div>
 
-        {/* Department Selector */}
+        {/* Department Selector (hidden when search is expanded) */}
         <div className={`transition-all duration-200 ease-in-out flex-grow min-w-0 ${
-          isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          isExpanded ? 'opacity-0 pointer-events-none w-0' : 'opacity-100 w-auto'
         }`}>
           <Button
             mode="gray"
@@ -131,9 +143,7 @@ export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
               background: 'var(--tgui--section_bg_color)'
             }}
           >
-            <div
-              style={{ color: 'var(--tgui--hint_color)' }}
-            >
+            <div style={{ color: 'var(--tgui--hint_color)' }}>
               <span className="font-medium">Все кафедры</span>
             </div>
           </Button>
@@ -143,4 +153,4 @@ export const SearchPanel = forwardRef<HTMLDivElement>((props, ref) => {
   );
 });
 
-export default SearchPanel;
+SearchPanel.displayName = 'SearchPanel';

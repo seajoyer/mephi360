@@ -7,7 +7,7 @@ import type { FC } from 'react';
 import { Icon24Channel } from '@/icons/24/channel';
 import { Icon24Support } from '@/icons/24/support';
 
-export const TopControl: FC = () => {
+export const TopButtons: FC = () => {
     return (
         <div style={{
             position: 'relative',

@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { themeParams } from '@telegram-apps/sdk-react';
 import { LargeTitle, Subheadline } from '@telegram-apps/telegram-ui';
 
-export const InfoText: FC = () => {
+export const TopText: FC = () => {
     return (
         <div className="flex flex-col gap-1.5 pt-13 pb-13 text-center">
             <Subheadline

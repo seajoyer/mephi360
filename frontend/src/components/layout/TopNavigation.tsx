@@ -11,25 +11,27 @@ export const SECTIONS = [
     { id: 'stuff', text: 'Материалы', icon: Icon24Folder, mode: 'gray' }
 ] as const;
 
-interface NavigationButtonsProps {
+interface TopNavigationProps {
     activeSection: string;
     onSectionChange: (section: string) => void;
 }
 
-export const NavigationButtons: React.FC<NavigationButtonsProps> = ({
+export const TopNavigation: React.FC<TopNavigationProps> = ({
     activeSection,
     onSectionChange
-}) => (
-    <InlineButtons>
-        {SECTIONS.map(({ id, text, icon: Icon, mode }) => (
-            <InlineButtonsItem
-                key={id}
-                text={text}
-                mode={activeSection === id ? 'bezeled' : 'gray'}
-                onClick={() => onSectionChange(id)}
-            >
-                <Icon />
-            </InlineButtonsItem>
-        ))}
-    </InlineButtons>
-);
+}) => {
+    return (
+        <InlineButtons>
+            {SECTIONS.map(({ id, text, icon: Icon }) => (
+                <InlineButtonsItem
+                    key={id}
+                    text={text}
+                    mode={activeSection === id ? 'bezeled' : 'gray'}
+                    onClick={() => onSectionChange(id)}
+                >
+                    <Icon />
+                </InlineButtonsItem>
+            ))}
+        </InlineButtons>
+    );
+};

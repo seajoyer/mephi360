@@ -1,49 +1,57 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import type { FC } from 'react';
-import { List, FixedLayout } from '@telegram-apps/telegram-ui';
+import { List } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
-import { BottomControl } from '@/components/BottomControl';
-import { TopPart } from '@/components/TopPart';
-import { BottomPart } from '@/components/BottomPart';
+import { BottomNavigation } from '@/components/layout/BottomNavigation';
+import { TopPart } from '@/components/sections/TopPart';
+import { BottomPart } from '@/components/sections/BottomPart';
 import { useScrollVisibility } from '@/hooks/useScrollVisibility';
-import { useSectionTransition } from '@/hooks/useSectionTransition';
-import { SECTIONS } from '@/components/BottomPart/NavigationButtons';
 
 export const StudyPage: FC = () => {
     const searchPanelRef = useRef<HTMLDivElement>(null);
-    const showBottomControl = useScrollVisibility({
+
+    // Track search panel visibility to show/hide bottom navigation
+    const showBottomNavigation = useScrollVisibility({
         ref: searchPanelRef,
         threshold: 8
     });
 
-    const {
-        activeSection,
-        handleSectionChange
-    } = useSectionTransition({
-        sections: SECTIONS,
-        initialSection: 'tutors'
-    });
+    // Tracking active section
+    const [activeSection, setActiveSection] = useState<string>('tutors');
+
+    // Handle section changes
+    const handleSectionChange = (newSection: string) => {
+        if (newSection === activeSection) return;
+        setActiveSection(newSection);
+    };
 
     return (
         <Page back={false}>
-            <div className={showBottomControl ? 'pb-12' : ''}>
+            <div className={showBottomNavigation ? 'pb-14' : ''}>
+                {/* List wrapper handles consistent styling */}
                 <List>
-                    <TopPart />
+                    {/* Top section with navigation buttons */}
+                    <TopPart
+                        activeSection={activeSection}
+                        onSectionChange={handleSectionChange}
+                    />
+
+                    {/* Bottom section with search and content */}
+                    <BottomPart
+                        searchPanelRef={searchPanelRef}
+                        activeSection={activeSection}
+                        onSectionChange={handleSectionChange}
+                    />
                 </List>
-                <BottomPart
-                    searchPanelRef={searchPanelRef}
-                    activeSection={activeSection}
-                    onSectionChange={handleSectionChange}
-                />
             </div>
-            <FixedLayout vertical="bottom">
-                <BottomControl
-                    className={`transition-all duration-300 ease-in-out
-                        ${showBottomControl ? 'opacity-100' : 'opacity-0 translate-y-15 pointer-events-none'}`}
-                    activeSection={activeSection}
-                    onSectionChange={handleSectionChange}
-                />
-            </FixedLayout>
+
+            {/* Bottom tabbar with shadow */}
+            <BottomNavigation
+                className={`transition-all duration-300 ease-in-out z-50
+                    ${!showBottomNavigation && 'translate-y-12 pointer-events-none'}`}
+                activeSection={activeSection}
+                onSectionChange={handleSectionChange}
+            />
         </Page>
     );
 };
