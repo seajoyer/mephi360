@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import { SearchPanel } from '@/components/layout/SearchPanel';
 import { SectionContent } from '@/components/sections/SectionContent';
+import { Navigation } from '@/components/layout/Navigation';
 
 interface BottomPartProps {
     searchPanelRef: React.RefObject<HTMLDivElement>;
@@ -12,6 +13,10 @@ export const BottomPart = forwardRef<HTMLDivElement, BottomPartProps>(
     ({ searchPanelRef, activeSection, onSectionChange }) => {
         return (
             <>
+                <Navigation
+                    activeSection={activeSection}
+                    onSectionChange={onSectionChange}
+                />
                 <SearchPanel ref={searchPanelRef} />
                 <SectionContent
                     activeSection={activeSection}

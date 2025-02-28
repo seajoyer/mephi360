@@ -11,12 +11,12 @@ export const SECTIONS = [
     { id: 'stuff', text: 'Материалы', icon: Icon24Folder, mode: 'gray' }
 ] as const;
 
-interface TopNavigationProps {
+interface NavigationProps {
     activeSection: string;
     onSectionChange: (section: string) => void;
 }
 
-export const TopNavigation: React.FC<TopNavigationProps> = ({
+export const Navigation: React.FC<NavigationProps> = ({
     activeSection,
     onSectionChange
 }) => {

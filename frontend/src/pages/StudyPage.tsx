@@ -2,19 +2,11 @@ import React, { useRef, useState } from 'react';
 import type { FC } from 'react';
 import { List } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
-import { BottomNavigation } from '@/components/layout/BottomNavigation';
 import { TopPart } from '@/components/sections/TopPart';
 import { BottomPart } from '@/components/sections/BottomPart';
-import { useScrollVisibility } from '@/hooks/useScrollVisibility';
 
 export const StudyPage: FC = () => {
     const searchPanelRef = useRef<HTMLDivElement>(null);
-
-    // Track search panel visibility to show/hide bottom navigation
-    const showBottomNavigation = useScrollVisibility({
-        ref: searchPanelRef,
-        threshold: 8
-    });
 
     // Tracking active section
     const [activeSection, setActiveSection] = useState<string>('tutors');
@@ -27,7 +19,7 @@ export const StudyPage: FC = () => {
 
     return (
         <Page back={false}>
-            <div className={showBottomNavigation ? 'pb-14' : ''}>
+            <div>
                 {/* List wrapper handles consistent styling */}
                 <List>
                     {/* Top section with navigation buttons */}
@@ -44,14 +36,6 @@ export const StudyPage: FC = () => {
                     />
                 </List>
             </div>
-
-            {/* Bottom tabbar with shadow */}
-            <BottomNavigation
-                className={`transition-all duration-300 ease-in-out z-50
-                    ${!showBottomNavigation && 'translate-y-12 pointer-events-none'}`}
-                activeSection={activeSection}
-                onSectionChange={handleSectionChange}
-            />
         </Page>
     );
 };
