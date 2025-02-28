@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import type { FC } from 'react';
 import { List } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
@@ -6,8 +6,6 @@ import { TopPart } from '@/components/sections/TopPart';
 import { BottomPart } from '@/components/sections/BottomPart';
 
 export const StudyPage: FC = () => {
-    const searchPanelRef = useRef<HTMLDivElement>(null);
-
     // Tracking active section
     const [activeSection, setActiveSection] = useState<string>('tutors');
 
@@ -23,14 +21,10 @@ export const StudyPage: FC = () => {
                 {/* List wrapper handles consistent styling */}
                 <List>
                     {/* Top section with navigation buttons */}
-                    <TopPart
-                        activeSection={activeSection}
-                        onSectionChange={handleSectionChange}
-                    />
+                    <TopPart />
 
                     {/* Bottom section with search and content */}
                     <BottomPart
-                        searchPanelRef={searchPanelRef}
                         activeSection={activeSection}
                         onSectionChange={handleSectionChange}
                     />

@@ -21,17 +21,28 @@ export const Navigation: React.FC<NavigationProps> = ({
     onSectionChange
 }) => {
     return (
-        <InlineButtons>
-            {SECTIONS.map(({ id, text, icon: Icon }) => (
-                <InlineButtonsItem
-                    key={id}
-                    text={text}
-                    mode={activeSection === id ? 'bezeled' : 'gray'}
-                    onClick={() => onSectionChange(id)}
-                >
-                    <Icon />
-                </InlineButtonsItem>
-            ))}
-        </InlineButtons>
+        <div className="sticky top-2 z-20">
+            {/* Background overlay */}
+            <div
+                className="absolute inset-x-0 -top-2 -bottom-2"
+                style={{ backgroundColor: 'var(--tgui--secondary_bg_color)' }}
+            />
+
+            {/* Navigation buttons */}
+            <div className="relative">
+                <InlineButtons>
+                    {SECTIONS.map(({ id, text, icon: Icon }) => (
+                        <InlineButtonsItem
+                            key={id}
+                            text={text}
+                            mode={activeSection === id ? 'bezeled' : 'gray'}
+                            onClick={() => onSectionChange(id)}
+                        >
+                            <Icon />
+                        </InlineButtonsItem>
+                    ))}
+                </InlineButtons>
+            </div>
+        </div>
     );
 };
