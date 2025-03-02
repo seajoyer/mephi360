@@ -43,7 +43,7 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
                             <div
                                 className='mb-0.25'>
                                 <Text
-                                    weight="3"
+                                    weight="2"
                                 >
                                     {title}
                                 </Text>
@@ -63,9 +63,9 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
                                     {description}
                                 </Caption>
                                 <div
-                                    className="absolute right-0 top-0 h-4 w-24 pointer-events-none transition-opacity duration-200 ease-in-out"
+                                    className="absolute right-0 top-0 h-4 w-32 pointer-events-none transition-opacity duration-200 ease-in-out"
                                     style={{
-                                        background: 'linear-gradient(to right, transparent, var(--tg-theme-bg-color, white))',
+                                        background: 'linear-gradient(to right, transparent, var(--tgui--section_bg_color, white))',
                                         opacity: expanded ? 0 : 1
                                     }}
                                 />
@@ -102,7 +102,7 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
                     </div>
                 </div>
 
-                <div className={`px-4 transition-all duration-200 ease-in-out ${expanded ? 'opacity-100 max-h-20 pb-4 -mt-1' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                <div className={`px-4 transition-all duration-200 ease-in-out ${expanded ? 'max-h-20 pb-4 -mt-1' : 'max-h-0 overflow-hidden'}`}>
                     <Button
                         mode="bezeled"
                         size="l"

@@ -5,7 +5,11 @@ import { Icon24Close } from '@/icons/24/close';
 import { Icon24Person_add } from '@/icons/24/person_add';
 import { Icon20Chevron_vertical } from '@/icons/20/chevron_vertical';
 
-export const SearchPanel = () => {
+interface SearchPanelProps {
+    activeSection: string;
+}
+
+export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [searchValue, setSearchValue] = useState('');
     const [isSticky, setIsSticky] = useState(false);
@@ -27,7 +31,7 @@ export const SearchPanel = () => {
         }
     };
 
-const handleCloseClick = (e?: React.MouseEvent) => {
+    const handleCloseClick = (e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
         setIsExpanded(false);
         setSearchValue('');
@@ -57,6 +61,16 @@ const handleCloseClick = (e?: React.MouseEvent) => {
                 document.body.removeChild(temp);
             }
         }, 100);
+    };
+
+    const handleFilterClick = (filter: string) => {
+        // Placeholder for filter functionality
+        console.log(`Filter clicked: ${filter}`);
+    };
+
+    const handleAddClubClick = () => {
+        // Placeholder for add club functionality
+        console.log('Add a new club');
     };
 
     useEffect(() => {
@@ -100,8 +114,143 @@ const handleCloseClick = (e?: React.MouseEvent) => {
         };
     }, [isSticky]);
 
+    // Render buttons based on active section
+    const renderSectionButtons = () => {
+        switch (activeSection) {
+            case 'clubs':
+                return (
+                    <div className={`flex overflow-x-auto no-scrollbar ${isExpanded ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+                         style={{
+                             msOverflowStyle: 'none', // IE and Edge
+                             scrollbarWidth: 'none', // Firefox
+                         }}>
+                        {/* Subject filter button */}
+                        <div className="transition-all duration-200 ease-in-out flex-shrink-0 mr-2">
+                            <Button
+                                mode="gray"
+                                size="m"
+                                after={
+                                    <div style={{ color: 'var(--tgui--hint_color)' }}>
+                                        <Icon20Chevron_vertical />
+                                    </div>}
+                                style={{
+                                    padding: 8,
+                                    whiteSpace: 'nowrap',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    background: 'var(--tgui--section_bg_color)'
+                                }}
+                                onClick={() => handleFilterClick('subjects')}
+                            >
+                                <div style={{ color: 'var(--tgui--hint_color)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <span className="font-medium">Все предметы</span>
+                                </div>
+                            </Button>
+                        </div>
+
+                        {/* Organizers filter button */}
+                        <div className="transition-all duration-200 ease-in-out flex-shrink-0 mr-2">
+                            <Button
+                                mode="gray"
+                                size="m"
+                                after={
+                                    <div style={{ color: 'var(--tgui--hint_color)' }}>
+                                        <Icon20Chevron_vertical />
+                                    </div>}
+                                style={{
+                                    padding: 8,
+                                    whiteSpace: 'nowrap',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    background: 'var(--tgui--section_bg_color)'
+                                }}
+                                onClick={() => handleFilterClick('organizers')}
+                            >
+                                <div style={{ color: 'var(--tgui--hint_color)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <span className="font-medium">Все организаторы</span>
+                                </div>
+                            </Button>
+                        </div>
+
+                        {/* Add club button */}
+                        <div className="transition-all duration-200 ease-in-out flex-shrink-0">
+                            <Button
+                                mode="gray"
+                                size="m"
+                                style={{
+                                    padding: 8,
+                                    background: 'var(--tgui--section_bg_color)'
+                                }}
+                                onClick={handleAddClubClick}
+                            >
+                                <Icon24Person_add />
+                            </Button>
+                        </div>
+                    </div>
+                );
+            case 'tutors':
+            default:
+                return (
+                    <div className={`flex overflow-x-auto no-scrollbar ${isExpanded ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+                         style={{
+                             msOverflowStyle: 'none', // IE and Edge
+                             scrollbarWidth: 'none', // Firefox
+                         }}>
+                        {/* "Все кафедры" Button */}
+                        <div className="transition-all duration-200 ease-in-out flex-shrink-0 mr-2">
+                            <Button
+                                mode="gray"
+                                size="m"
+                                after={
+                                    <div style={{ color: 'var(--tgui--hint_color)' }}>
+                                        <Icon20Chevron_vertical />
+                                    </div>}
+                                style={{
+                                    padding: 8,
+                                    whiteSpace: 'nowrap',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    background: 'var(--tgui--section_bg_color)'
+                                }}
+                                onClick={() => handleFilterClick('departments')}
+                            >
+                                <div style={{ color: 'var(--tgui--hint_color)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <span className="font-medium">Все кафедры</span>
+                                </div>
+                            </Button>
+                        </div>
+
+                        {/* Person Add Button */}
+                        <div className="transition-all duration-200 ease-in-out flex-shrink-0">
+                            <Button
+                                mode="gray"
+                                size="m"
+                                style={{
+                                    padding: 8,
+                                    background: 'var(--tgui--section_bg_color)'
+                                }}
+                                onClick={handleAddClubClick}
+                            >
+                                <Icon24Person_add />
+                            </Button>
+                        </div>
+                    </div>
+                );
+        }
+    };
+
     return (
         <div data-searchpanel className="sticky top-21 z-10" ref={containerRef}>
+            {/* CSS to hide scrollbar but preserve functionality */}
+            <style jsx>{`
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+            `}</style>
+
             <div
                 className="absolute"
                 style={{
@@ -164,41 +313,7 @@ const handleCloseClick = (e?: React.MouseEvent) => {
                     </div>
                 </div>
 
-                <div className={`transition-all duration-200 ease-in-out flex-grow min-w-10 ${isExpanded ? 'pointer-events-none opacity-0' : 'w-auto opacity-100'}`}>
-                    <Button
-                        mode="gray"
-                        size="m"
-                        after={
-                            <div style={{ color: 'var(--tgui--hint_color)' }}>
-                                <Icon20Chevron_vertical />
-                            </div>}
-                        style={{
-                            padding: 8,
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            background: 'var(--tgui--section_bg_color)'
-                        }}
-                    >
-                        <div style={{ color: 'var(--tgui--hint_color)' }}>
-                            <span className="font-medium">Все кафедры</span>
-                        </div>
-                    </Button>
-                </div>
-
-                <div className={`transition-all duration-200 ease-in-out ${isExpanded ? 'pointer-events-none opacity-0' : 'w-auto opacity-100'}`}>
-                    <Button
-                        mode="gray"
-                        size="m"
-                        style={{
-                            padding: 8,
-                            background: 'var(--tgui--section_bg_color)'
-                        }}
-                    >
-                        <Icon24Person_add />
-                    </Button>
-                </div>
+                {renderSectionButtons()}
             </div>
         </div>
     );

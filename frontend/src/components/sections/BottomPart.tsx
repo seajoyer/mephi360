@@ -15,7 +15,7 @@ export const BottomPart: React.FC<BottomPartProps> = ({ activeSection, onSection
                 activeSection={activeSection}
                 onSectionChange={onSectionChange}
             />
-            <SearchPanel />
+            <SearchPanel activeSection={activeSection} />
             <SectionContent
                 activeSection={activeSection}
                 onSectionChange={onSectionChange}
