@@ -27,16 +27,36 @@ export const SearchPanel = () => {
         }
     };
 
-    const handleCloseClick = (e?: React.MouseEvent) => {
+const handleCloseClick = (e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
         setIsExpanded(false);
         setSearchValue('');
-        if (inputRef.current) {
-            inputRef.current.blur();
+
+        setTimeout(() => {
+            // Blur the input field
+            if (inputRef.current) {
+                inputRef.current.blur();
+            }
+
+            // Force any active element to lose focus
             if (document.activeElement instanceof HTMLElement) {
                 document.activeElement.blur();
             }
-        }
+
+            // Additional technique for iOS devices
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            if (isIOS) {
+                // Create a hidden input, focus it, blur it, and remove it
+                const temp = document.createElement('input');
+                temp.style.position = 'absolute';
+                temp.style.top = '-1000px';
+                temp.setAttribute('readonly', 'readonly'); // important for iOS
+                document.body.appendChild(temp);
+                temp.focus();
+                temp.blur();
+                document.body.removeChild(temp);
+            }
+        }, 100);
     };
 
     useEffect(() => {
@@ -89,7 +109,7 @@ export const SearchPanel = () => {
                     boxShadow: isSticky
                         ? '0 1px 0 var(--tgui--quartenary_bg_color)'
                         : 'none',
-                    transition: 'box-shadow 0.2s ease-in-out',
+                    transition: 'box-shadow 0.4s ease-in-out',
                     top: '-0.5rem',
                     bottom: '-0.5rem',
                     left: '50%',

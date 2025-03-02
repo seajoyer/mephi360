@@ -9,12 +9,12 @@ export function App() {
     const isDark = useSignal(miniApp.isDark);
 
     // Use platform from launch params or fall back to iOS
-    const platform = lp?.tgWebAppPlatform === 'base' ? 'base' : 'ios';
+    /* const platform = lp?.tgWebAppPlatform === 'base' ? 'base' : 'ios'; */
 
     return (
         <AppRoot
             appearance={isDark?.valueOf() ? 'dark' : 'light'}
-            platform={platform}
+            platform='ios'
         >
             <HashRouter>
                 <Routes>

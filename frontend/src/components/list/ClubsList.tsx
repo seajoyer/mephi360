@@ -1,51 +1,93 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Section, Cell, Avatar, Divider } from '@telegram-apps/telegram-ui';
-import { Icon16Chevron_right } from '@/icons/16/chevron_right';
-import { Icon28Heart_fill } from '@/icons/28/heart_fill';
-import { Link } from '@/components/common/Link';
+import { Section } from '@telegram-apps/telegram-ui';
+import { ClubBanner } from '@/components/layout/ClubBanner';
 
 // Types
 interface Club {
     id: number;
     name: string;
+    description: string;
+    image: string;
+    tags: string[];
+    memberCount: number;
     department: string;
-    imageFileName: string;
 }
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 5;
 
-// Mock data - replace with your actual API call in production
+// Mock data generator
 const generateMockClubs = (): Club[] => {
-    return Array.from({ length: 100 }, (_, index) => ({
-        id: index + 1,
-        name: `Club ${index + 1}`,
-        department: `Department ${Math.floor(index / 10) + 1}`,
-        imageFileName: 'default.jpg'
-    }));
+    const clubTypes = [
+        'Математический',
+        'Программирования',
+        'Робототехники',
+        'Дизайна',
+        'Киберспорта',
+        'Астрономии',
+        'Физики',
+        'Химии',
+        'Биологии',
+        'Лингвистики'
+    ];
+
+    const tagsList = [
+        '1-2 курс', '3-4 курс', 'для всех',
+        'соревнования', 'проекты', 'практика',
+        'стипендия', 'научка', 'бюджет',
+        'стажировка', 'командная работа', 'дистанционно'
+    ];
+
+    return Array.from({ length: 30 }, (_, index) => {
+        // Get 2-4 random tags
+        const numTags = Math.floor(Math.random() * 3) + 2;
+        const shuffledTags = [...tagsList].sort(() => Math.random() - 0.5);
+        const clubTags = shuffledTags.slice(0, numTags);
+
+        // Create a more detailed description
+        const clubType = clubTypes[index % clubTypes.length];
+        const description = `${clubType} кружок для студентов интересующихся ${clubType.toLowerCase()} наукой. Еженедельные занятия, совместные проекты и участие в конференциях. Присоединяйтесь к нашему сообществу и развивайте свои навыки вместе с нами!`;
+
+        return {
+            id: index + 1,
+            name: `Кружок "${clubType}"`,
+            description,
+            image: `/assets/clubs/club${(index % 5) + 1}.jpg`,
+            tags: clubTags,
+            memberCount: Math.floor(Math.random() * 80) + 20,
+            department: `Кафедра ${Math.floor(index / 3) + 1}`
+        };
+    });
 };
 
 // Create a cache object to store loaded sections
 const sectionsCache: Record<string, Club[]> = {};
 
 // Loading skeleton component
-const ClubCellSkeleton: React.FC = () => (
-    <div className="flex items-center p-4 w-full">
-        <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
-        <div className="ml-3 flex-1">
-            <div className="h-5 bg-gray-200 rounded w-32 mb-1 animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-48 animate-pulse" />
+const ClubBannerSkeleton: React.FC = () => (
+    <div className="p-4 animate-pulse">
+        <div className="flex items-start justify-between">
+            <div className="flex-1 pr-3">
+                <div className="h-5 bg-gray-200 rounded w-40 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-full"></div>
+            </div>
+            <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-gray-200 rounded"></div>
+            </div>
         </div>
-        <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
+        <div className="mt-3 flex flex-wrap gap-2">
+            <div className="h-6 bg-gray-200 rounded w-16"></div>
+            <div className="h-6 bg-gray-200 rounded w-20"></div>
+            <div className="h-6 bg-gray-200 rounded w-14"></div>
+        </div>
     </div>
 );
 
 const LoadingState: React.FC = () => (
     <>
         {Array.from({ length: 3 }).map((_, index) => (
-            <React.Fragment key={`skeleton-${index}`}>
-                <ClubCellSkeleton />
-                {index < 2 && <Divider />}
-            </React.Fragment>
+            <Section key={`skeleton-${index}`} className="mb-2">
+                <ClubBannerSkeleton />
+            </Section>
         ))}
     </>
 );
@@ -109,7 +151,7 @@ export const ClubsList: React.FC = () => {
                 setIsLoading(false);
                 loadingRef.current = false;
             }
-        }, displayedClubs.length > 0 ? 0 : 500); // Only add delay for initial load when no cache
+        }, displayedClubs.length > 0 ? 300 : 800); // Add delay for better UX
     }, [displayedClubs.length, hasMore, displayedClubs, error]);
 
     // Initial load only if no cached data
@@ -161,7 +203,7 @@ export const ClubsList: React.FC = () => {
                         loadMoreClubs();
                     }}
                 >
-                    Retry
+                    Повторить
                 </button>
             </div>
         );
@@ -175,29 +217,20 @@ export const ClubsList: React.FC = () => {
                 WebkitOverflowScrolling: 'touch'
             }}
         >
-            <Section>
-                {displayedClubs.map((club, index) => (
+            <div className="space-y-3">
+                {displayedClubs.map((club) => (
                     <div key={club.id}>
-                        <Link to={`/club/${club.id}`}>
-                            <Cell
-                                before={
-                                    <Avatar
-                                        size={40}
-                                        src={`/assets/clubs/${club.imageFileName}`}
-                                        fallbackIcon={<span><Icon28Heart_fill /></span>}
-                                    />
-                                }
-                                after={
-                                    <Icon16Chevron_right
-                                        style={{color: 'var(--tg-theme-link-color)'}}
-                                    />
-                                }
-                                description={club.department}
-                            >
-                                {club.name}
-                            </Cell>
-                        </Link>
-                        {index < displayedClubs.length - 1 && <Divider />}
+                        <ClubBanner
+                            title={club.name}
+                            description={club.description}
+                            imageSrc={club.image}
+                            tags={club.tags}
+                            buttonText="Подробнее"
+                            onNavigate={() => {
+                                // In a real app, navigate to club page
+                                console.log(`Navigate to club ${club.id}`);
+                            }}
+                        />
                     </div>
                 ))}
 
@@ -223,10 +256,10 @@ export const ClubsList: React.FC = () => {
                 {/* End of list message */}
                 {!hasMore && displayedClubs.length > 0 && (
                     <div className="text-center py-4 text-gray-500">
-                        No more clubs to load
+                        Все кружки загружены
                     </div>
                 )}
-            </Section>
+            </div>
         </div>
     );
 };

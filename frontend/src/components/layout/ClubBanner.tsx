@@ -1,0 +1,121 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Section, Image, Chip, Button, Text, Caption, Cell, Subheadline } from '@telegram-apps/telegram-ui';
+import { Tappable } from '@telegram-apps/telegram-ui/dist/components/Service/Tappable/Tappable';
+import { Icon24Chevron_down } from '@/icons/24/chevron_down';
+
+interface ClubBannerProps {
+    title: string;
+    description: string;
+    imageSrc: string;
+    tags?: string[];
+    onNavigate?: () => void;
+    buttonText?: string;
+}
+
+export const ClubBanner: React.FC<ClubBannerProps> = ({
+    title,
+    description,
+    imageSrc,
+    tags = [],
+    onNavigate,
+    buttonText = 'Перейти'
+}) => {
+    const [expanded, setExpanded] = useState(false);
+    const descriptionRef = useRef<HTMLDivElement>(null);
+    const [descriptionHeight, setDescriptionHeight] = useState<number | undefined>(undefined);
+
+    useEffect(() => {
+        if (descriptionRef.current) {
+            setDescriptionHeight(expanded ? descriptionRef.current.scrollHeight : 18);
+        }
+    }, [expanded, description]);
+
+    const handleToggle = () => {
+        setExpanded(!expanded);
+    };
+
+    return (
+        <Section className="overflow-hidden">
+            <Tappable onClick={handleToggle} className="block">
+                <div className="p-4 transition-all duration-200 ease-in-out">
+                    <div className="flex items-start justify-between">
+                        <div className="flex-1 pr-3">
+                            <div
+                                className='mb-0.25'>
+                                <Text
+                                    weight="3"
+                                >
+                                    {title}
+                                </Text>
+                            </div>
+                            <div
+                                ref={descriptionRef}
+                                className="leading-2 overflow-hidden transition-all duration-200 ease-in-out relative"
+                                style={{
+                                    maxHeight: `${descriptionHeight}px`,
+                                    color: 'var(--tgui--hint_color)'
+                                }}
+                            >
+                                <Caption
+                                    level="1"
+                                    weight="3"
+                                >
+                                    {description}
+                                </Caption>
+                                <div
+                                    className="absolute right-0 top-0 h-4 w-24 pointer-events-none transition-opacity duration-200 ease-in-out"
+                                    style={{
+                                        background: 'linear-gradient(to right, transparent, var(--tg-theme-bg-color, white))',
+                                        opacity: expanded ? 0 : 1
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex-shrink-0">
+                            <Image size={40} src={imageSrc} style={{ borderRadius: '4px' }} />
+                        </div>
+                    </div>
+
+                    <div className="mt-3 relative">
+                        <div className="flex flex-wrap gap-2 pr-8 relative">
+                            {tags.map((tag, index) => (
+                                <Chip key={index} mode="outline">
+                                    <Subheadline
+                                        level="2"
+                                        weight="3"
+                                    >
+                                        {tag}
+                                    </Subheadline>
+                                </Chip>
+                            ))}
+                            <div
+                                className="absolute right-0 bottom-0 transform transition-transform duration-200"
+                                style={{
+                                    transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    marginBottom: '6px', // Fine alignment adjustment
+                                    marginRight: '8px' // Fine alignment adjustment
+                                }}
+                            >
+                                <Icon24Chevron_down color='var(--tg-theme-link-color)' />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className={`px-4 transition-all duration-200 ease-in-out ${expanded ? 'opacity-100 max-h-20 pb-4 -mt-1' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                    <Button
+                        mode="bezeled"
+                        size="l"
+                        className="w-full"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (onNavigate) onNavigate();
+                        }}
+                    >
+                        {buttonText}
+                    </Button>
+                </div>
+            </Tappable>
+        </Section>
+    );
+};

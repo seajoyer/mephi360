@@ -1,0 +1,24 @@
+import { _ as _extends } from "@swc/helpers/_/_extends";
+import { _ as _object_destructuring_empty } from "@swc/helpers/_/_object_destructuring_empty";
+import { _ as _object_spread } from "@swc/helpers/_/_object_spread";
+import { _ as _object_spread_props } from "@swc/helpers/_/_object_spread_props";
+import { jsx as _jsx } from "react/jsx-runtime";
+
+export const Icon24Chevron_down = (_param) => {
+  var restProps = _extends({}, _object_destructuring_empty(_param));
+  return /*#__PURE__*/ _jsx("svg", _object_spread_props(_object_spread({
+    width: "24",
+    height: "24",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg"
+  }, restProps), {
+    children: /*#__PURE__*/ _jsx("path", {
+      fillRule: "evenodd",
+      clipRule: "evenodd",
+      d: "M4.29289 7.54289C4.68342 7.15237 5.31658 7.15237 5.70711 7.54289L12.5 14.3358L19.2929 7.54289C19.6834 7.15237 20.3166 7.15237 20.7071 7.54289C21.0976 7.93342 21.0976 8.56658 20.7071 8.95711L13.2071 16.4571C12.8166 16.8476 12.1834 16.8476 11.7929 16.4571L4.29289 8.95711C3.90237 8.56658 3.90237 7.93342 4.29289 7.54289Z",
+      fill: "currentColor"
+    })
+  }));
+};
+
+//# sourceMappingURL=chevron_down.js.map
