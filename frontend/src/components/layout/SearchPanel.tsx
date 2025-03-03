@@ -63,7 +63,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                 temp.blur();
                 document.body.removeChild(temp);
             }
-        }, 100);
+        }, 180);
     };
 
     const handleFilterClick = (filter: string) => {
@@ -98,7 +98,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
 
         const checkStickyState = () => {
             if (!containerRef.current || panelPositionRef.current === null) return;
-            const stickyOffset = 83;
+            const stickyOffset = 85;
             const isCurrentlySticky = window.scrollY > (panelPositionRef.current - stickyOffset - 1);
             if (isSticky !== isCurrentlySticky) {
                 setIsSticky(isCurrentlySticky);
@@ -212,6 +212,10 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                                 <Icon24Person_add />
                             </Button>
                         </div>
+                        {/* Invisible padding element after the last button */}
+                        {isScrollable && (
+                            <div className="w-2.5 flex-shrink-0" aria-hidden="true"></div>
+                        )}
                     </div>
                 );
             case 'tutors':
@@ -276,17 +280,57 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
         }
     };
 
+    // Calculate the appropriate right margin/padding based on state
+    const getRightStyles = () => {
+        // When expanded or not scrollable, maintain the original padding
+        if (isExpanded || !isScrollable) {
+            return {
+                paddingRight: '0px',
+                marginRight: '0'
+            };
+        }
+
+        // When scrollable and not expanded, extend to the edge
+        return {
+            paddingRight: '0',
+            marginRight: '-10px' // Counteract parent's padding
+        };
+    };
+
+    // Calculate the filter container styles dynamically
+    const getFilterContainerStyles = () => {
+        const baseStyles = {
+            width: isExpanded ? '0' : 'calc(100% - 42px - 8px)',
+            overflowX: isScrollable ? 'auto' : 'hidden'
+        };
+
+        // Add extra padding when scrollable to extend past container boundary
+        if (isScrollable && !isExpanded) {
+            return {
+                ...baseStyles,
+                paddingRight: '10px' // Add padding inside the scrollable area
+            };
+        }
+
+        return baseStyles;
+    };
+
+    const rightStyles = getRightStyles();
+
     return (
         <div
             data-searchpanel
-            className="sticky top-19 z-20 pt-1 pb-2"
+            className="sticky top-21 z-20 pt-1 pb-2 mx-[-10px]"
             ref={containerRef}
             style={{
                 backgroundColor: 'var(--tgui--secondary_bg_color)',
                 boxShadow: isSticky ? '0 1px 0 var(--tgui--quartenary_bg_color)' : 'none',
                 transition: 'box-shadow 0.4s ease-in-out',
+                paddingLeft: '10px',
+                ...rightStyles // Apply dynamic right padding/margin
             }}
         >
+
             {/* Global CSS for hiding scrollbars */}
             <style jsx global>{`
                 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -350,12 +394,23 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                 <div
                     ref={filterContainerRef}
                     className="relative overflow-hidden no-scrollbar"
-                    style={{
-                        width: isExpanded ? '0' : 'calc(100% - 42px - 8px)',
-                        overflowX: isScrollable ? 'auto' : 'hidden'
-                    }}
+                    style={getFilterContainerStyles()}
                 >
-                    {renderSectionButtons()}
+                    {/* If scrollable, add a wrapper with special overflow handling */}
+                    {isScrollable && !isExpanded ? (
+                        <div
+                            className="overflow-x-auto no-scrollbar"
+                            style={{
+                                width: 'calc(100% + 10px)', // Extend past the container
+                                marginRight: '-10px', // Negative margin to allow scrolling past the boundary
+                                paddingRight: '0' // Ensure no built-in padding affects the scroll boundary
+                            }}
+                        >
+                            {renderSectionButtons()}
+                        </div>
+                    ) : (
+                        renderSectionButtons()
+                    )}
                 </div>
             </div>
         </div>

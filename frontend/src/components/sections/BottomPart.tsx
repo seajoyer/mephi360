@@ -11,7 +11,7 @@ interface BottomPartProps {
 
 export const BottomPart: React.FC<BottomPartProps> = ({ activeSection, onSectionChange }) => {
     return (
-        <div className='p-4.5'>
+        <div className='p-2.5'>
             <Navigation
                 activeSection={activeSection}
                 onSectionChange={onSectionChange}

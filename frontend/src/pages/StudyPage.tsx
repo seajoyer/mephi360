@@ -36,16 +36,11 @@ export const StudyPage: FC = () => {
     const handleSectionChange = (newSection: string) => {
         if (newSection === activeSection) return;
 
-        // Check if Navigation is sticky (scrolled past Top Part)
         if (topPartHeightRef.current && window.scrollY > topPartHeightRef.current) {
-            // The List wrapper adds 8px gap, so we need to adjust our scroll calculation
-            // to target the exact boundary of the Navigation buttons
-            const navigationTopBoundary = topPartHeightRef.current + 14;
-
-            // Reset scroll to the top boundary of Navigation buttons
+            const navigationTopBoundary = topPartHeightRef.current + 30;
             window.scrollTo({
                 top: navigationTopBoundary,
-                behavior: 'auto' // Instant scroll without animation
+                behavior: 'auto'
             });
         }
 
