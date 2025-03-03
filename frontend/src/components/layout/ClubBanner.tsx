@@ -77,7 +77,7 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
                     </div>
 
                     <div className="mt-3 relative">
-                        <div className="flex flex-wrap gap-2 pr-8 relative">
+                        <div className="flex flex-wrap gap-2 pr-10 relative">
                             {tags.map((tag, index) => (
                                 <Chip key={index} mode="outline">
                                     <Subheadline
@@ -93,7 +93,7 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
                                 style={{
                                     transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
                                     marginBottom: '6px', // Fine alignment adjustment
-                                    marginRight: '8px' // Fine alignment adjustment
+                                    marginRight: '8px', // Fine alignment adjustment
                                 }}
                             >
                                 <Icon24Chevron_down color='var(--tg-theme-link-color)' />

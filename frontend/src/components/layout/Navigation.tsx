@@ -61,16 +61,16 @@ export const Navigation: React.FC<NavigationProps> = ({
     return (
         <div
             ref={navRef}
-            className={`sticky top-0 z-10 pt-2 transition-all duration-200 ${isSticky ? 'pb-3' : 'pb-3'}`}
-            style={{ backgroundColor: 'var(--tgui--secondary_bg_color)' }}
+            className={`sticky top-0 z-10 pt-2 pb-1 transition-all duration-200`}
+            style={{ backgroundColor: 'var(--tgui--secondary_bg_color)'}}
         >
             {/* Navigation buttons */}
             <InlineButtons>
                 {SECTIONS.map(({ id, text, icon: Icon }) => (
                     <InlineButtonsItem
                         key={id}
-                        text={text}
-                        mode={activeSection === id ? 'bezeled' : 'gray'}
+                        text={!isSticky ? text : text}
+                        mode={activeSection === id ? 'bezeled' : 'plain'}
                         onClick={() => onSectionChange(id)}
                     >
                         <Icon />

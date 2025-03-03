@@ -37,7 +37,7 @@ export const StudyPage: FC = () => {
         if (newSection === activeSection) return;
 
         if (topPartHeightRef.current && window.scrollY > topPartHeightRef.current) {
-            const navigationTopBoundary = topPartHeightRef.current + 30;
+            const navigationTopBoundary = topPartHeightRef.current + 10;
             window.scrollTo({
                 top: navigationTopBoundary,
                 behavior: 'auto'
@@ -51,18 +51,18 @@ export const StudyPage: FC = () => {
         <Page back={false}>
             <div>
                 {/* List wrapper handles consistent styling */}
-                <List>
+                <div className='p-2'>
                     {/* Top section with navigation buttons */}
                     <div ref={topPartContainerRef}>
                         <TopPart />
                     </div>
-                </List>
 
                     {/* Bottom section with search and content */}
                     <BottomPart
                         activeSection={activeSection}
                         onSectionChange={handleSectionChange}
                     />
+                </div>
             </div>
         </Page>
     );

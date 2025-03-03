@@ -25,7 +25,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
         if (containerRef.current) {
             const container = containerRef.current;
             const containerRect = container.getBoundingClientRect();
-            const stickyTop = 84;
+            const stickyTop = 76;
             if (containerRect.top < stickyTop) return;
             window.scrollTo({
                 top: window.scrollY + containerRect.top - stickyTop,
@@ -63,7 +63,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                 temp.blur();
                 document.body.removeChild(temp);
             }
-        }, 180);
+        }, 200);
     };
 
     const handleFilterClick = (filter: string) => {
@@ -98,7 +98,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
 
         const checkStickyState = () => {
             if (!containerRef.current || panelPositionRef.current === null) return;
-            const stickyOffset = 85;
+            const stickyOffset = 74;
             const isCurrentlySticky = window.scrollY > (panelPositionRef.current - stickyOffset - 1);
             if (isSticky !== isCurrentlySticky) {
                 setIsSticky(isCurrentlySticky);
@@ -320,7 +320,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
     return (
         <div
             data-searchpanel
-            className="sticky top-21 z-20 pt-1 pb-2 mx-[-10px]"
+            className="sticky top-19 z-20 pt-1 pb-2 mx-[-10px]"
             ref={containerRef}
             style={{
                 backgroundColor: 'var(--tgui--secondary_bg_color)',
