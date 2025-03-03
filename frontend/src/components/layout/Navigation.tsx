@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { InlineButtons } from '@telegram-apps/telegram-ui';
 import { InlineButtonsItem } from '@telegram-apps/telegram-ui/dist/components/Blocks/InlineButtons/components/InlineButtonsItem/InlineButtonsItem';
 import { Icon24Heart } from '@/icons/24/heart';
@@ -20,29 +20,63 @@ export const Navigation: React.FC<NavigationProps> = ({
     activeSection,
     onSectionChange
 }) => {
-    return (
-        <div className="sticky top-2 z-20">
-            {/* Background overlay */}
-            <div
-                className="absolute inset-x-0 -top-2 -bottom-2"
-                style={{ backgroundColor: 'var(--tgui--secondary_bg_color)' }}
-            />
+    const [isSticky, setIsSticky] = useState(false);
+    const navRef = useRef<HTMLDivElement>(null);
+    const navPositionRef = useRef<number | null>(null);
 
+    useEffect(() => {
+        if (!navRef.current) return;
+
+        const storeInitialPosition = () => {
+            if (!navRef.current || navPositionRef.current !== null) return;
+            const rect = navRef.current.getBoundingClientRect();
+            navPositionRef.current = rect.top + window.scrollY;
+        };
+
+        storeInitialPosition();
+
+        const checkStickyState = () => {
+            if (!navRef.current || navPositionRef.current === null) return;
+            // Use a small offset to account for the sticky top-0 behavior
+            const isCurrentlySticky = window.scrollY > (navPositionRef.current - 1);
+            if (isSticky !== isCurrentlySticky) {
+                setIsSticky(isCurrentlySticky);
+            }
+        };
+
+        // Ensure we have the initial position
+        setTimeout(storeInitialPosition, 100);
+
+        // Set up event listeners
+        checkStickyState(); // Initial check
+        window.addEventListener('scroll', checkStickyState, { passive: true });
+        window.addEventListener('resize', storeInitialPosition, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', checkStickyState);
+            window.removeEventListener('resize', storeInitialPosition);
+        };
+    }, [isSticky]);
+
+    return (
+        <div
+            ref={navRef}
+            className={`sticky top-0 z-10 pt-2 transition-all duration-200 ${isSticky ? 'pb-1' : 'pb-2'}`}
+            style={{ backgroundColor: 'var(--tgui--secondary_bg_color)' }}
+        >
             {/* Navigation buttons */}
-            <div className="relative">
-                <InlineButtons>
-                    {SECTIONS.map(({ id, text, icon: Icon }) => (
-                        <InlineButtonsItem
-                            key={id}
-                            text={text}
-                            mode={activeSection === id ? 'bezeled' : 'gray'}
-                            onClick={() => onSectionChange(id)}
-                        >
-                            <Icon />
-                        </InlineButtonsItem>
-                    ))}
-                </InlineButtons>
-            </div>
+            <InlineButtons>
+                {SECTIONS.map(({ id, text, icon: Icon }) => (
+                    <InlineButtonsItem
+                        key={id}
+                        text={text}
+                        mode={activeSection === id ? 'bezeled' : 'gray'}
+                        onClick={() => onSectionChange(id)}
+                    >
+                        <Icon />
+                    </InlineButtonsItem>
+                ))}
+            </InlineButtons>
         </div>
     );
 };

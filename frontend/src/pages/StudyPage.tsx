@@ -61,13 +61,13 @@ export const StudyPage: FC = () => {
                     <div ref={topPartContainerRef}>
                         <TopPart />
                     </div>
+                </List>
 
                     {/* Bottom section with search and content */}
                     <BottomPart
                         activeSection={activeSection}
                         onSectionChange={handleSectionChange}
                     />
-                </List>
             </div>
         </Page>
     );

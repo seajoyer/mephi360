@@ -2,6 +2,7 @@ import React from 'react';
 import { SearchPanel } from '@/components/layout/SearchPanel';
 import { SectionContent } from '@/components/sections/SectionContent';
 import { Navigation } from '@/components/layout/Navigation';
+import { List } from '@telegram-apps/telegram-ui';
 
 interface BottomPartProps {
     activeSection: string;
@@ -10,7 +11,7 @@ interface BottomPartProps {
 
 export const BottomPart: React.FC<BottomPartProps> = ({ activeSection, onSectionChange }) => {
     return (
-        <>
+        <div className='p-4.5'>
             <Navigation
                 activeSection={activeSection}
                 onSectionChange={onSectionChange}
@@ -21,6 +22,6 @@ export const BottomPart: React.FC<BottomPartProps> = ({ activeSection, onSection
                 onSectionChange={onSectionChange}
                 className="flex-1"
             />
-        </>
+        </div>
     );
 };

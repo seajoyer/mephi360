@@ -13,8 +13,11 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [searchValue, setSearchValue] = useState('');
     const [isSticky, setIsSticky] = useState(false);
+    const [isScrollable, setIsScrollable] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const filterContainerRef = useRef<HTMLDivElement>(null);
+    const filterContentRef = useRef<HTMLDivElement>(null);
     const panelPositionRef = useRef<number | null>(null);
 
     const handleSearchClick = () => {
@@ -114,18 +117,37 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
         };
     }, [isSticky]);
 
+    // Check if filter buttons need scrolling
+    useEffect(() => {
+        const checkScrollable = () => {
+            if (filterContainerRef.current && filterContentRef.current) {
+                const containerWidth = filterContainerRef.current.clientWidth;
+                const contentWidth = filterContentRef.current.scrollWidth;
+                setIsScrollable(contentWidth > containerWidth);
+            }
+        };
+
+        // Initial check
+        checkScrollable();
+
+        // Re-check on window resize
+        window.addEventListener('resize', checkScrollable);
+
+        // Cleanup
+        return () => window.removeEventListener('resize', checkScrollable);
+    }, [activeSection]);
+
     // Render buttons based on active section
     const renderSectionButtons = () => {
         switch (activeSection) {
             case 'clubs':
                 return (
-                    <div className={`flex overflow-x-auto no-scrollbar ${isExpanded ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
-                         style={{
-                             msOverflowStyle: 'none', // IE and Edge
-                             scrollbarWidth: 'none', // Firefox
-                         }}>
+                    <div
+                        ref={filterContentRef}
+                        className={`flex ${isScrollable ? '' : 'w-full'} ${isExpanded ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+                    >
                         {/* Subject filter button */}
-                        <div className="transition-all duration-200 ease-in-out flex-shrink-0 mr-2">
+                        <div className={`transition-all duration-200 ease-in-out flex-shrink-0 mr-2 ${isScrollable ? '' : 'flex-grow'}`}>
                             <Button
                                 mode="gray"
                                 size="m"
@@ -139,7 +161,8 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    background: 'var(--tgui--section_bg_color)'
+                                    background: 'var(--tgui--section_bg_color)',
+                                    width: isScrollable ? 'auto' : '100%'
                                 }}
                                 onClick={() => handleFilterClick('subjects')}
                             >
@@ -150,7 +173,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                         </div>
 
                         {/* Organizers filter button */}
-                        <div className="transition-all duration-200 ease-in-out flex-shrink-0 mr-2">
+                        <div className={`transition-all duration-200 ease-in-out flex-shrink-0 mr-2 ${isScrollable ? '' : 'flex-grow'}`}>
                             <Button
                                 mode="gray"
                                 size="m"
@@ -164,7 +187,8 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    background: 'var(--tgui--section_bg_color)'
+                                    background: 'var(--tgui--section_bg_color)',
+                                    width: isScrollable ? 'auto' : '100%'
                                 }}
                                 onClick={() => handleFilterClick('organizers')}
                             >
@@ -192,28 +216,38 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                 );
             case 'tutors':
             default:
+                // A completely different, standalone implementation for tutors section
                 return (
-                    <div className={`flex overflow-x-auto no-scrollbar ${isExpanded ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
-                         style={{
-                             msOverflowStyle: 'none', // IE and Edge
-                             scrollbarWidth: 'none', // Firefox
-                         }}>
-                        {/* "Все кафедры" Button */}
-                        <div className="transition-all duration-200 ease-in-out flex-shrink-0 mr-2">
+                    <div
+                        ref={filterContentRef}
+                        style={{
+                            display: 'flex',
+                            width: '100%',
+                            opacity: isExpanded ? 0 : 1,
+                            pointerEvents: isExpanded ? 'none' : 'auto'
+                        }}
+                    >
+                        {/* Departments filter with fixed styling */}
+                        <div style={{
+                            flexGrow: 1,
+                            marginRight: '8px',
+                            width: 'calc(100% - 50px)' // Reserve space for the add button
+                        }}>
                             <Button
                                 mode="gray"
                                 size="m"
                                 after={
                                     <div style={{ color: 'var(--tgui--hint_color)' }}>
                                         <Icon20Chevron_vertical />
-                                    </div>}
+                                    </div>
+                                }
                                 style={{
                                     padding: 8,
                                     whiteSpace: 'nowrap',
                                     display: 'flex',
-                                    justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    background: 'var(--tgui--section_bg_color)'
+                                    background: 'var(--tgui--section_bg_color)',
+                                    width: '100%'
                                 }}
                                 onClick={() => handleFilterClick('departments')}
                             >
@@ -223,8 +257,8 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                             </Button>
                         </div>
 
-                        {/* Person Add Button */}
-                        <div className="transition-all duration-200 ease-in-out flex-shrink-0">
+                        {/* Person Add Button with fixed styling */}
+                        <div style={{ flexShrink: 0 }}>
                             <Button
                                 mode="gray"
                                 size="m"
@@ -243,31 +277,31 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
     };
 
     return (
-        <div data-searchpanel className="sticky top-21 z-10" ref={containerRef}>
-            {/* CSS to hide scrollbar but preserve functionality */}
-            <style jsx>{`
+        <div
+            data-searchpanel
+            className="sticky top-19 z-20 pt-1 pb-2"
+            ref={containerRef}
+            style={{
+                backgroundColor: 'var(--tgui--secondary_bg_color)',
+                boxShadow: isSticky ? '0 1px 0 var(--tgui--quartenary_bg_color)' : 'none',
+                transition: 'box-shadow 0.4s ease-in-out',
+            }}
+        >
+            {/* Global CSS for hiding scrollbars */}
+            <style jsx global>{`
+                /* Hide scrollbar for Chrome, Safari and Opera */
                 .no-scrollbar::-webkit-scrollbar {
                     display: none;
                 }
+
+                /* Hide scrollbar for IE, Edge and Firefox */
+                .no-scrollbar {
+                    -ms-overflow-style: none;  /* IE and Edge */
+                    scrollbar-width: none;  /* Firefox */
+                }
             `}</style>
 
-            <div
-                className="absolute"
-                style={{
-                    backgroundColor: 'var(--tgui--secondary_bg_color)',
-                    boxShadow: isSticky
-                        ? '0 1px 0 var(--tgui--quartenary_bg_color)'
-                        : 'none',
-                    transition: 'box-shadow 0.4s ease-in-out',
-                    top: '-0.5rem',
-                    bottom: '-0.5rem',
-                    left: '50%',
-                    width: '100vw',
-                    transform: 'translateX(-50%)'
-                }}
-            />
-
-            <div className="flex relative gap-2 px-0 overflow-hidden -mb-1">
+            <div className="flex gap-2">
                 <div
                     className="transition-all duration-200 ease-in-out"
                     style={{
@@ -313,7 +347,16 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                     </div>
                 </div>
 
-                {renderSectionButtons()}
+                <div
+                    ref={filterContainerRef}
+                    className="relative overflow-hidden no-scrollbar"
+                    style={{
+                        width: isExpanded ? '0' : 'calc(100% - 42px - 8px)',
+                        overflowX: isScrollable ? 'auto' : 'hidden'
+                    }}
+                >
+                    {renderSectionButtons()}
+                </div>
             </div>
         </div>
     );
