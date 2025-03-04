@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Input, Button, Tappable } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
@@ -20,6 +20,15 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
     const filterContentRef = useRef<HTMLDivElement>(null);
     const panelPositionRef = useRef<number | null>(null);
 
+    // Function to check if the content is scrollable
+    const checkScrollable = useCallback(() => {
+        if (filterContainerRef.current && filterContentRef.current) {
+            const containerWidth = filterContainerRef.current.clientWidth;
+            const contentWidth = filterContentRef.current.scrollWidth;
+            setIsScrollable(contentWidth > containerWidth);
+        }
+    }, []);
+
     const handleSearchClick = () => {
         setIsExpanded(true);
         if (containerRef.current) {
@@ -40,6 +49,9 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
         setSearchValue('');
 
         setTimeout(() => {
+            // Check scrollability after animation completes
+            checkScrollable();
+
             // Blur the input field
             if (inputRef.current) {
                 inputRef.current.blur();
@@ -76,6 +88,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
         console.log('Add a new club');
     };
 
+    // Effect for expand/collapse focus handling and scrollability check
     useEffect(() => {
         if (isExpanded && inputRef.current) {
             const focusTimeout = setTimeout(() => {
@@ -83,7 +96,11 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
             }, 200);
             return () => clearTimeout(focusTimeout);
         }
-    }, [isExpanded]);
+
+        // When expanding or collapsing, check scrollability after animation
+        const animationTimeout = setTimeout(checkScrollable, 250);
+        return () => clearTimeout(animationTimeout);
+    }, [isExpanded, checkScrollable]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -117,16 +134,8 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
         };
     }, [isSticky]);
 
-    // Check if filter buttons need scrolling
+    // Check if filter buttons need scrolling - run on section change, window resize, or expand/collapse
     useEffect(() => {
-        const checkScrollable = () => {
-            if (filterContainerRef.current && filterContentRef.current) {
-                const containerWidth = filterContainerRef.current.clientWidth;
-                const contentWidth = filterContentRef.current.scrollWidth;
-                setIsScrollable(contentWidth > containerWidth);
-            }
-        };
-
         // Initial check
         checkScrollable();
 
@@ -135,7 +144,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
 
         // Cleanup
         return () => window.removeEventListener('resize', checkScrollable);
-    }, [activeSection]);
+    }, [activeSection, checkScrollable]);
 
     // Render buttons based on active section
     const renderSectionButtons = () => {
@@ -280,57 +289,23 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
         }
     };
 
-    // Calculate the appropriate right margin/padding based on state
-    const getRightStyles = () => {
-        // When expanded or not scrollable, maintain the original padding
-        if (isExpanded || !isScrollable) {
-            return {
-                paddingRight: '0px',
-                marginRight: '0'
-            };
-        }
-
-        // When scrollable and not expanded, extend to the edge
-        return {
-            paddingRight: '0',
-            marginRight: '-10px' // Counteract parent's padding
-        };
-    };
-
-    // Calculate the filter container styles dynamically
-    const getFilterContainerStyles = () => {
-        const baseStyles = {
-            width: isExpanded ? '0' : 'calc(100% - 42px - 8px)',
-            overflowX: isScrollable ? 'auto' : 'hidden'
-        };
-
-        // Add extra padding when scrollable to extend past container boundary
-        if (isScrollable && !isExpanded) {
-            return {
-                ...baseStyles,
-                paddingRight: '10px' // Add padding inside the scrollable area
-            };
-        }
-
-        return baseStyles;
-    };
-
-    const rightStyles = getRightStyles();
-
     return (
         <div
             data-searchpanel
-            className="sticky top-19 z-20 pt-1 pb-2 mx-[-10px]"
+            className="sticky top-19 z-20 pt-1 pb-2"
             ref={containerRef}
             style={{
                 backgroundColor: 'var(--tgui--secondary_bg_color)',
                 boxShadow: isSticky ? '0 1px 0 var(--tgui--quartenary_bg_color)' : 'none',
                 transition: 'box-shadow 0.4s ease-in-out',
+                width: 'calc(100% + 20px)',
+                marginLeft: '-10px',
                 paddingLeft: '10px',
-                ...rightStyles // Apply dynamic right padding/margin
+                paddingRight: isScrollable ? '0' : '10px',
+                boxSizing: 'border-box',
+                overflow: 'hidden'
             }}
         >
-
             {/* Global CSS for hiding scrollbars */}
             <style jsx global>{`
                 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -349,7 +324,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                 <div
                     className="transition-all duration-200 ease-in-out"
                     style={{
-                        width: isExpanded ? '100%' : '42px',
+                        width: isExpanded ? (isScrollable ? 'calc(100% - 10px)' : '100%') : '42px',
                         flexShrink: 0
                     }}
                 >
@@ -394,16 +369,18 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                 <div
                     ref={filterContainerRef}
                     className="relative overflow-hidden no-scrollbar"
-                    style={getFilterContainerStyles()}
+                    style={{
+                        width: isExpanded ? '0' : 'calc(100% - 42px - 8px)',
+                        overflowX: isScrollable ? 'auto' : 'hidden',
+                    }}
                 >
                     {/* If scrollable, add a wrapper with special overflow handling */}
                     {isScrollable && !isExpanded ? (
                         <div
                             className="overflow-x-auto no-scrollbar"
                             style={{
-                                width: 'calc(100% + 10px)', // Extend past the container
-                                marginRight: '-10px', // Negative margin to allow scrolling past the boundary
-                                paddingRight: '0' // Ensure no built-in padding affects the scroll boundary
+                                width: '100%',
+                                paddingRight: '0'
                             }}
                         >
                             {renderSectionButtons()}
@@ -413,6 +390,9 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
                     )}
                 </div>
             </div>
+
+            {/* Add an invisible element to ensure the box-shadow extends full width */}
+            <div className="absolute bottom-0 left-0 right-0 h-px" />
         </div>
     );
 };
