@@ -37,7 +37,7 @@ export const StudyPage: FC = () => {
         if (newSection === activeSection) return;
 
         if (topPartHeightRef.current && window.scrollY > topPartHeightRef.current) {
-            const navigationTopBoundary = topPartHeightRef.current + 10;
+            const navigationTopBoundary = topPartHeightRef.current + 8;
             window.scrollTo({
                 top: navigationTopBoundary,
                 behavior: 'auto'

@@ -72,6 +72,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                         text={!isSticky ? text : text}
                         mode={activeSection === id ? 'bezeled' : 'plain'}
                         onClick={() => onSectionChange(id)}
+                        // style={{color: activeSection === id ? '' : 'var(--tgui--button_text_color)'}}
                     >
                         <Icon />
                     </InlineButtonsItem>
