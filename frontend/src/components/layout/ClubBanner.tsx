@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Section, Image, Chip, Button, Text, Caption, Cell, Subheadline } from '@telegram-apps/telegram-ui';
-import { Tappable } from '@telegram-apps/telegram-ui/dist/components/Service/Tappable/Tappable';
+import { Section, Image, Chip, Button, Text, Caption, Subheadline } from '@telegram-apps/telegram-ui';
 import { Icon24Chevron_down } from '@/icons/24/chevron_down';
 
 interface ClubBannerProps {
@@ -57,9 +56,10 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
                                     {description}
                                 </Caption>
                                 <div
-                                    className="absolute right-0 top-0 h-4 w-32 pointer-events-none transition-opacity duration-300 ease-in-out"
+                                    className="absolute right-0 top-0 h-4 pointer-events-none transition-opacity duration-200 ease-in-out"
                                     style={{
-                                        background: 'linear-gradient(to right, transparent, var(--tgui--section_bg_color, white))',
+                                        width: '50%',
+                                        background: 'linear-gradient(to right, transparent 0%, var(--tgui--section_bg_color, white) 70%)',
                                         opacity: expanded ? 0 : 1
                                     }}
                                 />
