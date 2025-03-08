@@ -11,6 +11,8 @@ interface Club {
     tags: string[];
     memberCount: number;
     department: string;
+    subject: string;
+    organizer: string;
 }
 
 const ITEMS_PER_PAGE = 5;
@@ -30,21 +32,41 @@ const generateMockClubs = (): Club[] => {
         'Лингвистики'
     ];
 
-    const tagsList = [
-        '1-2 курс', '3-4 курс', 'для всех',
-        'соревнования', 'проекты', 'практика',
-        'стипендия', 'научка', 'бюджет',
-        'стажировка', 'командная работа', 'дистанционно'
+    const subjects = [
+        'Математика',
+        'Информатика',
+        'Инженерия',
+        'Искусство',
+        'Киберспорт',
+        'Астрономия',
+        'Физика',
+        'Химия',
+        'Биология',
+        'Лингвистика'
+    ];
+
+    const organizers = [
+        'Студенческий совет',
+        'Научное сообщество',
+        'Кафедра информатики',
+        'Кафедра физики',
+        'Кафедра математики',
+        'Спортивный клуб',
+        'Иностранные языки',
+        'Творческий центр',
+        'Робототехника',
+        'Молодежный центр'
     ];
 
     return Array.from({ length: 30 }, (_, index) => {
-        // Get 2-4 random tags
-        const numTags = Math.floor(Math.random() * 3) + 2;
-        const shuffledTags = [...tagsList].sort(() => Math.random() - 0.5);
-        const clubTags = shuffledTags.slice(0, numTags);
+        const clubType = clubTypes[index % clubTypes.length];
+        const subject = subjects[index % subjects.length];
+        const organizer = organizers[Math.floor(index / 3) % organizers.length];
+
+        // Create tags that match the filter values in ClubsFilters
+        const tags = [subject, organizer];
 
         // Create a more detailed description
-        const clubType = clubTypes[index % clubTypes.length];
         const description = `${clubType} кружок для студентов интересующихся ${clubType.toLowerCase()} наукой. Еженедельные занятия, совместные проекты и участие в конференциях. Присоединяйтесь к нашему сообществу и развивайте свои навыки вместе с нами!`;
 
         return {
@@ -52,9 +74,10 @@ const generateMockClubs = (): Club[] => {
             name: `Кружок "${clubType}"`,
             description,
             image: `/assets/clubs/club${(index % 5) + 1}.jpg`,
-            tags: clubTags,
+            tags: tags,
             memberCount: Math.floor(Math.random() * 80) + 20,
-            department: `Кафедра ${Math.floor(index / 3) + 1}`
+            subject,
+            organizer
         };
     });
 };
@@ -77,7 +100,6 @@ const ClubBannerSkeleton: React.FC = () => (
         <div className="mt-3 flex flex-wrap gap-2">
             <div className="h-6 bg-gray-200 rounded w-16"></div>
             <div className="h-6 bg-gray-200 rounded w-20"></div>
-            <div className="h-6 bg-gray-200 rounded w-14"></div>
         </div>
     </div>
 );

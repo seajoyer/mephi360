@@ -1,85 +1,190 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Section, Cell, Avatar, Divider } from '@telegram-apps/telegram-ui';
-import { Icon16Chevron_right } from '@/icons/16/chevron_right';
-import { Icon28Heart_fill } from '@/icons/28/heart_fill';
-import { Link } from '@/components/common/Link';
+import { Section } from '@telegram-apps/telegram-ui';
+import { StuffBanner } from '@/components/layout/StuffBanner';
 
 // Types
-interface Stuff {
+interface StudyMaterial {
     id: number;
-    name: string;
-    department: string;
-    imageFileName: string;
+    title: string;
+    description: string;
+    tags: string[];
+    telegramLink: string;
+    type: string;
+    semester: string;
+    teacher: string;
+    institute: string;
+    subject: string;
 }
 
-const ITEMS_PER_PAGE = 20;
+interface StuffListProps {
+    activeInstitute?: string | null;
+}
 
-// Mock data - replace with your actual API call in production
-const generateMockStuffs = (): Stuff[] => {
-    return Array.from({ length: 100 }, (_, index) => ({
-        id: index + 1,
-        name: `Stuff ${index + 1}`,
-        department: `Department ${Math.floor(index / 10) + 1}`,
-        imageFileName: 'default.jpg'
-    }));
+const ITEMS_PER_PAGE = 5;
+
+// Mock data generator
+const generateMockStudyMaterials = (): StudyMaterial[] => {
+    const materialTypes = [
+        'Теория',
+        'КР',
+        'Лаба',
+        'БДЗ',
+        'Зачет',
+        'Экзамен',
+        'Пересдача',
+        'Комиссия',
+    ];
+
+    const semesters = [
+        '1 сем',
+        '2 сем',
+        '3 сем',
+        '4 сем',
+        '5 сем',
+        '6 сем',
+        '7 сем',
+        '8 сем'
+    ];
+
+    const institutes = [
+        'ИЯФИТ',
+        'ЛаПлаз',
+        'ИФИБ',
+        'ИНТЭЛ',
+        'ИИКС',
+        'ИФТИС',
+        'ИФТЭБ',
+        'ИМО',
+        'ФБИУКС'
+    ];
+
+    const teachers = [
+        'Иванов И.И.',
+        'Петров П.П.',
+        'Сидоров С.С.',
+        'Кузнецова К.К.',
+        'Смирнова С.С.',
+        'Васильев В.В.',
+        'Михайлов М.М.',
+        'Андреев А.А.'
+    ];
+
+    const subjects = [
+        'Математика',
+        'Физика',
+        'Информатика',
+        'Программирование',
+        'Электроника',
+        'Схемотехника',
+        'Теория вероятностей',
+        'Дискретная математика',
+        'Базы данных',
+        'Операционные системы'
+    ];
+
+    return Array.from({ length: 30 }, (_, index) => {
+        // Select attributes for this material
+        const materialType = materialTypes[index % materialTypes.length];
+        const semester = semesters[Math.floor(Math.random() * semesters.length)];
+        const institute = institutes[Math.floor(Math.random() * institutes.length)];
+        const teacher = teachers[Math.floor(Math.random() * teachers.length)];
+        const subject = subjects[Math.floor(Math.random() * subjects.length)];
+
+        // Create tags from attributes - include only the filterable properties but exclude institute
+        // as it is now handled by the institute panel
+        const tags = [materialType, teacher, subject, semester].filter(Boolean);
+
+        // Create a detailed description
+        const description = `${materialType} по предмету "${subject}" для студентов ${institute}. Подготовлено преподавателем ${teacher} для ${semester}.`;
+
+        return {
+            id: index + 1,
+            title: `${subject} - ${materialType}`,
+            description,
+            tags,
+            telegramLink: `https://t.me/c/1234567890/${index + 1}`,
+            type: materialType,
+            semester,
+            teacher,
+            institute,
+            subject
+        };
+    });
 };
 
 // Create a cache object to store loaded sections
-const sectionsCache: Record<string, Stuff[]> = {};
+const sectionsCache: Record<string, StudyMaterial[]> = {};
 
 // Loading skeleton component
-const StuffCellSkeleton: React.FC = () => (
-    <div className="flex items-center p-4 w-full">
-        <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
-        <div className="ml-3 flex-1">
-            <div className="h-5 bg-gray-200 rounded w-32 mb-1 animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-48 animate-pulse" />
+const StuffBannerSkeleton: React.FC = () => (
+    <div className="p-4 animate-pulse">
+        <div className="flex-1">
+            <div className="h-5 bg-gray-500 rounded w-40 mb-2"></div>
+            <div className="h-3 bg-gray-500 rounded w-full"></div>
+            <div className="h-3 bg-gray-500 rounded w-full mt-1"></div>
+            <div className="h-3 bg-gray-500 rounded w-3/4 mt-1"></div>
         </div>
-        <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
+        <div className="mt-3 flex flex-wrap gap-2">
+            <div className="h-6 bg-gray-500 rounded w-16"></div>
+            <div className="h-6 bg-gray-500 rounded w-20"></div>
+            <div className="h-6 bg-gray-500 rounded w-14"></div>
+        </div>
     </div>
 );
 
 const LoadingState: React.FC = () => (
     <>
         {Array.from({ length: 3 }).map((_, index) => (
-            <React.Fragment key={`skeleton-${index}`}>
-                <StuffCellSkeleton />
-                {index < 2 && <Divider />}
-            </React.Fragment>
+            <Section key={`skeleton-${index}`} className="mb-3">
+                <StuffBannerSkeleton />
+            </Section>
         ))}
     </>
 );
 
-export const StuffList: React.FC = () => {
-    // Lazy load stuffs data
-    const allStuffs = useRef<Stuff[]>([]);
+export const StuffList: React.FC<StuffListProps> = ({ activeInstitute = null }) => {
+    // Lazy load study materials data
+    const allMaterials = useRef<StudyMaterial[]>([]);
 
-    // Get cached data if available
-    const cachedData = sectionsCache['stuffs'] || [];
-    const [displayedStuffs, setDisplayedStuffs] = useState<Stuff[]>(cachedData);
+    // Get cached data based on the active institute filter
+    const cacheKey = activeInstitute ? `stuff-${activeInstitute}` : 'stuff';
+    const cachedData = sectionsCache[cacheKey] || [];
+
+    const [displayedMaterials, setDisplayedMaterials] = useState<StudyMaterial[]>(cachedData);
     const [isLoading, setIsLoading] = useState(cachedData.length === 0);
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [currentFilter, setCurrentFilter] = useState<string | null>(activeInstitute);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const loadingRef = useRef(false);
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadTriggerRef = useRef<HTMLDivElement>(null);
 
-    // Initialize stuffs data if not already loaded
+    // Initialize study materials data if not already loaded
     useEffect(() => {
-        if (allStuffs.current.length === 0) {
+        if (allMaterials.current.length === 0) {
             try {
                 // In a real app, you'd fetch from an API here
-                allStuffs.current = generateMockStuffs();
+                allMaterials.current = generateMockStudyMaterials();
             } catch (err) {
-                setError('Failed to load stuffs data');
+                setError('Failed to load study materials data');
                 console.error(err);
             }
         }
     }, []);
 
-    const loadMoreStuffs = useCallback(() => {
+    // Reset displayed materials when institute filter changes
+    useEffect(() => {
+        if (currentFilter !== activeInstitute) {
+            setDisplayedMaterials([]);
+            setIsLoading(true);
+            setHasMore(true);
+            setCurrentFilter(activeInstitute);
+        }
+    }, [activeInstitute, currentFilter]);
+
+    const loadMoreMaterials = useCallback(() => {
         if (loadingRef.current || !hasMore || error) return;
 
         loadingRef.current = true;
@@ -88,36 +193,41 @@ export const StuffList: React.FC = () => {
         // Simulate API delay
         setTimeout(() => {
             try {
-                const startIndex = displayedStuffs.length;
+                // Filter materials by institute if selected
+                const filteredAllMaterials = activeInstitute
+                    ? allMaterials.current.filter(material => material.institute === activeInstitute)
+                    : allMaterials.current;
+
+                const startIndex = displayedMaterials.length;
                 const endIndex = startIndex + ITEMS_PER_PAGE;
-                const nextItems = allStuffs.current.slice(startIndex, endIndex);
+                const nextItems = filteredAllMaterials.slice(startIndex, endIndex);
 
                 if (nextItems.length > 0) {
-                    const newStuffs = [...displayedStuffs, ...nextItems];
-                    setDisplayedStuffs(newStuffs);
+                    const newMaterials = [...displayedMaterials, ...nextItems];
+                    setDisplayedMaterials(newMaterials);
 
-                    // Update cache
-                    sectionsCache['stuffs'] = newStuffs;
-                    setHasMore(endIndex < allStuffs.current.length);
+                    // Update cache with the institute-specific key
+                    sectionsCache[cacheKey] = newMaterials;
+                    setHasMore(endIndex < filteredAllMaterials.length);
                 } else {
                     setHasMore(false);
                 }
             } catch (err) {
-                setError('Error loading more stuffs');
+                setError('Error loading more study materials');
                 console.error(err);
             } finally {
                 setIsLoading(false);
                 loadingRef.current = false;
             }
-        }, displayedStuffs.length > 0 ? 0 : 500); // Only add delay for initial load when no cache
-    }, [displayedStuffs.length, hasMore, displayedStuffs, error]);
+        }, displayedMaterials.length > 0 ? 200 : 400); // Add delay for better UX
+    }, [displayedMaterials, hasMore, error, activeInstitute, cacheKey]);
 
     // Initial load only if no cached data
     useEffect(() => {
-        if (displayedStuffs.length === 0 && !error) {
-            loadMoreStuffs();
+        if (displayedMaterials.length === 0 && !error) {
+            loadMoreMaterials();
         }
-    }, [loadMoreStuffs, error]);
+    }, [loadMoreMaterials, displayedMaterials.length, error]);
 
     // Set up Intersection Observer
     useEffect(() => {
@@ -130,14 +240,14 @@ export const StuffList: React.FC = () => {
         const observer = new IntersectionObserver((entries) => {
             const [entry] = entries;
             if (entry.isIntersecting && !loadingRef.current && hasMore) {
-                loadMoreStuffs();
+                loadMoreMaterials();
             }
         }, options);
 
         observerRef.current = observer;
 
         return () => observer.disconnect();
-    }, [loadMoreStuffs, hasMore]);
+    }, [loadMoreMaterials, hasMore]);
 
     // Observe load trigger element
     useEffect(() => {
@@ -148,7 +258,7 @@ export const StuffList: React.FC = () => {
             observer.observe(trigger);
             return () => observer.unobserve(trigger);
         }
-    }, [displayedStuffs]);
+    }, [displayedMaterials]);
 
     if (error) {
         return (
@@ -158,10 +268,10 @@ export const StuffList: React.FC = () => {
                     className="block mx-auto mt-2 p-2 bg-gray-200 rounded"
                     onClick={() => {
                         setError(null);
-                        loadMoreStuffs();
+                        loadMoreMaterials();
                     }}
                 >
-                    Retry
+                    Повторить
                 </button>
             </div>
         );
@@ -175,29 +285,15 @@ export const StuffList: React.FC = () => {
                 WebkitOverflowScrolling: 'touch'
             }}
         >
-            <Section>
-                {displayedStuffs.map((stuff, index) => (
-                    <div key={stuff.id}>
-                        <Link to={`/stuff/${stuff.id}`}>
-                            <Cell
-                                before={
-                                    <Avatar
-                                        size={40}
-                                        src={`/assets/stuffs/${stuff.imageFileName}`}
-                                        fallbackIcon={<span><Icon28Heart_fill /></span>}
-                                    />
-                                }
-                                after={
-                                    <Icon16Chevron_right
-                                        style={{color: 'var(--tg-theme-link-color)'}}
-                                    />
-                                }
-                                description={stuff.department}
-                            >
-                                {stuff.name}
-                            </Cell>
-                        </Link>
-                        {index < displayedStuffs.length - 1 && <Divider />}
+            <div className="space-y-3">
+                {displayedMaterials.map((material) => (
+                    <div key={material.id}>
+                        <StuffBanner
+                            title={material.title}
+                            description={material.description}
+                            tags={material.tags}
+                            telegramLink={material.telegramLink}
+                        />
                     </div>
                 ))}
 
@@ -211,22 +307,26 @@ export const StuffList: React.FC = () => {
                 )}
 
                 {/* Show loading state when initially loading */}
-                {isLoading && displayedStuffs.length === 0 && <LoadingState />}
+                {isLoading && displayedMaterials.length === 0 && (
+                    <div className='-mt-4'>
+                        <LoadingState />
+                    </div>
+                )}
 
                 {/* Show loading indicator when loading more */}
-                {isLoading && displayedStuffs.length > 0 && (
+                {isLoading && displayedMaterials.length > 0 && (
                     <div className="py-4 text-center">
                         <div className="inline-block h-6 w-6 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
                     </div>
                 )}
 
                 {/* End of list message */}
-                {!hasMore && displayedStuffs.length > 0 && (
+                {!hasMore && displayedMaterials.length > 0 && (
                     <div className="text-center py-4 text-gray-500">
-                        No more stuffs to load
+                        Все материалы загружены
                     </div>
                 )}
-            </Section>
+            </div>
         </div>
     );
 };

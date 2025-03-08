@@ -7,11 +7,14 @@ interface SectionContentProps {
     activeSection: string;
     onSectionChange: (section: string) => void;
     className?: string;
+    activeInstitute?: string | null;
 }
 
 export const SectionContent: React.FC<SectionContentProps> = ({
     activeSection,
-    className = ''
+    onSectionChange,
+    className = '',
+    activeInstitute = null
 }) => {
     // Using animation classes for smooth transitions
     const getDisplayClass = (section: string) => {
@@ -38,7 +41,7 @@ export const SectionContent: React.FC<SectionContentProps> = ({
                 className={`h-full ${getDisplayClass('stuff')}`}
                 data-section="stuff"
             >
-                <StuffList />
+                <StuffList activeInstitute={activeInstitute} />
             </div>
         </div>
     );

@@ -9,7 +9,7 @@ export const TopPart: FC = () => {
     return (
         <>
             <TopButtons />
-                <TopText />
+            <TopText />
         </>
     );
 };

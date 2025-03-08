@@ -72,6 +72,7 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
 
                     <div className="mt-3 relative">
                         <div className="flex flex-wrap gap-2 pr-10 relative">
+                            {/* Display only filter values as chips */}
                             {tags.map((tag, index) => (
                                 <Chip key={index} mode="outline">
                                     <Subheadline level="2" weight="3">

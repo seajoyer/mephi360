@@ -292,15 +292,13 @@ const TutorsFilters = React.memo<FilterSectionProps>(({
       width: 'calc(100% - 50px)'
     }}>
       <FilterButton
-        text="Все кафедры"
+        text="Преподаватели"
         onClick={() => onFilterClick('departments')}
       />
     </div>
     <AddButton onClick={onAddClick} />
   </div>
 ));
-
-TutorsFilters.displayName = 'TutorsFilters';
 
 /**
  * Clubs filters component
@@ -319,13 +317,13 @@ const ClubsFilters = React.memo<FilterSectionProps>(({
     <div className="flex flex-1 mr-2">
       <div className="flex-1 mr-2">
         <FilterButton
-          text="Все предметы"
-          onClick={() => onFilterClick('subjects')}
+          text="Предмет"
+          onClick={() => onFilterClick('subject')}
         />
       </div>
       <div className="flex-1">
         <FilterButton
-          text="Все организаторы"
+          text="Организатор"
           onClick={() => onFilterClick('organizers')}
         />
       </div>
@@ -337,7 +335,7 @@ const ClubsFilters = React.memo<FilterSectionProps>(({
 ClubsFilters.displayName = 'ClubsFilters';
 
 /**
- * Study materials filters component
+ * Study materials filters component - MODIFIED to remove "Институт" filter
  */
 const StuffFilters = React.memo<FilterSectionProps>(({
   onFilterClick,
@@ -353,14 +351,26 @@ const StuffFilters = React.memo<FilterSectionProps>(({
     <div className="flex flex-1 mr-2">
       <div className="flex-1 mr-2">
         <FilterButton
-          text="Все типы"
-          onClick={() => onFilterClick('types')}
+          text="Тип"
+          onClick={() => onFilterClick('type')}
+        />
+      </div>
+      <div className="flex-1 mr-2">
+        <FilterButton
+          text="Препод"
+          onClick={() => onFilterClick('teacher')}
+        />
+      </div>
+      <div className="flex-1 mr-2">
+        <FilterButton
+          text="Предмет"
+          onClick={() => onFilterClick('subject')}
         />
       </div>
       <div className="flex-1">
         <FilterButton
-          text="Все предметы"
-          onClick={() => onFilterClick('subjects')}
+          text="Семестр"
+          onClick={() => onFilterClick('semester')}
         />
       </div>
     </div>
@@ -396,7 +406,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
   const prevSectionRef = useRef<string>(activeSection);
 
   // Custom hooks
-  const isSticky = useStickyState(containerRef, 74);
+  const isSticky = useStickyState(containerRef, 0); // Changed from 74 to 0
   const { isScrollable, checkScrollable } = useScrollable(filterContainerRef, filterContentRef);
 
   // Expand search handler
@@ -407,7 +417,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
     if (containerRef.current) {
       const container = containerRef.current;
       const containerRect = container.getBoundingClientRect();
-      const stickyTop = 76;
+      const stickyTop = 2; // Changed from 76 to 2
       if (containerRect.top < stickyTop) return;
       window.scrollTo({
         top: window.scrollY + containerRect.top - stickyTop,
@@ -516,7 +526,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ activeSection }) => {
   return (
     <div
       data-searchpanel
-      className="sticky top-19 z-20 pt-1 pb-2 visible"
+      className="sticky top-0 z-20 pt-1 pb-2 visible" // Changed from top-19 to top-0
       ref={containerRef}
       style={{
         backgroundColor: 'var(--tgui--secondary_bg_color)',

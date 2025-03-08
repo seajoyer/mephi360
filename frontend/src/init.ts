@@ -37,6 +37,10 @@ export function init(debug: boolean): void {
         if (themeParams.bindCssVars.isAvailable()) {
           themeParams.bindCssVars();
         }
+
+        if (miniApp.setHeaderColor.isAvailable()) {
+          miniApp.setHeaderColor('secondary_bg_color');
+        }
       }
 
       if (viewport.mount.isAvailable()) {
