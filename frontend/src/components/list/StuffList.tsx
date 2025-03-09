@@ -20,7 +20,7 @@ interface StuffListProps {
     activeInstitute?: string | null;
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 12;
 
 // Mock data generator
 const generateMockStudyMaterials = (): StudyMaterial[] => {
@@ -119,22 +119,31 @@ const sectionsCache: Record<string, StudyMaterial[]> = {};
 const StuffBannerSkeleton: React.FC = () => (
     <div className="p-4 animate-pulse">
         <div className="flex-1">
-            <div className="h-5 bg-gray-500 rounded w-40 mb-2"></div>
-            <div className="h-3 bg-gray-500 rounded w-full"></div>
-            <div className="h-3 bg-gray-500 rounded w-full mt-1"></div>
-            <div className="h-3 bg-gray-500 rounded w-3/4 mt-1"></div>
+            <div className="h-4.5 rounded w-55 mb-3.5 mt-0.75"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
+            <div className="h-3.5 rounded w-full"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
+            <div className="h-3.5 rounded w-full mt-2.5"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
+            <div className="h-3.5 rounded w-3/4 mt-2.5"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-            <div className="h-6 bg-gray-500 rounded w-16"></div>
-            <div className="h-6 bg-gray-500 rounded w-20"></div>
-            <div className="h-6 bg-gray-500 rounded w-14"></div>
+        <div className="mt-3.75 flex flex-wrap gap-2">
+            <div className="h-9 rounded-lg w-11.25"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
+            <div className="h-9 rounded-lg w-19"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
+            <div className="h-9 rounded-lg w-22"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
+            <div className="h-9 rounded-lg w-16.75"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
         </div>
     </div>
 );
 
 const LoadingState: React.FC = () => (
     <>
-        {Array.from({ length: 3 }).map((_, index) => (
+        {Array.from({ length: 5 }).map((_, index) => (
             <Section key={`skeleton-${index}`} className="mb-3">
                 <StuffBannerSkeleton />
             </Section>

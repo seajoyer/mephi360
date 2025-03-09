@@ -15,7 +15,7 @@ interface Club {
     organizer: string;
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 12;
 
 // Mock data generator
 const generateMockClubs = (): Club[] => {
