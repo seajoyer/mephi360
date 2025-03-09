@@ -175,25 +175,37 @@ interface InstituteButtonProps {
   institute?: Institute;
   isSelected?: boolean;
   onClick: () => void;
+  animationIndex?: number; // New prop for controlling animation delay
 }
 
 const InstituteButton: React.FC<InstituteButtonProps> = React.memo(({
   institute,
   isSelected = false,
-  onClick
+  onClick,
+  animationIndex = 0
 }) => {
   const InstituteIcon = institute?.Icon || Icon24All;
+
+  // Calculate a staggered delay based on button position
+  const animationDelay = `${animationIndex * 20}ms`; // 20ms stagger between buttons
+
+  // Choose the appropriate animation class based on position
+  const animationClass = animationIndex === 0
+    ? "institute-button-animate-first"
+    : "institute-button-animate";
 
   return (
     <Button
       mode={isSelected ? "gray" : "plain"}
       size="m"
       onClick={onClick}
+      className={animationClass}
       style={{
         padding: '0px',
         background: isSelected ? 'var(--tgui--section_bg_color)' : '',
         color: 'var(--tgui--text_color)',
-        flexShrink: 0
+        flexShrink: 0,
+        animationDelay: animationDelay
       }}
       aria-label={institute ? `Select institute ${institute.id}` : "All institutes"}
     >
@@ -221,19 +233,21 @@ const InstituteSelector: React.FC<InstituteSelectorProps> = React.memo(({
         transition: 'all 0.2s ease-in-out'
       }}
     >
-      {/* "No institute" option */}
+      {/* "No institute" option (All) */}
       <InstituteButton
         onClick={() => onSelect(null)}
         isSelected={activeInstitute === null}
+        animationIndex={0} // First button
       />
 
-      {/* Institute options */}
-      {INSTITUTES.map(institute => (
+      {/* Institute options with staggered animation */}
+      {INSTITUTES.map((institute, index) => (
         <InstituteButton
           key={institute.id}
           institute={institute}
           isSelected={activeInstitute === institute.id}
           onClick={() => onSelect(institute.id)}
+          animationIndex={index + 1} // Subsequent buttons
         />
       ))}
     </div>
@@ -662,7 +676,6 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
         overflow: 'hidden'
       }}
     >
-      {/* Hide scrollbar CSS */}
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;
@@ -670,6 +683,37 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
         .no-scrollbar {
           -ms-overflow-style: none;
           scrollbar-width: none;
+        }
+
+        /* Institute button animations */
+        @keyframes instituteButtonFadeIn {
+          from {
+            opacity: 0;
+            transform: translateX(-6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes firstButtonFadeIn {
+          from {
+            opacity: 0.5;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        .institute-button-animate {
+          opacity: 0;
+          animation: instituteButtonFadeIn 0.20s ease-out forwards;
+        }
+
+        .institute-button-animate-first {
+          opacity: 0;
+          animation: firstButtonFadeIn 0.20s ease-out forwards;
         }
       `}</style>
 
