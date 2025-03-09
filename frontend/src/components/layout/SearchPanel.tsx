@@ -175,14 +175,18 @@ interface InstituteButtonProps {
   institute?: Institute;
   isSelected?: boolean;
   onClick: () => void;
-  animationIndex?: number; // New prop for controlling animation delay
+  animationIndex?: number;
+  isMainButton?: boolean; // New prop to identify the main button
+  disableAnimation?: boolean; // New prop to disable animations
 }
 
 const InstituteButton: React.FC<InstituteButtonProps> = React.memo(({
   institute,
   isSelected = false,
   onClick,
-  animationIndex = 0
+  animationIndex = 0,
+  isMainButton = false,
+  disableAnimation = false
 }) => {
   const InstituteIcon = institute?.Icon || Icon24All;
 
@@ -190,9 +194,12 @@ const InstituteButton: React.FC<InstituteButtonProps> = React.memo(({
   const animationDelay = `${animationIndex * 20}ms`; // 20ms stagger between buttons
 
   // Choose the appropriate animation class based on position
-  const animationClass = animationIndex === 0
-    ? "institute-button-animate-first"
-    : "institute-button-animate";
+  // Skip animation completely if it's the main button or animations are disabled
+  const animationClass = disableAnimation || isMainButton
+    ? "" // No animation class
+    : (animationIndex === 0
+      ? "institute-button-animate-first"
+      : "institute-button-animate");
 
   return (
     <Button
@@ -205,7 +212,9 @@ const InstituteButton: React.FC<InstituteButtonProps> = React.memo(({
         background: isSelected ? 'var(--tgui--section_bg_color)' : '',
         color: 'var(--tgui--text_color)',
         flexShrink: 0,
-        animationDelay: animationDelay
+        animationDelay: animationDelay,
+        // Set opacity to 1 to ensure it's fully visible right away
+        opacity: disableAnimation || isMainButton ? 1 : undefined
       }}
       aria-label={institute ? `Select institute ${institute.id}` : "All institutes"}
     >
@@ -219,18 +228,20 @@ InstituteButton.displayName = 'InstituteButton';
 interface InstituteSelectorProps {
   activeInstitute: string | null;
   onSelect: (institute: string | null) => void;
+  disableAnimation?: boolean;
 }
 
 const InstituteSelector: React.FC<InstituteSelectorProps> = React.memo(({
   activeInstitute,
-  onSelect
+  onSelect,
+  disableAnimation = false
 }) => {
   return (
     <div
       className="flex gap-2 overflow-x-auto no-scrollbar w-full items-center"
       style={{
         WebkitOverflowScrolling: 'touch',
-        transition: 'all 0.2s ease-in-out'
+        transition: disableAnimation ? 'none' : 'all 0.2s ease-in-out'
       }}
     >
       {/* "No institute" option (All) */}
@@ -238,6 +249,7 @@ const InstituteSelector: React.FC<InstituteSelectorProps> = React.memo(({
         onClick={() => onSelect(null)}
         isSelected={activeInstitute === null}
         animationIndex={0} // First button
+        disableAnimation={disableAnimation}
       />
 
       {/* Institute options with staggered animation */}
@@ -248,6 +260,7 @@ const InstituteSelector: React.FC<InstituteSelectorProps> = React.memo(({
           isSelected={activeInstitute === institute.id}
           onClick={() => onSelect(institute.id)}
           animationIndex={index + 1} // Subsequent buttons
+          disableAnimation={disableAnimation}
         />
       ))}
     </div>
@@ -263,6 +276,7 @@ interface ExpandableSearchInputProps {
   value: string;
   onChange: (value: string) => void;
   hasInstituteButton: boolean;
+  disableTransition?: boolean;
 }
 
 const ExpandableSearchInput: React.FC<ExpandableSearchInputProps> = React.memo(({
@@ -271,7 +285,8 @@ const ExpandableSearchInput: React.FC<ExpandableSearchInputProps> = React.memo((
   onCollapse,
   value,
   onChange,
-  hasInstituteButton
+  hasInstituteButton,
+  disableTransition = false
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -290,10 +305,11 @@ const ExpandableSearchInput: React.FC<ExpandableSearchInputProps> = React.memo((
 
   return (
     <div
-      className="transition-all duration-200 ease-in-out"
+      className={disableTransition ? "" : "transition-all duration-200 ease-in-out"}
       style={{
         width: isExpanded ? expandedWidth : '42px',
-        flexShrink: 0
+        flexShrink: 0,
+        transition: disableTransition ? 'none' : undefined
       }}
     >
       <div className="relative">
@@ -321,7 +337,11 @@ const ExpandableSearchInput: React.FC<ExpandableSearchInputProps> = React.memo((
           aria-label="Search"
           before={
             <div
-              className={`transition-transform duration-200 ${isExpanded ? '' : 'translate-x-[calc(50%-12px)]'}`}
+              className={disableTransition ? "" : `transition-transform duration-200 ${isExpanded ? '' : 'translate-x-[calc(50%-12px)]'}`}
+              style={{
+                transform: isExpanded ? 'none' : 'translateX(calc(50% - 12px))',
+                transition: disableTransition ? 'none' : undefined
+              }}
               aria-hidden="true"
             >
               <Icon24Search />
@@ -357,20 +377,25 @@ interface FilterSectionProps {
   isHidden: boolean;
   onContentRef: (node: HTMLDivElement | null) => void;
   hasInstituteButton: boolean;
+  disableTransition?: boolean;
 }
 
 const TutorsFilters: React.FC<FilterSectionProps> = React.memo(({
   onFilterClick,
   onAddClick,
   isHidden,
-  onContentRef
+  onContentRef,
+  disableTransition = false
 }) => (
   <div
     ref={onContentRef}
-    className="transition-opacity duration-200 flex w-full"
+    className={disableTransition ? "" : "transition-opacity duration-200 flex w-full"}
     style={{
       opacity: isHidden ? 0 : 1,
-      pointerEvents: isHidden ? 'none' : 'auto'
+      pointerEvents: isHidden ? 'none' : 'auto',
+      display: 'flex',
+      width: '100%',
+      transition: disableTransition ? 'none' : undefined
     }}
   >
     <div style={{
@@ -392,14 +417,16 @@ const ClubsFilters: React.FC<FilterSectionProps> = React.memo(({
   onFilterClick,
   onAddClick,
   isHidden,
-  onContentRef
+  onContentRef,
+  disableTransition = false
 }) => (
   <div
     ref={onContentRef}
-    className="flex w-full transition-opacity duration-200"
+    className={disableTransition ? "flex w-full" : "flex w-full transition-opacity duration-200"}
     style={{
       opacity: isHidden ? 0 : 1,
-      pointerEvents: isHidden ? 'none' : 'auto'
+      pointerEvents: isHidden ? 'none' : 'auto',
+      transition: disableTransition ? 'none' : undefined
     }}
   >
     <div className="flex flex-1 mr-2">
@@ -425,14 +452,16 @@ const StuffFilters: React.FC<FilterSectionProps> = React.memo(({
   onFilterClick,
   onAddClick,
   isHidden,
-  onContentRef
+  onContentRef,
+  disableTransition = false
 }) => (
   <div
     ref={onContentRef}
-    className="flex w-full transition-opacity duration-200"
+    className={disableTransition ? "flex w-full" : "flex w-full transition-opacity duration-200"}
     style={{
       opacity: isHidden ? 0 : 1,
-      pointerEvents: isHidden ? 'none' : 'auto'
+      pointerEvents: isHidden ? 'none' : 'auto',
+      transition: disableTransition ? 'none' : undefined
     }}
   >
     <div className="flex flex-1 mr-2">
@@ -480,6 +509,9 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
   // State for institute selection
   const [isInstituteExpanded, setIsInstituteExpanded] = useState(false);
   const [isInstituteTransitioning, setIsInstituteTransitioning] = useState(false);
+
+  // Flag to disable transitions during section changes
+  const [isSectionChanging, setIsSectionChanging] = useState(false);
 
   // References
   const containerRef = useRef<HTMLDivElement>(null);
@@ -604,9 +636,12 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
     setTimeout(checkScrollable, 0);
   }, [checkScrollable]);
 
-  // Handle section changes
+  // Handle section changes - disable transitions during section changes
   useEffect(() => {
     if (prevSectionRef.current !== activeSection) {
+      // Set the flag to disable transitions
+      setIsSectionChanging(true);
+
       // Re-measure when section changes
       checkScrollable();
 
@@ -619,6 +654,12 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
       if (isInstituteExpanded) {
         handleInstituteCollapse();
       }
+
+      // Reset the flag after a short delay to re-enable transitions
+      // after the section change is complete
+      setTimeout(() => {
+        setIsSectionChanging(false);
+      }, 300);
     }
 
     prevSectionRef.current = activeSection;
@@ -638,7 +679,8 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
       onAddClick: handleAddClick,
       isHidden: areFiltersHidden,
       onContentRef: contentRefCallback,
-      hasInstituteButton: showInstituteButton
+      hasInstituteButton: showInstituteButton,
+      disableTransition: isSectionChanging
     };
 
     switch (activeSection) {
@@ -656,8 +698,14 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
     handleAddClick,
     areFiltersHidden,
     contentRefCallback,
-    showInstituteButton
+    showInstituteButton,
+    isSectionChanging
   ]);
+
+  // For search expansion: keep the filters visible with fade-out effect
+  // For institute expansion: hide filters instantly
+  const shouldShowFilters = !isInstituteExpanded &&
+                           (!isSearchExpanded || isSearchTransitioning);
 
   return (
     <div
@@ -667,7 +715,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
       style={{
         backgroundColor: 'var(--tgui--secondary_bg_color)',
         boxShadow: isSticky ? '0 1px 0 var(--tgui--quartenary_bg_color)' : 'none',
-        transition: 'box-shadow 0.2s ease-in-out, padding 0.2s ease-in-out',
+        transition: isSectionChanging ? 'none' : 'box-shadow 0.2s ease-in-out, padding 0.2s ease-in-out',
         width: 'calc(100% + 16px)',
         marginLeft: '-8px',
         paddingLeft: '8px',
@@ -718,20 +766,23 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
       `}</style>
 
       <div className="flex gap-2">
-        {/* Institute button - visible in stuff section when not expanded */}
-        {showInstituteButton && !isInstituteExpanded && (
-          <InstituteButton
-            institute={selectedInstitute}
-            isSelected={!!selectedInstitute || activeInstitute === null}
-            onClick={handleInstituteExpand}
-          />
-        )}
+              {/* Institute button - visible in stuff section when not expanded */}
+              {showInstituteButton && !isInstituteExpanded && (
+                  <InstituteButton
+                      institute={selectedInstitute}
+                      isSelected={!!selectedInstitute || activeInstitute === null}
+                      onClick={handleInstituteExpand}
+                      isMainButton={true}
+                      disableAnimation={isSectionChanging}
+                  />
+              )}
 
         {/* Expanded institute selection - only visible when expanded */}
         {showInstituteButton && isInstituteExpanded && (
           <InstituteSelector
             activeInstitute={activeInstitute}
             onSelect={handleInstituteSelect}
+            disableAnimation={isSectionChanging}
           />
         )}
 
@@ -744,18 +795,20 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
             value={searchValue}
             onChange={handleSearchChange}
             hasInstituteButton={showInstituteButton}
+            disableTransition={isSectionChanging}
           />
         )}
 
-        {/* Filters Container - hidden when search or institute selection is expanded */}
-        {!isSearchExpanded && !isInstituteExpanded && (
+        {/* Filters Container - now uses shouldShowFilters to keep visible during transitions */}
+        {shouldShowFilters && (
           <div
             ref={filterContainerRef}
-            className="relative overflow-hidden no-scrollbar transition-all duration-200 ease-in-out"
+            className="relative overflow-hidden no-scrollbar"
             style={{
               width: `calc(100% - 42px - 8px${showInstituteButton ? ' - 42px - 8px' : ''})`,
               overflowX: isScrollable ? 'auto' : 'hidden',
-              visibility: isSearchExpanded && !isSearchTransitioning ? 'hidden' : 'visible'
+              opacity: isSearchExpanded ? 0 : 1,
+              transition: isSectionChanging ? 'none' : 'all 0.2s ease-in-out'
             }}
           >
             {isScrollable ? (
