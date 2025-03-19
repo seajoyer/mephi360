@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { FC } from 'react';
+
 import { Page } from '@/components/Page';
 import { TopPart } from '@/components/sections/TopPart';
 import { BottomPart } from '@/components/sections/BottomPart';
