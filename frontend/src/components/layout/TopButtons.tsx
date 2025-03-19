@@ -6,6 +6,7 @@ import type { FC } from 'react';
 
 import { Icon24Channel } from '@/icons/24/channel';
 import { Icon24Support } from '@/icons/24/support';
+import { Icon24Laplas } from '@/icons/24/laplas';
 
 export const TopButtons: FC = () => {
     return (
@@ -29,13 +30,14 @@ export const TopButtons: FC = () => {
                     transform: 'translateY(-50%)'
                 }}
             >
-                <Icon24Support />
+                <Icon24Laplas />
             </IconButton>
 
             {/* Centered SegmentedControl */}
             <SegmentedControl
                 style={{
-                    width: 'auto',
+                    width: 'calc(100% - 150px)',
+                    minWidth: '190px'
                 }}
             >
                 <SegmentedControlItem
