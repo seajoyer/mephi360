@@ -61,7 +61,7 @@ const useStickyState = (elementRef: React.RefObject<HTMLElement>, offset = 0): b
 
     const checkStickyState = () => {
       if (!elementRef.current || initialPositionRef.current === null) return;
-      const shouldBeSticky = window.scrollY > (initialPositionRef.current - offset - 1);
+      const shouldBeSticky = window.scrollY > (initialPositionRef.current - offset);
       if (isSticky !== shouldBeSticky) {
         setIsSticky(shouldBeSticky);
       }
@@ -553,7 +553,7 @@ const shouldShowFilters = (!uiState.isInstituteExpanded || uiState.isInstituteTr
     if (containerRef.current) {
       const container = containerRef.current;
       const containerRect = container.getBoundingClientRect();
-      const stickyTop = 2;
+      const stickyTop = 0; // to calibrate
       if (containerRect.top < stickyTop) return;
       window.scrollTo({
         top: window.scrollY + containerRect.top - stickyTop,
@@ -702,7 +702,7 @@ const handleInstituteSelect = useCallback((institute: string | null) => {
   return (
     <div
       data-searchpanel
-      className="sticky top-0 z-20 pt-1 pb-2 visible"
+      className="sticky top-0 z-20 pt-2 pb-2 visible"
       ref={containerRef}
       style={{
         backgroundColor: 'var(--tgui--secondary_bg_color)',

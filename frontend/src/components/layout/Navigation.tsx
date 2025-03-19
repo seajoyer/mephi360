@@ -22,7 +22,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
     return (
         <div
-            className="pt-2 pb-1"
+            className="pt-2"
             style={{ backgroundColor: 'var(--tgui--secondary_bg_color)'}}
         >
             {/* Navigation buttons */}

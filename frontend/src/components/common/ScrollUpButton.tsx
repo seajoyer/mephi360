@@ -41,7 +41,7 @@ export const ScrollUpButton: React.FC<ScrollUpButtonProps> = ({
     return (
         <FixedLayout vertical="bottom">
             <div
-                className={`flex justify-end pr-4.25 transition-all duration-300 ease-in-out`}
+                className={`flex justify-start pl-4 transition-all duration-300 ease-in-out`}
                 style={{
                     paddingBottom: `calc(${bottomOffset}px + var(--tgui--safe_area_inset_bottom, 0px))`,
                     transform: `translateY(${isVisible ? '0' : '100px'})`,
