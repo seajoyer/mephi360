@@ -187,7 +187,6 @@ interface InstituteButtonProps {
   isSelected?: boolean;
   onClick: () => void;
   animationIndex?: number;
-  isMainButton?: boolean;
   disableAnimation?: boolean;
 }
 
@@ -196,12 +195,11 @@ const InstituteButton = React.memo<InstituteButtonProps>(({
   isSelected = false,
   onClick,
   animationIndex = 0,
-  isMainButton = false,
   disableAnimation = false
 }) => {
   const InstituteIcon = institute?.Icon || Icon24All;
   const animationDelay = `${animationIndex * 20}ms`;
-  const animationClass = disableAnimation || isMainButton
+  const animationClass = disableAnimation
     ? ""
     : (animationIndex === 0 ? "institute-button-animate-first" : "institute-button-animate");
 
@@ -217,7 +215,6 @@ const InstituteButton = React.memo<InstituteButtonProps>(({
         color: 'var(--tgui--text_color)',
         flexShrink: 0,
         animationDelay,
-        opacity: disableAnimation || isMainButton ? 1 : undefined
       }}
       aria-label={institute ? `Select institute ${institute.id}` : "All institutes"}
     >
@@ -510,6 +507,9 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
     searchValue: ''
   });
 
+  // State for Institutes button animation
+  const [shouldAnimateInstitute, setShouldAnimateInstitute] = useState(false);
+
   // References
   const containerRef = useRef<HTMLDivElement>(null);
   const filterContainerRef = useRef<HTMLDivElement>(null);
@@ -526,8 +526,8 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
     activeInstitute ? INSTITUTES.find(institute => institute.id === activeInstitute) : null,
   [activeInstitute]);
   const areFiltersHidden = uiState.isSearchExpanded || uiState.isInstituteExpanded;
-  const shouldShowFilters = !uiState.isInstituteExpanded &&
-                          (!uiState.isSearchExpanded || uiState.isSearchTransitioning);
+const shouldShowFilters = (!uiState.isInstituteExpanded || uiState.isInstituteTransitioning) &&
+                       (!uiState.isSearchExpanded || uiState.isSearchTransitioning);
 
   // Set UI state with transition handling
   const setUIStateWithTransition = (
@@ -579,13 +579,16 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
   }, []);
 
   // Handler for expanding institute selection
-  const handleInstituteExpand = useCallback(() => {
-    if (uiState.isSearchExpanded) {
-      handleSearchCollapse();
-    }
+const handleInstituteExpand = useCallback(() => {
+  // Enable animations for user interaction
+  setShouldAnimateInstitute(true);
 
-    setUIStateWithTransition({ isInstituteExpanded: true }, 'isInstituteTransitioning');
-  }, [uiState.isSearchExpanded, handleSearchCollapse]);
+  if (uiState.isSearchExpanded) {
+    handleSearchCollapse();
+  }
+
+  setUIStateWithTransition({ isInstituteExpanded: true }, 'isInstituteTransitioning');
+}, [uiState.isSearchExpanded, handleSearchCollapse]);
 
   // Handler for collapsing institute selection
   const handleInstituteCollapse = useCallback(() => {
@@ -593,10 +596,13 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
   }, []);
 
   // Handler for institute selection
-  const handleInstituteSelect = useCallback((institute: string | null) => {
-    onInstituteChange(institute);
-    handleInstituteCollapse();
-  }, [onInstituteChange, handleInstituteCollapse]);
+const handleInstituteSelect = useCallback((institute: string | null) => {
+  // Enable animations for user interaction
+  setShouldAnimateInstitute(true);
+
+  onInstituteChange(institute);
+  handleInstituteCollapse();
+}, [onInstituteChange, handleInstituteCollapse]);
 
   // Handler for filter button clicks
   const handleFilterClick = useCallback((filter: string) => {
@@ -627,38 +633,41 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
   }, [checkScrollable]);
 
   // Handle section changes
-  useEffect(() => {
-    if (prevSectionRef.current !== activeSection) {
-      // Disable transitions during section changes
-      setUiState(prev => ({ ...prev, isSectionChanging: true }));
+    useEffect(() => {
+        if (prevSectionRef.current !== activeSection) {
+            // Disable transitions during section changes
+            setUiState(prev => ({ ...prev, isSectionChanging: true }));
 
-      // Re-measure
-      checkScrollable();
+            // Reset institute animation state
+            setShouldAnimateInstitute(false);
 
-      // Close expanded UI elements
-      if (uiState.isSearchExpanded) {
-        handleSearchCollapse();
-      }
+            // Re-measure
+            checkScrollable();
 
-      if (uiState.isInstituteExpanded) {
-        handleInstituteCollapse();
-      }
+            // Close expanded UI elements
+            if (uiState.isSearchExpanded) {
+                handleSearchCollapse();
+            }
 
-      // Re-enable transitions after a delay
-      setTimeout(() => {
-        setUiState(prev => ({ ...prev, isSectionChanging: false }));
-      }, 300);
-    }
+            if (uiState.isInstituteExpanded) {
+                handleInstituteCollapse();
+            }
 
-    prevSectionRef.current = activeSection;
-  }, [
-    activeSection,
-    checkScrollable,
-    uiState.isSearchExpanded,
-    handleSearchCollapse,
-    uiState.isInstituteExpanded,
-    handleInstituteCollapse
-  ]);
+            // Re-enable transitions after a delay
+            setTimeout(() => {
+                setUiState(prev => ({ ...prev, isSectionChanging: false }));
+            }, 300);
+        }
+
+        prevSectionRef.current = activeSection;
+    }, [
+        activeSection,
+        checkScrollable,
+        uiState.isSearchExpanded,
+        handleSearchCollapse,
+        uiState.isInstituteExpanded,
+        handleInstituteCollapse
+    ]);
 
   // Render current section filters
   const renderSectionFilters = useCallback(() => {
@@ -747,26 +756,25 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
         }
       `}</style>
 
-      <div className="flex gap-2">
-        {/* Institute button - visible in stuff section when not expanded */}
-        {showInstituteButton && !uiState.isInstituteExpanded && (
-          <InstituteButton
-            institute={selectedInstitute}
-            isSelected={!!selectedInstitute || activeInstitute === null}
-            onClick={handleInstituteExpand}
-            isMainButton={true}
-            disableAnimation={uiState.isSectionChanging}
-          />
-        )}
+          <div className="flex gap-2">
+              {/* Institute button - visible in stuff section when not expanded */}
+              {showInstituteButton && !uiState.isInstituteExpanded && (
+                  <InstituteButton
+                      institute={selectedInstitute}
+                      isSelected={!!selectedInstitute || activeInstitute === null}
+                      onClick={handleInstituteExpand}
+                      disableAnimation={uiState.isSectionChanging || !shouldAnimateInstitute}
+                  />
+              )}
 
-        {/* Expanded institute selection - only visible when expanded */}
-        {showInstituteButton && uiState.isInstituteExpanded && (
-          <InstituteSelector
-            activeInstitute={activeInstitute}
-            onSelect={handleInstituteSelect}
-            disableAnimation={uiState.isSectionChanging}
-          />
-        )}
+              {/* Expanded institute selection - only visible when expanded */}
+              {showInstituteButton && uiState.isInstituteExpanded && (
+                  <InstituteSelector
+                      activeInstitute={activeInstitute}
+                      onSelect={handleInstituteSelect}
+                      disableAnimation={uiState.isSectionChanging || !shouldAnimateInstitute}
+                  />
+              )}
 
         {/* Search Input - hidden when institute selection is expanded */}
         {!uiState.isInstituteExpanded && (
@@ -782,26 +790,32 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
         )}
 
         {/* Filters Container */}
-        {shouldShowFilters && (
-          <div
-            ref={filterContainerRef}
-            className="relative overflow-hidden no-scrollbar"
-            style={{
-              width: `calc(100% - 42px - 8px${showInstituteButton ? ' - 42px - 8px' : ''})`,
-              overflowX: isScrollable ? 'auto' : 'hidden',
-              opacity: uiState.isSearchExpanded ? 0 : 1,
-              transition: uiState.isSectionChanging ? 'none' : 'all 0.2s ease-in-out'
-            }}
-          >
-            {isScrollable ? (
-              <div className="overflow-x-auto no-scrollbar" style={{ width: '100%' }}>
-                {renderSectionFilters()}
-              </div>
-            ) : (
-              renderSectionFilters()
-            )}
-          </div>
-        )}
+{shouldShowFilters && (
+  <div
+    ref={filterContainerRef}
+    className="relative overflow-hidden no-scrollbar"
+    style={{
+      width: uiState.isInstituteExpanded
+        ? '0'
+        : `calc(100% - 42px - 8px${showInstituteButton ? ' - 42px - 8px' : ''})`,
+      overflowX: isScrollable ? 'auto' : 'hidden',
+      opacity: uiState.isInstituteExpanded || uiState.isSearchExpanded ? 0 : 1,
+      transitionProperty: uiState.isSectionChanging ? 'none' : 'opacity, width',
+      transitionDuration: uiState.isSectionChanging ? '0ms' : '200ms',
+      transitionTimingFunction: 'ease-in-out',
+      // Add delay when showing filters after institute collapse, but no delay when hiding
+      transitionDelay: !uiState.isInstituteExpanded && uiState.isInstituteTransitioning ? '150ms' : '0ms',
+    }}
+  >
+    {isScrollable ? (
+      <div className="overflow-x-auto no-scrollbar" style={{ width: '100%' }}>
+        {renderSectionFilters()}
+      </div>
+    ) : (
+      renderSectionFilters()
+    )}
+  </div>
+)}
       </div>
 
       {/* Shadow extension element */}

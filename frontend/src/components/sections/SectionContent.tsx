@@ -12,7 +12,6 @@ interface SectionContentProps {
 
 export const SectionContent: React.FC<SectionContentProps> = ({
     activeSection,
-    onSectionChange,
     className = '',
     activeInstitute = null
 }) => {
