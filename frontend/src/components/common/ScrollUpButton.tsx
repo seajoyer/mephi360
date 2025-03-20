@@ -39,14 +39,13 @@ export const ScrollUpButton: React.FC<ScrollUpButtonProps> = ({
     };
 
     return (
-        <FixedLayout vertical="bottom">
+        <FixedLayout vertical="bottom" style={{ pointerEvents: 'none' }}>
             <div
-                className={`flex justify-start pl-4 transition-all duration-300 ease-in-out`}
+                className={`flex justify-end pr-4.25 transition-all duration-200 ease-in-out`}
                 style={{
                     paddingBottom: `calc(${bottomOffset}px + var(--tgui--safe_area_inset_bottom, 0px))`,
                     transform: `translateY(${isVisible ? '0' : '100px'})`,
                     opacity: isVisible ? 1 : 0,
-                    pointerEvents: isVisible ? 'auto' : 'none'
                 }}
             >
                 <Button
@@ -55,6 +54,7 @@ export const ScrollUpButton: React.FC<ScrollUpButtonProps> = ({
                     onClick={scrollToTop}
                     className="shadow-md"
                     style={{
+                        pointerEvents: 'auto', // Only the button should capture pointer events
                         borderRadius: '50%',
                         width: '54px',
                         height: '54px',

@@ -3,29 +3,10 @@ import { Section, Cell, Avatar, Divider } from '@telegram-apps/telegram-ui';
 import { Icon16Chevron_right } from '@/icons/16/chevron_right';
 import { Icon28Heart_fill } from '@/icons/28/heart_fill';
 import { Link } from '@/components/common/Link';
-
-// Types
-interface Tutor {
-    id: number;
-    name: string;
-    department: string;
-    imageFileName: string;
-}
+import { tutorService } from '@/services/tutorService';
+import { Tutor } from '@/types/tutor';
 
 const ITEMS_PER_PAGE = 20;
-
-// Mock data - replace with your actual API call in production
-const generateMockTutors = (): Tutor[] => {
-    return Array.from({ length: 100 }, (_, index) => ({
-        id: index + 1,
-        name: `Tutor ${index + 1}`,
-        department: `Department ${Math.floor(index / 10) + 1}`,
-        imageFileName: 'default.jpg'
-    }));
-};
-
-// Create a cache object to store loaded sections
-const sectionsCache: Record<string, Tutor[]> = {};
 
 // Loading skeleton component
 const TutorCellSkeleton: React.FC = () => (
@@ -44,75 +25,52 @@ const LoadingState: React.FC = () => (
         {Array.from({ length: 5 }).map((_, index) => (
             <React.Fragment key={`skeleton-${index}`}>
                 <TutorCellSkeleton />
-                {index < 2 && <Divider />}
+                {index < 4 && <Divider />}
             </React.Fragment>
         ))}
     </>
 );
 
 export const TutorsList: React.FC = () => {
-    // Lazy load tutors data
-    const allTutors = useRef<Tutor[]>([]);
-
-    // Get cached data if available
-    const cachedData = sectionsCache['tutors'] || [];
-    const [displayedTutors, setDisplayedTutors] = useState<Tutor[]>(cachedData);
-    const [isLoading, setIsLoading] = useState(cachedData.length === 0);
+    // Use cached data if available
+    const [displayedTutors, setDisplayedTutors] = useState<Tutor[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const loadingRef = useRef(false);
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadTriggerRef = useRef<HTMLDivElement>(null);
 
-    // Initialize tutors data if not already loaded
-    useEffect(() => {
-        if (allTutors.current.length === 0) {
-            try {
-                // In a real app, you'd fetch from an API here
-                allTutors.current = generateMockTutors();
-            } catch (err) {
-                setError('Failed to load tutors data');
-                console.error(err);
-            }
-        }
-    }, []);
-
-    const loadMoreTutors = useCallback(() => {
+    // Load tutors function
+    const loadMoreTutors = useCallback(async () => {
         if (loadingRef.current || !hasMore || error) return;
 
         loadingRef.current = true;
         setIsLoading(true);
 
-        // Simulate API delay
-        setTimeout(() => {
-            try {
-                const startIndex = displayedTutors.length;
-                const endIndex = startIndex + ITEMS_PER_PAGE;
-                const nextItems = allTutors.current.slice(startIndex, endIndex);
+        try {
+            const nextTutors = await tutorService.getTutorsByPage(currentPage, ITEMS_PER_PAGE);
 
-                if (nextItems.length > 0) {
-                    const newTutors = [...displayedTutors, ...nextItems];
-                    setDisplayedTutors(newTutors);
-
-                    // Update cache
-                    sectionsCache['tutors'] = newTutors;
-                    setHasMore(endIndex < allTutors.current.length);
-                } else {
-                    setHasMore(false);
-                }
-            } catch (err) {
-                setError('Error loading more tutors');
-                console.error(err);
-            } finally {
-                setIsLoading(false);
-                loadingRef.current = false;
+            if (nextTutors.length > 0) {
+                setDisplayedTutors(prev => [...prev, ...nextTutors]);
+                setCurrentPage(prev => prev + 1);
+                setHasMore(nextTutors.length === ITEMS_PER_PAGE);
+            } else {
+                setHasMore(false);
             }
-        }, displayedTutors.length > 0 ? 0 : 500); // Only add delay for initial load when no cache
-    }, [displayedTutors.length, hasMore, displayedTutors, error]);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Error loading tutors');
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+            loadingRef.current = false;
+        }
+    }, [currentPage, hasMore, error]);
 
-    // Initial load only if no cached data
+    // Initial load
     useEffect(() => {
         if (displayedTutors.length === 0 && !error) {
             loadMoreTutors();
@@ -150,6 +108,7 @@ export const TutorsList: React.FC = () => {
         }
     }, [displayedTutors]);
 
+    // Error state
     if (error) {
         return (
             <div className="p-4 text-center text-red-500">

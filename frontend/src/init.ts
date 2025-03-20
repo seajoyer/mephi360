@@ -1,4 +1,3 @@
-
 import {
   backButton,
   viewport,
@@ -9,12 +8,12 @@ import {
   swipeBehavior,
   setDebug,
 } from '@telegram-apps/sdk-react';
-import { intColorToRGBA, normalizeColor } from './helpers/colorUtils';
 import eruda from 'eruda';
 
 export function init(debug: boolean): void {
   // debug && eruda.init();
   setDebug(debug);
+
   initSDK();
 
   if (!backButton.isSupported() || !miniApp.isSupported()) {

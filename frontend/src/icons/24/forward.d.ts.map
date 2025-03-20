@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "forward.d.ts",
+  "sourceRoot": "",
+  "sources": [
+    "../../../src/icons/24/forward.tsx"
+  ],
+  "names": [],
+  "mappings": ";AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,YAAY,CAAC;AAElC,eAAO,MAAM,iBAAiB,qBAAsB,IAAI,gBAMvD,CAAC"
+}

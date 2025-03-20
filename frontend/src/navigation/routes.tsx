@@ -10,7 +10,7 @@ export const routes: RouteProps[] = [
         element: <StudyPage />
     },
     {
-        path: '/tutor/1',
+        path: '/tutor/:id',
         element: <TutorPage />
     },
     {
