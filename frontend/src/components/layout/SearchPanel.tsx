@@ -242,7 +242,7 @@ const InstituteSelector = React.memo<InstituteSelectorProps>(({
     className="flex gap-2 overflow-x-auto no-scrollbar w-full items-center"
     style={{
       WebkitOverflowScrolling: 'touch',
-      transition: disableAnimation ? 'none' : 'all 0.2s ease-in-out'
+      transition: disableAnimation ? 'none' : 'all 0.1s ease-in-out'
     }}
   >
     <InstituteButton
@@ -747,12 +747,12 @@ const handleInstituteSelect = useCallback((institute: string | null) => {
 
         .institute-button-animate {
           opacity: 0;
-          animation: instituteButtonFadeIn 0.20s ease-out forwards;
+          animation: instituteButtonFadeIn 0.10s ease-out forwards;
         }
 
         .institute-button-animate-first {
           opacity: 0;
-          animation: firstButtonFadeIn 0.20s ease-out forwards;
+          animation: firstButtonFadeIn 0.10s ease-out forwards;
         }
       `}</style>
 

@@ -1,4 +1,5 @@
 import { Tutor } from '@/types/tutor';
+import { RATING_CATEGORIES } from '@/components/layout/RatingLayout';
 
 // Generate a larger set of mock tutors
 export const generateMockTutors = (count: number = 30): Tutor[] => {
@@ -70,14 +71,21 @@ export const generateMockTutors = (count: number = 30): Tutor[] => {
         // Generate random number of total ratings
         const totalRatings = Math.floor(Math.random() * 40) + 5; // Between 5 and 44
 
+        // Create category ratings using the defined categories
+        const categoryRatings: { [key: string]: number } = {};
+        RATING_CATEGORIES.forEach(category => {
+            categoryRatings[category] = generateRating();
+        });
+
         // Randomly decide if this tutor has a user rating
         const hasUserRating = Math.random() < 0.3; // 30% chance
-        const userRating = hasUserRating ? {
-            "Подача материала": generateRating(),
-            "Отношение к студентам": generateRating(),
-            "Требовательность": generateRating(),
-            "Доступность": generateRating()
-        } : undefined;
+
+        // Create user ratings if needed
+        const userRating = hasUserRating ?
+            RATING_CATEGORIES.reduce((ratings, category) => {
+                ratings[category] = generateRating();
+                return ratings;
+            }, {} as { [key: string]: number }) : undefined;
 
         return {
             id,
@@ -87,13 +95,8 @@ export const generateMockTutors = (count: number = 30): Tutor[] => {
             imageFileName: `tutor${id % 5 + 1}.jpg`, // Cycle through 5 images
             ratings: {
                 overallRating,
-                categoryRatings: {
-                    "Подача материала": generateRating(),
-                    "Отношение к студентам": generateRating(),
-                    "Требовательность": generateRating(),
-                    "Доступность": generateRating()
-                },
-                totalRatings,
+                categoryRatings,
+                totalRaters: totalRatings,
                 userRating,
                 educationalProcess: {
                     lessonStructure: lessonDescription,
@@ -123,7 +126,7 @@ export const mockGoryachev: Tutor = {
             "Требовательность": 4.0,
             "Доступность": 4.5
         },
-        totalRatings: 17, // Add total number of ratings
+        totalRaters: 17,
         // Example user rating for testing
         userRating: {
             "Подача материала": 4.0,

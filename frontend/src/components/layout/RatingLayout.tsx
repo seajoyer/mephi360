@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Headline, Button } from '@telegram-apps/telegram-ui';
+import { Headline, Button, List } from '@telegram-apps/telegram-ui';
 import { CustomRating } from './CustomRating';
+
+// Define standard rating categories that apply to all tutors
+export const RATING_CATEGORIES = [
+  "Подача материала",
+  "«Халявность»",
+  "Знания",
+  "В общении"
+];
 
 // Types for rating data
 interface UserRating {
@@ -58,10 +66,22 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
     const [hasUserRated, setHasUserRated] = useState(false);
     const [showingUserRating, setShowingUserRating] = useState(false);
     const [storedUserRatings, setStoredUserRatings] = useState<UserRating | null>(null);
-    const [displayRatings, setDisplayRatings] = useState<{ [key: string]: number }>(categoryRatings);
+    const [displayRatings, setDisplayRatings] = useState<{ [key: string]: number }>({});
+
+    // Initialize display ratings based on available data
+    useEffect(() => {
+        const ratings: { [key: string]: number } = {};
+
+        // Map each standard category to its rating (if available) or default to 0
+        RATING_CATEGORIES.forEach(category => {
+            ratings[category] = categoryRatings[category] || 0;
+        });
+
+        setDisplayRatings(ratings);
+    }, [categoryRatings]);
 
     // Check if all categories have been rated
-    const allCategoriesRated = Object.keys(categoryRatings).every(
+    const allCategoriesRated = RATING_CATEGORIES.every(
         category => userRatings[category] !== undefined
     );
 
@@ -72,8 +92,7 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
             setStoredUserRatings(savedRating);
             setHasUserRated(true);
         }
-        setDisplayRatings(categoryRatings);
-    }, [tutorId, categoryRatings]);
+    }, [tutorId]);
 
     // Start rating process
     const handleStartRating = () => {
@@ -96,14 +115,16 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
         setHasUserRated(true);
 
         // Calculate updated global ratings
-        const updatedRatings = { ...categoryRatings };
-        for (const [category, rating] of Object.entries(userRatings)) {
-            updatedRatings[category] = calculateUpdatedRating(
-                categoryRatings[category],
-                totalRaters,
-                rating,
-                true
-            );
+        const updatedRatings = { ...displayRatings };
+        for (const category of RATING_CATEGORIES) {
+            if (userRatings[category]) {
+                updatedRatings[category] = calculateUpdatedRating(
+                    displayRatings[category] || 0,
+                    totalRaters,
+                    userRatings[category],
+                    true
+                );
+            }
         }
 
         setDisplayRatings(updatedRatings);
@@ -120,14 +141,16 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
         if (!storedUserRatings) return;
 
         // Calculate updated global ratings after removing user's rating
-        const updatedRatings = { ...categoryRatings };
-        for (const [category, rating] of Object.entries(storedUserRatings)) {
-            updatedRatings[category] = calculateUpdatedRating(
-                categoryRatings[category],
-                totalRaters,
-                rating,
-                false
-            );
+        const updatedRatings = { ...displayRatings };
+        for (const category of RATING_CATEGORIES) {
+            if (storedUserRatings[category]) {
+                updatedRatings[category] = calculateUpdatedRating(
+                    displayRatings[category] || 0,
+                    totalRaters,
+                    storedUserRatings[category],
+                    false
+                );
+            }
         }
 
         setDisplayRatings(updatedRatings);
@@ -150,11 +173,9 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
     };
 
     return (
-        <div
-            className='px-4 pb-3'
-        >
-            {Object.entries(displayRatings).map(([category, rating]) => (
-                <div key={category} className="mb-4">
+        <List>
+            {RATING_CATEGORIES.map(category => (
+                <div key={category}>
                     {/* Category name */}
                     <div
                         className="text-left"
@@ -170,8 +191,8 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
                                 isRatingMode
                                     ? userRatings[category] || 0  // Empty or set value in rating mode
                                     : showingUserRating && storedUserRatings
-                                        ? storedUserRatings[category]  // User's rating when showing
-                                        : rating  // Default global rating
+                                        ? storedUserRatings[category] || 0  // User's rating when showing
+                                        : displayRatings[category] || 0  // Default global rating
                             }
                             onChange={(value) => handleRatingChange(category, value)}
                             isActive={isRatingMode}
@@ -191,8 +212,8 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
                             {(isRatingMode
                                 ? userRatings[category] || 0
                                 : showingUserRating && storedUserRatings
-                                    ? storedUserRatings[category]
-                                    : rating
+                                    ? storedUserRatings[category] || 0
+                                    : displayRatings[category] || 0
                             ).toFixed(1)}
                         </Headline>
                     </div>
@@ -259,6 +280,6 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
                     </div>
                 )}
             </div>
-        </div>
+        </List>
     );
 };

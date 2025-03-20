@@ -24,3 +24,150 @@ body {
   display: flex;
   align-items: center;
 }
+
+/* General page container with minimum height */
+.page-container {
+  min-height: calc(100vh + 300px);
+  width: 100%;
+}
+
+/* Ensure page content has proper spacing */
+.page-content {
+  width: 100%;
+}
+
+/* Bottom space to ensure sufficient content height */
+.page-bottom-space {
+  height: 300px;
+  width: 100%;
+}
+
+/* Smooth transitions for accordions */
+.tgui-947b927060015de8 {
+  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Smooth transitions for any element with height changes */
+.smooth-height-transition {
+  transition: height 0.25s ease-in-out,
+              max-height 0.25s ease-in-out,
+              min-height 0.25s ease-in-out;
+}
+
+/* Additional padding at page bottom to ensure sufficient scroll space */
+.app-content-wrapper {
+  padding-bottom: 300px;
+}
+
+/* ======================================
+   Tutor Page Styles
+   ====================================== */
+
+/* Non-interactive cell styles */
+.tutor-page-non-interactive {
+  pointer-events: none;
+}
+
+.tutor-page-non-interactive.tgui-b8dfba0b5c3d054c:hover {
+  background: inherit !important;
+  cursor: default !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tutor-page-non-interactive.tgui-b8dfba0b5c3d054c:hover {
+    background: inherit !important;
+  }
+}
+
+/* Button container with pointer events enabled */
+.tutor-page-button-container {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+
+/* Tutor name styling with line breaks */
+.tutor-page-name {
+  white-space: pre-line;
+}
+
+/* Rating display with icon */
+.tutor-page-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tutor-page-rating-icon {
+  margin-top: -3px;
+}
+
+/* Action buttons */
+.tutor-page-action-button {
+  min-width: 50px;
+  width: 50%;
+}
+
+/* Accordion content styling */
+.tutor-page-accordion-content {
+  color: var(--tgui--subtitle_text_color);
+}
+
+/* Smooth accordion transitions - specific to tutor page */
+.tutor-page-smooth-accordion .tgui-947b927060015de8 {
+  transition: max-height 0.25s cubic-bezier(0.33, 1, 0.68, 1) !important;
+}
+
+/* ======================================
+   Prevent text selection on buttons
+   and interactive elements
+   ====================================== */
+button,
+.tgui-117e77cd385a9c8d, /* Telegram UI Button */
+.tgui-8310172a5320ab71, /* Button content */
+.tgui-5f6014c0f063b6de, /* Button text */
+.tgui-b5d680db78c4cc2e, /* Interactive elements */
+.tgui-32fe6ce00169d72e, /* Link-like elements */
+.tgui-6372c64c79ad2959, /* Chip elements */
+.tgui-c5545e0bc6105e48, /* Tab buttons */
+.tgui-64cd0db020a9bacf, /* NavBar items */
+.tgui-a8ce18a8594cea9b, /* Menu items */
+.tgui-dda0e80fdf796ba5, /* Icon buttons */
+.custom-link {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none; /* Prevents iOS callout menu */
+}
+
+/* Apply to specific custom components where needed */
+.tutor-page-action-button,
+.tutor-page-button-container button {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Make sure tappable areas don't trigger text selection */
+.tgui-b8dfba0b5c3d054c {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Apply to accordion headers */
+.tgui-60e7968097edfa6f {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
