@@ -67,6 +67,18 @@ export const generateMockTutors = (count: number = 30): Tutor[] => {
 
         const overallRating = generateRating();
 
+        // Generate random number of total ratings
+        const totalRatings = Math.floor(Math.random() * 40) + 5; // Between 5 and 44
+
+        // Randomly decide if this tutor has a user rating
+        const hasUserRating = Math.random() < 0.3; // 30% chance
+        const userRating = hasUserRating ? {
+            "Подача материала": generateRating(),
+            "Отношение к студентам": generateRating(),
+            "Требовательность": generateRating(),
+            "Доступность": generateRating()
+        } : undefined;
+
         return {
             id,
             name,
@@ -81,6 +93,8 @@ export const generateMockTutors = (count: number = 30): Tutor[] => {
                     "Требовательность": generateRating(),
                     "Доступность": generateRating()
                 },
+                totalRatings,
+                userRating,
                 educationalProcess: {
                     lessonStructure: lessonDescription,
                     intermediateAssessment: "Промежуточная аттестация включает выполнение лабораторных работ, рубежный контроль и контрольные работы. Преподаватель оценивает работу студентов на семинарах.",
@@ -108,6 +122,14 @@ export const mockGoryachev: Tutor = {
             "Отношение к студентам": 4.2,
             "Требовательность": 4.0,
             "Доступность": 4.5
+        },
+        totalRatings: 17, // Add total number of ratings
+        // Example user rating for testing
+        userRating: {
+            "Подача материала": 4.0,
+            "Отношение к студентам": 5.0,
+            "Требовательность": 3.5,
+            "Доступность": 4.0
         },
         educationalProcess: {
             lessonStructure: "Занятия проходят в формате лекций и практических семинаров. Преподаватель использует современные методики обучения и интерактивные материалы для лучшего понимания предмета. Студенты активно вовлекаются в образовательный процесс через дискуссии и групповую работу.",
