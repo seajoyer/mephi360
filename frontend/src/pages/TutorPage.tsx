@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Page } from '@/components/Page';
-import { List, Cell, Avatar, Image, Button, Title, Section, Headline, Rating, Accordion, Divider } from '@telegram-apps/telegram-ui';
+import { List, Cell, Avatar, Image, Button, Title, Section, Headline, Accordion, Divider } from '@telegram-apps/telegram-ui';
 import { Icon20Star_fill } from '@/icons/20/star_fill';
 import { Icon24Discussion_fill } from '@/icons/24/discussion_fill';
 import { Icon24Folder_fill } from '@/icons/24/folder_fill';
@@ -13,6 +13,7 @@ import { tutorService } from '@/services/tutorService';
 import { Tutor } from '@/types/tutor';
 import { shareURL } from '@telegram-apps/sdk-react';
 import { getTelegramShareableUrl } from '@/config/appConfig';
+import { RatingLayout } from '@/components/layout/RatingLayout';
 
 // Custom styles to disable hover effects
 const nonInteractiveStyle = {
@@ -83,15 +84,11 @@ export const TutorPage: React.FC = () => {
     const handleReviewsClick = () => {
         // Navigate to reviews page (future implementation)
         console.log(`Navigate to reviews for tutor ${id}`);
-        // Uncomment when reviews page is implemented:
-        // navigate(`/tutor/${id}/reviews`);
     };
 
     const handleMaterialsClick = () => {
         // Navigate to materials page (future implementation)
         console.log(`Navigate to materials for tutor ${id}`);
-        // Uncomment when materials page is implemented:
-        // navigate(`/tutor/${id}/materials`);
     };
 
     // Handle share button click
@@ -108,7 +105,6 @@ export const TutorPage: React.FC = () => {
         } else {
             // Fallback if sharing is not available
             console.log('Sharing is not available in this environment');
-            // Could show a toast or other notification here
         }
     };
 
@@ -238,7 +234,7 @@ export const TutorPage: React.FC = () => {
                     </div>
                 </Section>
 
-                {/* Ratings */}
+                {/* Ratings - Updated to use the new RatingLayout component */}
                 <Section>
                     <Accordion
                         id="ratings"
@@ -249,27 +245,10 @@ export const TutorPage: React.FC = () => {
                             Оценки
                         </AccordionSummary>
                         <AccordionContent>
-                            {Object.entries(tutor.ratings.categoryRatings).map(([category, rating]) => (
-                                <div
-                                    key={category}
-                                    className='flex place-content-between items-center mb-2'
-                                >
-                                    {/* <div>{category}</div> */}
-                                    <Rating
-                                        max={5}
-                                        precision={0.5}
-                                        value={rating}
-                                        className="raiting"
-                                    />
-                                    <Headline
-                                        weight='1'
-                                        className='pl-2 pr-4'
-                                        plain
-                                    >
-                                        {rating.toFixed(1)}
-                                    </Headline>
-                                </div>
-                            ))}
+                            {/* Using the new layout component */}
+                            <RatingLayout
+                                categoryRatings={tutor.ratings.categoryRatings}
+                            />
                         </AccordionContent>
                     </Accordion>
                 </Section>
