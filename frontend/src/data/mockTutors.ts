@@ -1,5 +1,5 @@
 import { Tutor } from '@/types/tutor';
-import { RATING_CATEGORIES } from '@/components/layout/RatingLayout';
+import { TUTOR_RATING_CATEGORIES } from '@/constants/ratingConstants';
 
 // Generate a larger set of mock tutors
 export const generateMockTutors = (count: number = 30): Tutor[] => {
@@ -54,6 +54,20 @@ export const generateMockTutors = (count: number = 30): Tutor[] => {
         'Занятия строятся по принципу "от теории к практике". Преподаватель объясняет материал, демонстрирует примеры решения задач, после чего студенты выполняют самостоятельные задания под руководством преподавателя.'
     ];
 
+    const intermediateAssessments = [
+        'Промежуточная аттестация включает выполнение лабораторных работ, рубежный контроль и контрольные работы. Преподаватель оценивает работу студентов на семинарах.',
+        'В течение семестра проводятся регулярные тесты и практические задания. Студенты должны выполнить курсовую работу и пройти коллоквиум в середине семестра.',
+        'Промежуточная аттестация состоит из двух контрольных работ, серии домашних заданий и защиты проекта. Учитывается активность на занятиях.',
+        'Студенты проходят два рубежных контроля, выполняют индивидуальные и групповые проекты. Преподаватель регулярно проводит опросы и тестирования.'
+    ];
+
+    const finalAssessments = [
+        'Итоговая аттестация проводится в форме экзамена. Экзамен включает в себя теоретические вопросы и практические задания по всему курсу.',
+        'Итоговый экзамен состоит из письменной части и устного собеседования. Учитываются результаты работы в течение семестра.',
+        'Для успешной сдачи курса необходимо сдать экзамен, который включает как теоретические вопросы, так и практические задачи. Экзамен проводится в письменной форме.',
+        'Итоговая аттестация проходит в виде комплексного экзамена, включающего тестирование, решение задач и собеседование по ключевым темам курса.'
+    ];
+
     return Array.from({ length: count }, (_, index) => {
         const id = index + 1;
         const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
@@ -62,6 +76,8 @@ export const generateMockTutors = (count: number = 30): Tutor[] => {
         const department = departments[Math.floor(Math.random() * departments.length)];
         const position = positions[Math.floor(Math.random() * positions.length)];
         const lessonDescription = lessonDescriptions[Math.floor(Math.random() * lessonDescriptions.length)];
+        const intermediateAssessment = intermediateAssessments[Math.floor(Math.random() * intermediateAssessments.length)];
+        const finalAssessment = finalAssessments[Math.floor(Math.random() * finalAssessments.length)];
 
         // Generate random ratings between 3.0 and 5.0
         const generateRating = () => Math.round((3 + Math.random() * 2) * 10) / 10;
@@ -69,23 +85,13 @@ export const generateMockTutors = (count: number = 30): Tutor[] => {
         const overallRating = generateRating();
 
         // Generate random number of total ratings
-        const totalRatings = Math.floor(Math.random() * 40) + 5; // Between 5 and 44
+        const totalRaters = Math.floor(Math.random() * 40) + 5; // Between 5 and 44
 
         // Create category ratings using the defined categories
         const categoryRatings: { [key: string]: number } = {};
-        RATING_CATEGORIES.forEach(category => {
+        TUTOR_RATING_CATEGORIES.forEach(category => {
             categoryRatings[category] = generateRating();
         });
-
-        // Randomly decide if this tutor has a user rating
-        const hasUserRating = Math.random() < 0.3; // 30% chance
-
-        // Create user ratings if needed
-        const userRating = hasUserRating ?
-            RATING_CATEGORIES.reduce((ratings, category) => {
-                ratings[category] = generateRating();
-                return ratings;
-            }, {} as { [key: string]: number }) : undefined;
 
         return {
             id,
@@ -96,12 +102,11 @@ export const generateMockTutors = (count: number = 30): Tutor[] => {
             ratings: {
                 overallRating,
                 categoryRatings,
-                totalRaters: totalRatings,
-                userRating,
+                totalRaters,
                 educationalProcess: {
                     lessonStructure: lessonDescription,
-                    intermediateAssessment: "Промежуточная аттестация включает выполнение лабораторных работ, рубежный контроль и контрольные работы. Преподаватель оценивает работу студентов на семинарах.",
-                    finalAssessment: "Итоговая аттестация проводится в форме экзамена. Экзамен включает в себя теоретические вопросы и практические задания по всему курсу."
+                    intermediateAssessment,
+                    finalAssessment
                 }
             }
         };
@@ -122,18 +127,11 @@ export const mockGoryachev: Tutor = {
         overallRating: 4.3,
         categoryRatings: {
             "Подача материала": 4.5,
-            "Отношение к студентам": 4.2,
-            "Требовательность": 4.0,
-            "Доступность": 4.5
+            "«Халявность»": 4.2,
+            "Знания": 4.0,
+            "В общении": 4.5
         },
         totalRaters: 17,
-        // Example user rating for testing
-        userRating: {
-            "Подача материала": 4.0,
-            "Отношение к студентам": 5.0,
-            "Требовательность": 3.5,
-            "Доступность": 4.0
-        },
         educationalProcess: {
             lessonStructure: "Занятия проходят в формате лекций и практических семинаров. Преподаватель использует современные методики обучения и интерактивные материалы для лучшего понимания предмета. Студенты активно вовлекаются в образовательный процесс через дискуссии и групповую работу.",
             intermediateAssessment: "Промежуточная аттестация включает выполнение лабораторных работ, рубежный контроль и контрольные работы. Преподаватель оценивает работу студентов на семинарах.",

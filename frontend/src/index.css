@@ -60,20 +60,64 @@ body {
 }
 
 /* ======================================
-   Tutor Page Styles
+   Shared Entity Styles (Tutor & Department)
    ====================================== */
 
 /* Non-interactive cell styles */
-.tutor-page-non-interactive {
+.entity-page-non-interactive {
   pointer-events: none;
 }
 
-.tutor-page-non-interactive.tgui-b8dfba0b5c3d054c:hover {
+.entity-page-non-interactive.tgui-b8dfba0b5c3d054c:hover {
   background: inherit !important;
   cursor: default !important;
 }
 
-/* Department link styling */
+@media (hover: hover) and (pointer: fine) {
+  .entity-page-non-interactive.tgui-b8dfba0b5c3d054c:hover {
+    background: inherit !important;
+  }
+}
+
+/* Button container with pointer events enabled */
+.entity-page-button-container {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+
+/* Rating display with icon */
+.entity-page-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.entity-page-rating-icon {
+  margin-top: -3px;
+}
+
+/* Action buttons */
+.entity-page-action-button {
+  min-width: 50px;
+  width: 50%;
+}
+
+/* Accordion content styling */
+.entity-page-accordion-content {
+  color: var(--tgui--subtitle_text_color);
+  padding: 4px 8px;
+}
+
+/* Smooth accordion transitions */
+.entity-page-smooth-accordion .tgui-947b927060015de8 {
+  transition: max-height 0.25s cubic-bezier(0.33, 1, 0.68, 1) !important;
+}
+
+/* Department-specific styles */
 .department-link {
   display: inline-block;
   position: relative;
@@ -83,103 +127,9 @@ body {
   text-decoration: underline;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .tutor-page-non-interactive.tgui-b8dfba0b5c3d054c:hover {
-    background: inherit !important;
-  }
-}
-
-/* Button container with pointer events enabled */
-.tutor-page-button-container {
-  position: relative;
-  z-index: 1;
-  pointer-events: auto;
-  display: flex;
-  gap: 8px;
-  padding: 0 16px 16px;
-}
-
-/* Tutor name styling with line breaks */
+/* Tutor-specific styles */
 .tutor-page-name {
   white-space: pre-line;
-}
-
-/* Rating display with icon */
-.tutor-page-rating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.tutor-page-rating-icon {
-  margin-top: -3px;
-}
-
-/* Action buttons */
-.tutor-page-action-button {
-  min-width: 50px;
-  width: 50%;
-}
-
-/* Accordion content styling */
-.tutor-page-accordion-content {
-  color: var(--tgui--subtitle_text_color);
-}
-
-/* Smooth accordion transitions - specific to tutor page */
-.tutor-page-smooth-accordion .tgui-947b927060015de8 {
-  transition: max-height 0.25s cubic-bezier(0.33, 1, 0.68, 1) !important;
-}
-
-/* ======================================
-   Department Page Styles
-   ====================================== */
-
-/* Non-interactive cell styles */
-.department-page-non-interactive {
-  pointer-events: none;
-}
-
-.department-page-non-interactive.tgui-b8dfba0b5c3d054c:hover {
-  background: inherit !important;
-  cursor: default !important;
-}
-
-/* Button container with pointer events enabled */
-.department-page-button-container {
-  position: relative;
-  z-index: 1;
-  pointer-events: auto;
-  display: flex;
-  gap: 8px;
-  padding: 0 16px 16px;
-}
-
-/* Rating display with icon */
-.department-page-rating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.department-page-rating-icon {
-  margin-top: -3px;
-}
-
-/* Action buttons */
-.department-page-action-button {
-  min-width: 50px;
-  width: 50%;
-}
-
-/* Accordion content styling */
-.department-page-accordion-content {
-  color: var(--tgui--subtitle_text_color);
-}
-
-/* Smooth accordion transitions - specific to department page */
-.department-page-smooth-accordion .tgui-947b927060015de8 {
-  transition: max-height 0.25s cubic-bezier(0.33, 1, 0.68, 1) !important;
 }
 
 /* ======================================
@@ -206,10 +156,8 @@ button,
 }
 
 /* Apply to specific custom components where needed */
-.tutor-page-action-button,
-.tutor-page-button-container button,
-.department-page-action-button,
-.department-page-button-container button {
+.entity-page-action-button,
+.entity-page-button-container button {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -233,4 +181,10 @@ button,
   -ms-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+}
+
+/* Contact info section styling */
+.contact-info-value {
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }

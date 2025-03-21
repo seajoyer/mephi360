@@ -8,80 +8,37 @@ import {
     Button,
     Title,
     Section,
-    Headline,
     Divider,
-    Accordion,
+    Tappable,
 } from '@telegram-apps/telegram-ui';
-import { Icon20Star_fill } from '@/icons/20/star_fill';
 import { Icon24Discussion_fill } from '@/icons/24/discussion_fill';
-import { Icon24Goto_fill } from '@/icons/24/goto_fill';
+import { Icon24Telegram } from '@/icons/24/telegram';
 import { Icon24Addhome } from '@/icons/24/addhome';
+import { Icon20Copy } from '@/icons/20/copy';
+import { Icon20Check } from '@/icons/20/check';
+import { copyTextToClipboard } from '@telegram-apps/sdk-react';
+
 import { CustomCell } from '@/components/layout/CustomCell';
 import { departmentService } from '@/services/departmentService';
 import { Department } from '@/types/department';
 import { shareURL } from '@telegram-apps/sdk-react';
 import { getTelegramShareableUrl } from '@/config/appConfig';
 import { useScrollManager } from '@/hooks/useScrollManager';
-import { AccordionSummary } from '@telegram-apps/telegram-ui/dist/components/Blocks/Accordion/components/AccordionSummary/AccordionSummary';
-import { AccordionContent } from '@telegram-apps/telegram-ui/dist/components/Blocks/Accordion/components/AccordionContent/AccordionContent';
+import { DEPARTMENT_RATING_CATEGORIES } from '@/constants/ratingConstants';
+import {
+    EntityLoadingIndicator,
+    EntityError,
+    RatingDisplay,
+    RatingAccordion,
+    StaffAccordion,
+    ActionButtons
+} from '@/components/layout/SharedEntityComponents';
 
-import { DEPARTMENT_RATING_CATEGORIES } from '@/constants/departmentConstants';
-
-// Custom rating layout for departments that uses our specific categories
-const DepartmentRatingLayout: React.FC<{
-    departmentId: number;
-    categoryRatings: { [key: string]: number };
-    totalRaters: number;
-    onRatingChange?: (hasRated: boolean, newRatings?: { [key: string]: number }) => void;
-}> = ({ departmentId, categoryRatings, totalRaters, onRatingChange }) => {
-    // We'll repurpose the RatingLayout component but with our department categories
-    return (
-        <div className='px-4 pb-3'>
-            {DEPARTMENT_RATING_CATEGORIES.map(category => (
-                <div key={category} className="mb-4">
-                    {/* Category name */}
-                    <div
-                        className="text-left"
-                        style={{ color: 'var(--tgui--subtitle_text_color)' }}
-                    >
-                        {category}
-                    </div>
-
-                    {/* Rating display row */}
-                    <div className="flex mt-1 -ml-0.25 items-center justify-between">
-                        {/* Here we would use the CustomRating component similar to RatingLayout */}
-                        <div className="flex">
-                            {[1, 2, 3, 4, 5].map(star => (
-                                <div key={star} style={{ color: star <= Math.round(categoryRatings[category] || 0) ? 'var(--tgui--link_color)' : 'var(--tgui--tertiary_bg_color)' }}>
-                                    <Icon20Star_fill />
-                                </div>
-                            ))}
-                        </div>
-
-                        <Headline
-                            weight="1"
-                            className="transition-colors duration-200 ml-2"
-                            style={{ color: 'var(--tgui--link_color)' }}
-                        >
-                            {(categoryRatings[category] || 0).toFixed(1)}
-                        </Headline>
-                    </div>
-                </div>
-            ))}
-
-            {/* Rating action buttons would go here similar to RatingLayout */}
-            <div className="mt-6 transition-all duration-200">
-                <Button
-                    onClick={() => {}}
-                    mode="bezeled"
-                    size="m"
-                    className="w-full"
-                >
-                    Оценить
-                </Button>
-            </div>
-        </div>
-    );
+// Calculate average rating across all categories
+const calculateMeanRating = (categoryRatings: { [key: string]: number }): number => {
+    const values = Object.values(categoryRatings);
+    if (values.length === 0) return 0;
+    return values.reduce((sum, val) => sum + val, 0) / values.length;
 };
 
 export const DepartmentPage: React.FC = () => {
@@ -91,28 +48,31 @@ export const DepartmentPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
 
-    // Use our scroll manager hook for smooth accordion transitions
-    const { scrollPosition, saveScrollPosition } =
-        useScrollManager({ element: contentRef });
+    // Track which field was recently copied
+    const [copiedField, setCopiedField] = useState<'email' | 'phone' | null>(null);
+
+    // Use scroll manager hook for smooth accordion transitions
+    const { saveScrollPosition } = useScrollManager({ element: contentRef });
 
     // State for accordions
-    const [expandedAccordions, setExpandedAccordions] = useState<{
-        ratings: boolean;
-        staff: boolean;
-        courses: boolean;
-        research: boolean;
-    }>({
+    const [expandedAccordions, setExpandedAccordions] = useState({
         ratings: false,
-        staff: false,
-        courses: false,
-        research: false
+        staff: false
     });
 
-    // Calculate average rating across all categories
-    const calculateMeanRating = (categoryRatings: { [key: string]: number }): number => {
-        const values = Object.values(categoryRatings);
-        if (values.length === 0) return 0;
-        return values.reduce((sum, val) => sum + val, 0) / values.length;
+    // Copy text to clipboard and show feedback
+    const handleCopy = async (text: string, field: 'email' | 'phone') => {
+        try {
+            await copyTextToClipboard(text);
+            setCopiedField(field);
+
+            // Reset after 2 seconds
+            setTimeout(() => {
+                setCopiedField(null);
+            }, 2000);
+        } catch (error) {
+            console.error('Failed to copy text:', error);
+        }
     };
 
     // Fetch department data
@@ -199,12 +159,12 @@ export const DepartmentPage: React.FC = () => {
         console.log(`Navigate to reviews for department ${id}`);
     };
 
-    const handleStaffClick = () => {
-        console.log(`Navigate to staff for department ${id}`);
+    const handleWebsiteClick = () => {
+        console.log(`Navigate to website for department ${id}`);
     };
 
-    const handleCoursesClick = () => {
-        console.log(`Navigate to courses for department ${id}`);
+    const handleStaffClick = () => {
+        console.log(`Navigate to all staff for department ${id}`);
     };
 
     // Handle share button click
@@ -225,9 +185,7 @@ export const DepartmentPage: React.FC = () => {
     if (loading) {
         return (
             <Page back={true}>
-                <div className="flex justify-center items-center h-32">
-                    <div className="animate-spin h-8 w-8 border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent rounded-full" />
-                </div>
+                <EntityLoadingIndicator />
             </Page>
         );
     }
@@ -236,12 +194,7 @@ export const DepartmentPage: React.FC = () => {
     if (error || !department) {
         return (
             <Page back={true}>
-                <div className="p-4 text-center">
-                    <div className="text-red-500 mb-2">{error || 'Failed to load department data'}</div>
-                    <Button mode="bezeled" size="m" onClick={() => fetchDepartment()}>
-                        Retry
-                    </Button>
-                </div>
+                <EntityError error={error} onRetry={fetchDepartment} />
             </Page>
         );
     }
@@ -251,9 +204,9 @@ export const DepartmentPage: React.FC = () => {
             <div ref={contentRef}>
                 <List>
                     {/* Department header with number and full name */}
-                    <div className="department-page-non-interactive">
+                    <div className="entity-page-non-interactive">
                         <Cell
-                            className="-mx-2 department-page-non-interactive"
+                            className="-mx-2 entity-page-non-interactive"
                             subtitle={department.name}
                             multiline
                             after={
@@ -273,174 +226,111 @@ export const DepartmentPage: React.FC = () => {
 
                     {/* Rating and department head */}
                     <Section>
-                        <div className="department-page-non-interactive" style={{ position: 'relative' }}>
+                        <div className="entity-page-non-interactive" style={{ position: 'relative' }}>
                             <CustomCell
-                                className="department-page-non-interactive"
+                                className="entity-page-non-interactive"
                                 subhead="Штаб"
                                 rightSubhead="Рейтинг"
                                 after={
-                                    <Headline
-                                        className="department-page-rating"
-                                        weight="1"
-                                    >
-                                        {department.ratings.overallRating.toFixed(1)}
-                                        <div className="department-page-rating-icon">
-                                            <Icon20Star_fill />
-                                        </div>
-                                    </Headline>
+                                    <RatingDisplay rating={department.ratings.overallRating} />
                                 }
                             >
-                                <Headline weight="1">
+                                <Title level="3" weight="1">
                                     {department.contactInfo?.location}
-                                </Headline>
+                                </Title>
                             </CustomCell>
 
                             {/* Action buttons */}
-                            <div className="department-page-button-container">
-                                <Button
-                                    className="department-page-action-button"
-                                    before={<Icon24Discussion_fill />}
-                                    mode="bezeled"
-                                    size="m"
-                                    onClick={handleReviewsClick}
-                                >
-                                    Отзывы
-                                </Button>
-                                <Button
-                                    className="department-page-action-button"
-                                    before={<Icon24Goto_fill />}
-                                    mode="bezeled"
-                                    size="m"
-                                    onClick={handleStaffClick}
-                                >
-                                    Сайт
-                                </Button>
-                            </div>
+                            <ActionButtons
+                                primaryAction={{
+                                    label: "Отзывы",
+                                    icon: <Icon24Discussion_fill />,
+                                    onClick: handleReviewsClick
+                                }}
+                                secondaryAction={{
+                                    label: "Канал",
+                                    icon: <Icon24Telegram />,
+                                    onClick: handleWebsiteClick
+                                }}
+                            />
                         </div>
                     </Section>
 
-                    {/* Ratings section with department-specific categories */}
-                    <Section className="department-page-smooth-accordion">
-                        <Accordion
-                            id="ratings"
+                    {/* Ratings section */}
+                    <Section className="entity-page-smooth-accordion">
+                        <RatingAccordion
                             expanded={expandedAccordions.ratings}
-                            onChange={() => toggleAccordion('ratings')}
-                            className="department-page-smooth-accordion"
-                        >
-                            <AccordionSummary>
-                                {`Оценки (${department.ratings.totalRaters})`}
-                            </AccordionSummary>
-                            <AccordionContent>
-                                <DepartmentRatingLayout
-                                    departmentId={department.id}
-                                    categoryRatings={department.ratings.categoryRatings}
-                                    totalRaters={department.ratings.totalRaters}
-                                    onRatingChange={handleRatingChange}
-                                />
-                            </AccordionContent>
-                        </Accordion>
+                            onToggle={() => toggleAccordion('ratings')}
+                            entityId={department.id}
+                            categoryRatings={department.ratings.categoryRatings}
+                            totalRaters={department.ratings.totalRaters}
+                            onRatingChange={handleRatingChange}
+                            categories={DEPARTMENT_RATING_CATEGORIES}
+                            entityType="department"
+                        />
 
                         <Divider />
 
                         {/* Staff listing */}
-                        <Accordion
-                            id="staff"
-                            expanded={expandedAccordions.staff}
-                            onChange={() => toggleAccordion('staff')}
-                            className="department-page-smooth-accordion"
-                        >
-                            <AccordionSummary>
-                                Преподаватели кафедры
-                            </AccordionSummary>
-                            <AccordionContent>
-                                <List className="department-page-accordion-content">
-                                    {department.staff?.slice(0, 3).map((staffMember, index) => (
-                                        <React.Fragment key={staffMember.id}>
-                                            <Cell
-                                                subtitle={staffMember.position}
-                                            >
-                                                {staffMember.name}
-                                            </Cell>
-                                            {index < (department.staff?.slice(0, 3).length || 0) - 1 && <Divider />}
-                                        </React.Fragment>
-                                    ))}
-
-                                    <div className="mt-3 px-4 pb-2">
-                                        <Button
-                                            mode="bezeled"
-                                            size="m"
-                                            className="w-full"
-                                            onClick={handleStaffClick}
-                                        >
-                                            Показать всех преподавателей
-                                        </Button>
-                                    </div>
-                                </List>
-                            </AccordionContent>
-                        </Accordion>
+                        {department.staff && department.staff.length > 0 && (
+                            <StaffAccordion
+                                expanded={expandedAccordions.staff}
+                                onToggle={() => toggleAccordion('staff')}
+                                staff={department.staff}
+                                onViewAllStaff={handleStaffClick}
+                            />
+                        )}
                     </Section>
 
                     {/* Contact Information */}
                     <Section header="Контактная информация">
-                        {department.contactInfo?.location && (
-                            <Cell
-                                subhead="Telegram:"
-                            >
-                                -
-                            </Cell>
-                        )}
-
-                        <Divider />
-
                         {department.contactInfo?.email && (
-                            <Cell
-                                subhead="Email:"
-                            >
-                                {department.contactInfo.email}
-                            </Cell>
+                            <>
+                                <Cell
+                                    subhead="Email:"
+                                    className="contact-info-value"
+                                    after={
+                                        copiedField === 'email' ? (
+                                            <Icon20Check
+                                                style={{ color: `var(--tgui--accent_text_color)` }}
+                                            />
+                                        ) : (
+                                            <Icon20Copy
+                                                style={{ color: `var(--tgui--subtitle_text_color)` }}
+                                            />
+                                        )
+                                    }
+                                    multiline
+                                    onClick={() => handleCopy("secretary@theor.mephi.ru", 'email')}
+                                >
+                                    secretary@theor.mephi.ru
+                                </Cell>
+                                <Divider />
+                            </>
                         )}
-
-                        <Divider />
 
                         {department.contactInfo?.phone && (
                             <Cell
                                 subhead="Телефон:"
+                                className="contact-info-value"
+                                after={
+                                    copiedField === 'phone' ? (
+                                        <Icon20Check
+                                            style={{ color: `var(--tgui--accent_text_color)` }}
+                                        />
+                                    ) : (
+                                        <Icon20Copy
+                                            style={{ color: `var(--tgui--subtitle_text_color)` }}
+                                        />
+                                    )
+                                }
+                                multiline
+                                onClick={() => handleCopy(department.contactInfo?.phone || '', 'phone')}
                             >
                                 {department.contactInfo.phone}
                             </Cell>
                         )}
                     </Section>
-
-                    {/* <Section header="Контактная информация">
-                        <div className="px-4 py-3">
-                            {department.contactInfo?.location && (
-                                <div className="mb-2">
-                                    <div className="text-xs" style={{ color: 'var(--tgui--hint_color)' }}>
-                                        Штаб:
-                                    </div>
-                                    <div className="text-sm">{department.contactInfo.location}</div>
-                                </div>
-                            )}
-
-                            {department.contactInfo?.email && (
-                                <div className="mb-2">
-                                    <div className="text-xs" style={{ color: 'var(--tgui--hint_color)' }}>
-                                        Email:
-                                    </div>
-                                    <div className="text-sm">{department.contactInfo.email}</div>
-                                </div>
-                            )}
-
-                            {department.contactInfo?.phone && (
-                                <div>
-                                    <div className="text-xs" style={{ color: 'var(--tgui--hint_color)' }}>
-                                        Телефон:
-                                    </div>
-                                    <div className="text-sm">{department.contactInfo.phone}</div>
-                                </div>
-                            )}
-                        </div>
-                    </Section> */}
 
                     <Button
                         className="w-full mb-6"

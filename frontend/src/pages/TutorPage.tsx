@@ -4,16 +4,12 @@ import { Page } from '@/components/Page';
 import {
     List,
     Cell,
-    Image,
     Avatar,
     Button,
     Title,
     Section,
-    Headline,
-    Divider,
-    Accordion,
+    Divider
 } from '@telegram-apps/telegram-ui';
-import { Icon20Star_fill } from '@/icons/20/star_fill';
 import { Icon24Discussion_fill } from '@/icons/24/discussion_fill';
 import { Icon24Folder_fill } from '@/icons/24/folder_fill';
 import { CustomCell } from '@/components/layout/CustomCell';
@@ -22,76 +18,57 @@ import { tutorService } from '@/services/tutorService';
 import { Tutor } from '@/types/tutor';
 import { shareURL } from '@telegram-apps/sdk-react';
 import { getTelegramShareableUrl } from '@/config/appConfig';
-import { RatingLayout, RATING_CATEGORIES } from '@/components/layout/RatingLayout';
+import { TUTOR_RATING_CATEGORIES } from '@/constants/ratingConstants';
 import { useScrollManager } from '@/hooks/useScrollManager';
-import { AccordionSummary } from '@telegram-apps/telegram-ui/dist/components/Blocks/Accordion/components/AccordionSummary/AccordionSummary';
-import { AccordionContent } from '@telegram-apps/telegram-ui/dist/components/Blocks/Accordion/components/AccordionContent/AccordionContent';
 import { Link } from '@/components/common/Link';
-import { Icon12Chevron_right } from '@/icons/12/chevron_right';
 import { Icon12Chevron_small_right } from '@/icons/12/chevron_small_right';
+import {
+    EntityLoadingIndicator,
+    EntityError,
+    RatingDisplay,
+    RatingAccordion,
+    TextAccordion,
+    ActionButtons
+} from '@/components/layout/SharedEntityComponents';
 
-// Enhanced Tutor type with total raters
-interface EnhancedTutor extends Tutor {
-    ratings: {
-        totalRaters: number;
-        overallRating: number;
-        categoryRatings: {
-            [key: string]: number;
-        };
-        educationalProcess: {
-            lessonStructure: string;
-            intermediateAssessment: string;
-            finalAssessment: string;
-        };
+// Extract department ID from department name
+const extractDepartmentId = (departmentName: string): number => {
+    const match = departmentName.match(/№(\d+)/);
+    if (match && match[1]) {
+        return parseInt(match[1], 10);
+    }
+
+    // Fallback mapping for common departments
+    const departmentMap: Record<string, number> = {
+        "Кафедра №1": 1,
+        "Кафедра №30": 30,
+        "Кафедра №42": 42,
+        "Кафедра №7": 7,
+        "Кафедра №15": 15
     };
-}
+
+    return departmentMap[departmentName] || 97;
+};
+
+// Calculate mean of category ratings
+const calculateMeanRating = (categoryRatings: { [key: string]: number }): number => {
+    const values = Object.values(categoryRatings);
+    if (values.length === 0) return 0;
+    return values.reduce((sum, val) => sum + val, 0) / values.length;
+};
 
 export const TutorPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const [tutor, setTutor] = useState<EnhancedTutor | null>(null);
+    const [tutor, setTutor] = useState<Tutor | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
-    
-    // Function to extract department ID from department name
-    const extractDepartmentId = (departmentName: string): number => {
-        // Try to extract department number (e.g., "Кафедра №30" -> 30)
-        const match = departmentName.match(/№(\d+)/);
-        if (match && match[1]) {
-            return parseInt(match[1], 10);
-        }
-        
-        // If no number found, use a simple mapping for common departments
-        // In a real app, this would be retrieved from an API or a complete mapping
-        const departmentMap: Record<string, number> = {
-            "Кафедра №1": 1,
-            "Кафедра №30": 30,
-            "Кафедра №42": 42,
-            "Кафедра №7": 7,
-            "Кафедра №15": 15
-        };
-        
-        return departmentMap[departmentName] || 97; // Default to department 97 if not found
-    };
 
-    // Use our scroll manager hook
-    const { scrollPosition, saveScrollPosition, restoreScrollPosition } =
-        useScrollManager({ element: contentRef });
-
-    // Utility function to calculate the mean of category ratings
-    const calculateMeanRating = (categoryRatings: { [key: string]: number }): number => {
-        const values = Object.values(categoryRatings);
-        if (values.length === 0) return 0;
-        return values.reduce((sum, val) => sum + val, 0) / values.length;
-    };
+    // Use scroll manager hook for smooth transitions
+    const { saveScrollPosition } = useScrollManager({ element: contentRef });
 
     // State for accordions
-    const [expandedAccordions, setExpandedAccordions] = useState<{
-        ratings: boolean;
-        lessonStructure: boolean;
-        intermediateAssessment: boolean;
-        finalAssessment: boolean;
-    }>({
+    const [expandedAccordions, setExpandedAccordions] = useState({
         ratings: false,
         lessonStructure: false,
         intermediateAssessment: false,
@@ -110,16 +87,12 @@ export const TutorPage: React.FC = () => {
             const fetchedTutor = await tutorService.getTutorById(tutorId);
             if (!fetchedTutor) throw new Error(`Tutor with ID ${id} not found`);
 
-            // Add totalRaters if it doesn't exist
-            const enhancedTutor: EnhancedTutor = {
-                ...fetchedTutor,
-                ratings: {
-                    ...fetchedTutor.ratings,
-                    totalRaters: fetchedTutor.ratings.totalRaters || Math.floor(Math.random() * 20) + 5
-                }
-            };
+            // Ensure tutor has totalRaters property
+            if (!fetchedTutor.ratings.totalRaters) {
+                fetchedTutor.ratings.totalRaters = Math.floor(Math.random() * 20) + 5;
+            }
 
-            setTutor(enhancedTutor);
+            setTutor(fetchedTutor);
             setError(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Unknown error');
@@ -134,9 +107,7 @@ export const TutorPage: React.FC = () => {
 
     // Toggle accordion expanded state
     const toggleAccordion = (accordionName: keyof typeof expandedAccordions) => {
-        // Save scroll position before state change
         saveScrollPosition();
-
         setExpandedAccordions(prev => ({
             ...prev,
             [accordionName]: !prev[accordionName]
@@ -147,22 +118,21 @@ export const TutorPage: React.FC = () => {
     const handleRatingChange = (hasRated: boolean, userRatings?: { [key: string]: number }) => {
         if (!tutor || !userRatings) return;
 
-        // Save scroll position before updating
         saveScrollPosition();
 
         // Update category ratings
         const updatedCategoryRatings = { ...tutor.ratings.categoryRatings };
-        const oldTotalRaters = tutor.ratings.totalRaters;
+        const oldTotalRaters = tutor.ratings.totalRaters || 0;
 
-        // Only update ratings for our defined categories
-        for (const category of RATING_CATEGORIES) {
+        // Update ratings for each category
+        for (const category of TUTOR_RATING_CATEGORIES) {
             if (category in userRatings) {
                 const rating = userRatings[category];
                 if (hasRated) {
-                    // Adding a rating - update each category's weighted average
+                    // Adding a rating - update weighted average
                     updatedCategoryRatings[category] = ((updatedCategoryRatings[category] || 0) * oldTotalRaters + rating) / (oldTotalRaters + 1);
                 } else {
-                    // Removing a rating - reverse the weighted average calculation
+                    // Removing a rating - reverse weighted average
                     updatedCategoryRatings[category] = oldTotalRaters <= 1
                         ? 0
                         : ((updatedCategoryRatings[category] || 0) * oldTotalRaters - rating) / (oldTotalRaters - 1);
@@ -170,29 +140,27 @@ export const TutorPage: React.FC = () => {
             }
         }
 
-        // Calculate overall rating as the mean of all category ratings
+        // Calculate new overall rating
         const newOverallRating = calculateMeanRating(updatedCategoryRatings);
 
-        // Update tutor state with new ratings
+        // Update tutor state
         setTutor({
             ...tutor,
             ratings: {
                 ...tutor.ratings,
                 overallRating: newOverallRating,
                 categoryRatings: updatedCategoryRatings,
-                totalRaters: tutor.ratings.totalRaters + (hasRated ? 1 : -1)
+                totalRaters: oldTotalRaters + (hasRated ? 1 : -1)
             }
         });
     };
 
-    // Navigation handlers
+    // Action handlers
     const handleReviewsClick = () => {
-        // Navigate to reviews page (future implementation)
         console.log(`Navigate to reviews for tutor ${id}`);
     };
 
     const handleMaterialsClick = () => {
-        // Navigate to materials page (future implementation)
         console.log(`Navigate to materials for tutor ${id}`);
     };
 
@@ -203,7 +171,6 @@ export const TutorPage: React.FC = () => {
         if (shareURL.isAvailable()) {
             const shareLink = getTelegramShareableUrl(`/tutor/${tutor.id}`);
             const shareMessage = `\n${tutor.name}\n${tutor.department}`;
-
             shareURL(shareLink, shareMessage);
         } else {
             console.log('Sharing is not available in this environment');
@@ -214,9 +181,7 @@ export const TutorPage: React.FC = () => {
     if (loading) {
         return (
             <Page back={true}>
-                <div className="flex justify-center items-center h-32">
-                    <div className="animate-spin h-8 w-8 border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent rounded-full" />
-                </div>
+                <EntityLoadingIndicator />
             </Page>
         );
     }
@@ -225,12 +190,7 @@ export const TutorPage: React.FC = () => {
     if (error || !tutor) {
         return (
             <Page back={true}>
-                <div className="p-4 text-center">
-                    <div className="text-red-500 mb-2">{error || 'Failed to load tutor data'}</div>
-                    <Button mode="bezeled" size="m" onClick={() => fetchTutor()}>
-                        Retry
-                    </Button>
-                </div>
+                <EntityError error={error} onRetry={fetchTutor} />
             </Page>
         );
     }
@@ -240,9 +200,9 @@ export const TutorPage: React.FC = () => {
             <div ref={contentRef}>
                 <List>
                     {/* Tutor header - non-interactive */}
-                    <div className="tutor-page-non-interactive">
+                    <div className="entity-page-non-interactive">
                         <Cell
-                            className="-mx-2 tutor-page-non-interactive"
+                            className="-mx-2 entity-page-non-interactive"
                             subtitle={
                                 <Link
                                     to={`/department/${extractDepartmentId(tutor.department)}`}
@@ -256,14 +216,13 @@ export const TutorPage: React.FC = () => {
                                     <div className='flex items-center'>
                                         {tutor.department}
                                         &nbsp;
-                                        {<Icon12Chevron_small_right />}
+                                        <Icon12Chevron_small_right />
                                     </div>
                                 </Link>
                             }
                             multiline
                             after={
                                 <Avatar
-                                    // className='-mt-4.25'
                                     size={96}
                                     src={`/assets/tutors/${tutor.imageFileName}`}
                                     style={{ backgroundColor: 'var(--tgui--section_bg_color)' }}
@@ -277,129 +236,79 @@ export const TutorPage: React.FC = () => {
                         </Cell>
                     </div>
 
-                    {/* Position and rating - non-interactive wrapper but with interactive buttons */}
+                    {/* Position and rating - non-interactive wrapper with interactive buttons */}
                     <Section>
-                        <div className="tutor-page-non-interactive" style={{ position: 'relative' }}>
+                        <div className="entity-page-non-interactive" style={{ position: 'relative' }}>
                             <CustomCell
-                                className="tutor-page-non-interactive"
+                                className="entity-page-non-interactive"
                                 subhead="Должность"
                                 rightSubhead="Рейтинг"
                                 after={
-                                    <Headline
-                                        className="tutor-page-rating"
-                                        weight="1"
-                                    >
-                                        {calculateMeanRating(tutor.ratings.categoryRatings).toFixed(1)}
-                                        <div className="tutor-page-rating-icon">
-                                            <Icon20Star_fill />
-                                        </div>
-                                    </Headline>
+                                    <RatingDisplay
+                                        rating={calculateMeanRating(tutor.ratings.categoryRatings)}
+                                    />
                                 }
                             >
-                                <Headline weight="1">
-                                    {tutor.position}
-                                </Headline>
+                                <Title level="3" weight="1">{tutor.position}</Title>
                             </CustomCell>
 
                             {/* Button container with pointer events enabled */}
-                            <div className="tutor-page-button-container">
-                                <Button
-                                    className="tutor-page-action-button"
-                                    before={<Icon24Discussion_fill />}
-                                    mode="bezeled"
-                                    size="m"
-                                    onClick={handleReviewsClick}
-                                >
-                                    Отзывы
-                                </Button>
-                                <Button
-                                    className="tutor-page-action-button"
-                                    before={<Icon24Folder_fill />}
-                                    mode="bezeled"
-                                    size="m"
-                                    onClick={handleMaterialsClick}
-                                >
-                                    Материалы
-                                </Button>
-                            </div>
+                            <ActionButtons
+                                primaryAction={{
+                                    label: "Отзывы",
+                                    icon: <Icon24Discussion_fill />,
+                                    onClick: handleReviewsClick
+                                }}
+                                secondaryAction={{
+                                    label: "Материалы",
+                                    icon: <Icon24Folder_fill />,
+                                    onClick: handleMaterialsClick
+                                }}
+                            />
                         </div>
                     </Section>
 
-                    {/* Ratings with standard Accordion */}
-                    <Section className="tutor-page-smooth-accordion">
-                        <Accordion
-                            id="ratings"
+                    {/* Ratings section */}
+                    <Section className="entity-page-smooth-accordion">
+                        <RatingAccordion
                             expanded={expandedAccordions.ratings}
-                            onChange={() => toggleAccordion('ratings')}
-                            className="tutor-page-smooth-accordion"
-                        >
-                            <AccordionSummary>
-                                {`Оценки (${tutor.ratings.totalRaters})`}
-                            </AccordionSummary>
-                            <AccordionContent>
-                                <RatingLayout
-                                    tutorId={tutor.id}
-                                    categoryRatings={tutor.ratings.categoryRatings}
-                                    totalRaters={tutor.ratings.totalRaters}
-                                    onRatingChange={handleRatingChange}
-                                />
-                            </AccordionContent>
-                        </Accordion>
+                            onToggle={() => toggleAccordion('ratings')}
+                            entityId={tutor.id}
+                            categoryRatings={tutor.ratings.categoryRatings}
+                            totalRaters={tutor.ratings.totalRaters || 0}
+                            onRatingChange={handleRatingChange}
+                        />
                     </Section>
 
-                    {/* Educational process */}
+                    {/* Educational process section */}
                     <Section header="Учебный процесс">
-                        <Accordion
+                        <TextAccordion
+                            title="Как проходят занятия"
                             id="lessonStructure"
                             expanded={expandedAccordions.lessonStructure}
-                            onChange={() => toggleAccordion('lessonStructure')}
-                            className="tutor-page-smooth-accordion"
-                        >
-                            <AccordionSummary>
-                                Как проходят занятия
-                            </AccordionSummary>
-                            <AccordionContent>
-                                <List className="tutor-page-accordion-content">
-                                    {tutor.ratings.educationalProcess.lessonStructure}
-                                </List>
-                            </AccordionContent>
-                        </Accordion>
+                            onToggle={() => toggleAccordion('lessonStructure')}
+                            content={tutor.ratings.educationalProcess?.lessonStructure || ''}
+                        />
 
                         <Divider />
 
-                        <Accordion
+                        <TextAccordion
+                            title="Промежуточная аттестация"
                             id="intermediateAssessment"
                             expanded={expandedAccordions.intermediateAssessment}
-                            onChange={() => toggleAccordion('intermediateAssessment')}
-                            className="tutor-page-smooth-accordion"
-                        >
-                            <AccordionSummary>
-                                Промежуточная аттестация
-                            </AccordionSummary>
-                            <AccordionContent>
-                                <List className="tutor-page-accordion-content">
-                                    {tutor.ratings.educationalProcess.intermediateAssessment}
-                                </List>
-                            </AccordionContent>
-                        </Accordion>
+                            onToggle={() => toggleAccordion('intermediateAssessment')}
+                            content={tutor.ratings.educationalProcess?.intermediateAssessment || ''}
+                        />
 
                         <Divider />
 
-                        <Accordion
+                        <TextAccordion
+                            title="Итоговая аттестация"
                             id="finalAssessment"
                             expanded={expandedAccordions.finalAssessment}
-                            onChange={() => toggleAccordion('finalAssessment')}
-                            className="tutor-page-smooth-accordion"
-                        >
-                            <AccordionSummary>
-                                Итоговая аттестация
-                            </AccordionSummary>
-                            <AccordionContent>
-                                <List className="tutor-page-accordion-content">
-                                    {tutor.ratings.educationalProcess.finalAssessment}
-                                </List>
-                            </AccordionContent>
-                        </Accordion>
+                            onToggle={() => toggleAccordion('finalAssessment')}
+                            content={tutor.ratings.educationalProcess?.finalAssessment || ''}
+                        />
                     </Section>
 
                     <Button
@@ -415,3 +324,5 @@ export const TutorPage: React.FC = () => {
         </Page>
     );
 };
+
+export default TutorPage;

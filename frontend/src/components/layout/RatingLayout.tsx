@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Headline, Button, List } from '@telegram-apps/telegram-ui';
+import { Headline, Button } from '@telegram-apps/telegram-ui';
 import { CustomRating } from './CustomRating';
-
-// Define standard rating categories that apply to all tutors
-export const RATING_CATEGORIES = [
-  "Подача материала",
-  "«Халявность»",
-  "Знания",
-  "В общении"
-];
+import { RatingCategoryWithTooltip } from './RatingCategoryWithTooltip';
+import { TUTOR_RATING_CATEGORIES } from '@/constants/ratingConstants';
 
 // Types for rating data
 interface UserRating {
@@ -16,49 +10,39 @@ interface UserRating {
 }
 
 interface RatingLayoutProps {
-    tutorId: number;
+    tutorId: number; // Used as entity ID (can be tutor ID or department ID)
     categoryRatings: { [key: string]: number };
     totalRaters: number;
     onRatingChange?: (hasRated: boolean, newRatings?: UserRating) => void;
+    categories?: string[]; // Optional prop to override default categories
+    entityType?: 'tutor' | 'department'; // To differentiate storage keys
 }
 
-// Mock storage functions
-const saveUserRating = (tutorId: number, ratings: UserRating): void => {
-    localStorage.setItem(`user-rating-${tutorId}`, JSON.stringify(ratings));
+// Mock storage functions - in a real app these would interact with API
+const getStorageKey = (entityType: string, entityId: number): string => {
+    return `user-rating-${entityType}-${entityId}`;
 };
 
-const getUserRating = (tutorId: number): UserRating | null => {
-    const stored = localStorage.getItem(`user-rating-${tutorId}`);
+const saveUserRating = (entityType: string, entityId: number, ratings: UserRating): void => {
+    localStorage.setItem(getStorageKey(entityType, entityId), JSON.stringify(ratings));
+};
+
+const getUserRating = (entityType: string, entityId: number): UserRating | null => {
+    const stored = localStorage.getItem(getStorageKey(entityType, entityId));
     return stored ? JSON.parse(stored) : null;
 };
 
-const deleteUserRating = (tutorId: number): void => {
-    localStorage.removeItem(`user-rating-${tutorId}`);
-};
-
-// Calculate new weighted average rating
-const calculateUpdatedRating = (
-    oldRating: number,
-    totalRaters: number,
-    newRating: number,
-    isAdding: boolean
-): number => {
-    if (isAdding) {
-        // Adding a new rating
-        return ((oldRating * totalRaters) + newRating) / (totalRaters + 1);
-    } else {
-        // Removing a rating
-        return totalRaters <= 1
-            ? 0
-            : ((oldRating * totalRaters) - newRating) / (totalRaters - 1);
-    }
+const deleteUserRating = (entityType: string, entityId: number): void => {
+    localStorage.removeItem(getStorageKey(entityType, entityId));
 };
 
 export const RatingLayout: React.FC<RatingLayoutProps> = ({
     tutorId,
     categoryRatings,
     totalRaters,
-    onRatingChange
+    onRatingChange,
+    categories = TUTOR_RATING_CATEGORIES, // Default to tutor categories if not specified
+    entityType = 'tutor' // Default to 'tutor' if not specified
 }) => {
     // Rating state
     const [isRatingMode, setIsRatingMode] = useState(false);
@@ -72,27 +56,27 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
     useEffect(() => {
         const ratings: { [key: string]: number } = {};
 
-        // Map each standard category to its rating (if available) or default to 0
-        RATING_CATEGORIES.forEach(category => {
+        // Map each category to its rating (if available) or default to 0
+        categories.forEach(category => {
             ratings[category] = categoryRatings[category] || 0;
         });
 
         setDisplayRatings(ratings);
-    }, [categoryRatings]);
+    }, [categoryRatings, categories]);
 
     // Check if all categories have been rated
-    const allCategoriesRated = RATING_CATEGORIES.every(
+    const allCategoriesRated = categories.every(
         category => userRatings[category] !== undefined
     );
 
     // Load user's previous rating if exists
     useEffect(() => {
-        const savedRating = getUserRating(tutorId);
+        const savedRating = getUserRating(entityType, tutorId);
         if (savedRating) {
             setStoredUserRatings(savedRating);
             setHasUserRated(true);
         }
-    }, [tutorId]);
+    }, [tutorId, entityType]);
 
     // Start rating process
     const handleStartRating = () => {
@@ -106,17 +90,35 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
         setUserRatings({});
     };
 
+    // Calculate updated rating based on user's rating
+    const calculateUpdatedRating = (
+        oldRating: number,
+        totalRaters: number,
+        newRating: number,
+        isAdding: boolean
+    ): number => {
+        if (isAdding) {
+            // Adding a new rating
+            return ((oldRating * totalRaters) + newRating) / (totalRaters + 1);
+        } else {
+            // Removing a rating
+            return totalRaters <= 1
+                ? 0
+                : ((oldRating * totalRaters) - newRating) / (totalRaters - 1);
+        }
+    };
+
     // Save rating
     const handleSaveRating = () => {
         if (!allCategoriesRated) return;
 
-        saveUserRating(tutorId, userRatings);
+        saveUserRating(entityType, tutorId, userRatings);
         setStoredUserRatings(userRatings);
         setHasUserRated(true);
 
         // Calculate updated global ratings
         const updatedRatings = { ...displayRatings };
-        for (const category of RATING_CATEGORIES) {
+        for (const category of categories) {
             if (userRatings[category]) {
                 updatedRatings[category] = calculateUpdatedRating(
                     displayRatings[category] || 0,
@@ -142,7 +144,7 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
 
         // Calculate updated global ratings after removing user's rating
         const updatedRatings = { ...displayRatings };
-        for (const category of RATING_CATEGORIES) {
+        for (const category of categories) {
             if (storedUserRatings[category]) {
                 updatedRatings[category] = calculateUpdatedRating(
                     displayRatings[category] || 0,
@@ -154,7 +156,7 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
         }
 
         setDisplayRatings(updatedRatings);
-        deleteUserRating(tutorId);
+        deleteUserRating(entityType, tutorId);
         setStoredUserRatings(null);
         setHasUserRated(false);
 
@@ -173,15 +175,18 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
     };
 
     return (
-        <List>
-            {RATING_CATEGORIES.map(category => (
-                <div key={category}>
-                    {/* Category name */}
+        <div className='px-4 pb-3'>
+            {categories.map(category => (
+                <div key={category} className="mb-4">
+                    {/* Category name with tooltip */}
                     <div
                         className="text-left"
                         style={{ color: 'var(--tgui--subtitle_text_color)' }}
                     >
-                        {category}
+                        <RatingCategoryWithTooltip
+                            category={category}
+                            entityType={entityType}
+                        />
                     </div>
 
                     {/* Rating display row */}
@@ -204,9 +209,7 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
                             weight="1"
                             className="transition-colors duration-200 ml-2"
                             style={{
-                                color: (showingUserRating && storedUserRatings) || isRatingMode
-                                    ? 'var(--tgui--link_color)'
-                                    : 'var(--tgui--link_color)'
+                                color: 'var(--tgui--link_color)'
                             }}
                         >
                             {(isRatingMode
@@ -280,6 +283,6 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
                     </div>
                 )}
             </div>
-        </List>
+        </div>
     );
 };

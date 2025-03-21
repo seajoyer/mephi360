@@ -4,21 +4,21 @@ import { _ as _object_spread } from "@swc/helpers/_/_object_spread";
 import { _ as _object_spread_props } from "@swc/helpers/_/_object_spread_props";
 import { jsx as _jsx } from "react/jsx-runtime";
 
-export const Icon24Telegram = (_param) => {
+export const Icon20Check = (_param) => {
   var restProps = _extends({}, _object_destructuring_empty(_param));
   return /*#__PURE__*/ _jsx("svg", _object_spread_props(_object_spread({
-    width: "24",
-    height: "24",
+    width: "20",
+    height: "20",
     fill: "none",
     xmlns: "http://www.w3.org/2000/svg"
   }, restProps), {
     children: /*#__PURE__*/ _jsx("path", {
       fillRule: "evenodd",
       clipRule: "evenodd",
-      d: "M20.2949 4.14125C20.2949 4.14125 22.1451 3.44868 21.9909 5.13064C21.9395 5.82322 21.477 8.24722 21.1172 10.8691L19.8838 18.6358C19.8838 18.6358 19.781 19.7736 18.8559 19.9715C17.9308 20.1694 16.5432 19.2789 16.2862 19.081C16.0807 18.9327 12.4318 16.7065 11.147 15.6182C10.7872 15.3214 10.3761 14.7277 11.1983 14.0351L16.5946 9.08823C17.2113 8.49458 17.8281 7.10944 15.2584 8.7914L8.06339 13.491C8.06339 13.491 7.2411 13.9857 5.69934 13.5405L2.35877 12.5511C2.35877 12.5511 1.12534 11.809 3.23245 11.067C8.37177 8.74189 14.6931 6.36736 20.2949 4.14125Z",
+      d: "M16.1371 5.37098C16.621 5.86289 16.621 6.65848 16.1371 7.15039L8.7801 14.629C8.29351 15.1237 7.50251 15.1237 7.01592 14.629L3.86293 11.4239C3.37902 10.932 3.37902 10.1364 3.86293 9.64448C4.34952 9.14985 5.14053 9.14985 5.62712 9.64448L7.89801 11.9529L14.3729 5.37098C14.8595 4.87634 15.6505 4.87634 16.1371 5.37098Z",
       fill: "currentColor"
     })
   }));
 };
 
-//# sourceMappingURL=telegram.js.map
+//# sourceMappingURL=check.js.map
