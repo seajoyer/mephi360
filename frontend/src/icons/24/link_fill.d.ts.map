@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "link_fill.d.ts",
+  "sourceRoot": "",
+  "sources": [
+    "../../../src/icons/24/link_fill.tsx"
+  ],
+  "names": [],
+  "mappings": ";AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,YAAY,CAAC;AAElC,eAAO,MAAM,iBAAiB,qBAAsB,IAAI,gBAMvD,CAAC"
+}

@@ -14,8 +14,7 @@ import {
 } from '@telegram-apps/telegram-ui';
 import { Icon20Star_fill } from '@/icons/20/star_fill';
 import { Icon24Discussion_fill } from '@/icons/24/discussion_fill';
-import { Icon24Person_add } from '@/icons/24/person_add';
-import { Icon24Actions } from '@/icons/24/actions';
+import { Icon24Goto_fill } from '@/icons/24/goto_fill';
 import { Icon24Addhome } from '@/icons/24/addhome';
 import { CustomCell } from '@/components/layout/CustomCell';
 import { departmentService } from '@/services/departmentService';
@@ -30,59 +29,59 @@ import { DEPARTMENT_RATING_CATEGORIES } from '@/constants/departmentConstants';
 
 // Custom rating layout for departments that uses our specific categories
 const DepartmentRatingLayout: React.FC<{
-  departmentId: number;
-  categoryRatings: { [key: string]: number };
-  totalRaters: number;
-  onRatingChange?: (hasRated: boolean, newRatings?: {[key: string]: number}) => void;
+    departmentId: number;
+    categoryRatings: { [key: string]: number };
+    totalRaters: number;
+    onRatingChange?: (hasRated: boolean, newRatings?: { [key: string]: number }) => void;
 }> = ({ departmentId, categoryRatings, totalRaters, onRatingChange }) => {
-  // We'll repurpose the RatingLayout component but with our department categories
-  return (
-    <div className='px-4 pb-3'>
-      {DEPARTMENT_RATING_CATEGORIES.map(category => (
-        <div key={category} className="mb-4">
-          {/* Category name */}
-          <div
-            className="text-left"
-            style={{ color: 'var(--tgui--subtitle_text_color)' }}
-          >
-            {category}
-          </div>
+    // We'll repurpose the RatingLayout component but with our department categories
+    return (
+        <div className='px-4 pb-3'>
+            {DEPARTMENT_RATING_CATEGORIES.map(category => (
+                <div key={category} className="mb-4">
+                    {/* Category name */}
+                    <div
+                        className="text-left"
+                        style={{ color: 'var(--tgui--subtitle_text_color)' }}
+                    >
+                        {category}
+                    </div>
 
-          {/* Rating display row */}
-          <div className="flex mt-1 -ml-0.25 items-center justify-between">
-            {/* Here we would use the CustomRating component similar to RatingLayout */}
-            <div className="flex">
-              {[1, 2, 3, 4, 5].map(star => (
-                <div key={star} style={{ color: star <= Math.round(categoryRatings[category] || 0) ? 'var(--tgui--link_color)' : 'var(--tgui--tertiary_bg_color)' }}>
-                  <Icon20Star_fill />
+                    {/* Rating display row */}
+                    <div className="flex mt-1 -ml-0.25 items-center justify-between">
+                        {/* Here we would use the CustomRating component similar to RatingLayout */}
+                        <div className="flex">
+                            {[1, 2, 3, 4, 5].map(star => (
+                                <div key={star} style={{ color: star <= Math.round(categoryRatings[category] || 0) ? 'var(--tgui--link_color)' : 'var(--tgui--tertiary_bg_color)' }}>
+                                    <Icon20Star_fill />
+                                </div>
+                            ))}
+                        </div>
+
+                        <Headline
+                            weight="1"
+                            className="transition-colors duration-200 ml-2"
+                            style={{ color: 'var(--tgui--link_color)' }}
+                        >
+                            {(categoryRatings[category] || 0).toFixed(1)}
+                        </Headline>
+                    </div>
                 </div>
-              ))}
+            ))}
+
+            {/* Rating action buttons would go here similar to RatingLayout */}
+            <div className="mt-6 transition-all duration-200">
+                <Button
+                    onClick={() => {}}
+                    mode="bezeled"
+                    size="m"
+                    className="w-full"
+                >
+                    Оценить
+                </Button>
             </div>
-
-            <Headline
-              weight="1"
-              className="transition-colors duration-200 ml-2"
-              style={{ color: 'var(--tgui--link_color)' }}
-            >
-              {(categoryRatings[category] || 0).toFixed(1)}
-            </Headline>
-          </div>
         </div>
-      ))}
-
-      {/* Rating action buttons would go here similar to RatingLayout */}
-      <div className="mt-6 transition-all duration-200">
-        <Button
-          onClick={() => {}}
-          mode="bezeled"
-          size="m"
-          className="w-full"
-        >
-          Оценить
-        </Button>
-      </div>
-    </div>
-  );
+    );
 };
 
 export const DepartmentPage: React.FC = () => {
@@ -214,7 +213,7 @@ export const DepartmentPage: React.FC = () => {
 
         if (shareURL.isAvailable()) {
             const shareLink = getTelegramShareableUrl(`/department/${department.id}`);
-            const shareMessage = `\n${department.number} ${department.name}`;
+            const shareMessage = `\nКафедра ${department.number} | ${department.name}`;
 
             shareURL(shareLink, shareMessage);
         } else {
@@ -259,7 +258,7 @@ export const DepartmentPage: React.FC = () => {
                             multiline
                             after={
                                 <Image
-                                    size={96}
+                                    size={60}
                                     src={`/assets/departments/${department.imageFileName}`}
                                     style={{ backgroundColor: 'var(--tgui--section_bg_color)' }}
                                     fallbackIcon={<Icon24Addhome />}
@@ -267,7 +266,7 @@ export const DepartmentPage: React.FC = () => {
                             }
                         >
                             <Title weight="1">
-                                {department.number}
+                                Кафедра {department.number}
                             </Title>
                         </Cell>
                     </div>
@@ -277,7 +276,7 @@ export const DepartmentPage: React.FC = () => {
                         <div className="department-page-non-interactive" style={{ position: 'relative' }}>
                             <CustomCell
                                 className="department-page-non-interactive"
-                                subhead="Заведующий кафедрой"
+                                subhead="Штаб"
                                 rightSubhead="Рейтинг"
                                 after={
                                     <Headline
@@ -292,7 +291,7 @@ export const DepartmentPage: React.FC = () => {
                                 }
                             >
                                 <Headline weight="1">
-                                    {department.headOfDepartment}
+                                    {department.contactInfo?.location}
                                 </Headline>
                             </CustomCell>
 
@@ -309,21 +308,14 @@ export const DepartmentPage: React.FC = () => {
                                 </Button>
                                 <Button
                                     className="department-page-action-button"
-                                    before={<Icon24Person_add />}
+                                    before={<Icon24Goto_fill />}
                                     mode="bezeled"
                                     size="m"
                                     onClick={handleStaffClick}
                                 >
-                                    Преподаватели
+                                    Сайт
                                 </Button>
                             </div>
-                        </div>
-                    </Section>
-
-                    {/* Department description */}
-                    <Section header="О кафедре">
-                        <div className="px-4 py-3 text-sm" style={{ color: 'var(--tgui--text_color)' }}>
-                            {department.description}
                         </div>
                     </Section>
 
@@ -347,10 +339,10 @@ export const DepartmentPage: React.FC = () => {
                                 />
                             </AccordionContent>
                         </Accordion>
-                    </Section>
 
-                    {/* Staff listing */}
-                    <Section className="department-page-smooth-accordion">
+                        <Divider />
+
+                        {/* Staff listing */}
                         <Accordion
                             id="staff"
                             expanded={expandedAccordions.staff}
@@ -388,80 +380,43 @@ export const DepartmentPage: React.FC = () => {
                         </Accordion>
                     </Section>
 
-                    {/* Courses */}
-                    <Section className="department-page-smooth-accordion">
-                        <Accordion
-                            id="courses"
-                            expanded={expandedAccordions.courses}
-                            onChange={() => toggleAccordion('courses')}
-                            className="department-page-smooth-accordion"
-                        >
-                            <AccordionSummary>
-                                Учебные дисциплины
-                            </AccordionSummary>
-                            <AccordionContent>
-                                <List className="department-page-accordion-content">
-                                    {department.courses?.slice(0, 3).map((course, index) => (
-                                        <React.Fragment key={course.id}>
-                                            <Cell
-                                                description={course.description}
-                                                multiline
-                                            >
-                                                {course.name}
-                                            </Cell>
-                                            {index < (department.courses?.slice(0, 3).length || 0) - 1 && <Divider />}
-                                        </React.Fragment>
-                                    ))}
-
-                                    <div className="mt-3 px-4 pb-2">
-                                        <Button
-                                            mode="bezeled"
-                                            size="m"
-                                            className="w-full"
-                                            onClick={handleCoursesClick}
-                                            before={<Icon24Actions />}
-                                        >
-                                            Все дисциплины
-                                        </Button>
-                                    </div>
-                                </List>
-                            </AccordionContent>
-                        </Accordion>
-                    </Section>
-
-                    {/* Research areas */}
-                    <Section className="department-page-smooth-accordion">
-                        <Accordion
-                            id="research"
-                            expanded={expandedAccordions.research}
-                            onChange={() => toggleAccordion('research')}
-                            className="department-page-smooth-accordion"
-                        >
-                            <AccordionSummary>
-                                Научные направления
-                            </AccordionSummary>
-                            <AccordionContent>
-                                <List className="department-page-accordion-content">
-                                    {department.researchAreas?.map((area, index) => (
-                                        <React.Fragment key={index}>
-                                            <Cell multiline>
-                                                {area}
-                                            </Cell>
-                                            {index < (department.researchAreas?.length || 0) - 1 && <Divider />}
-                                        </React.Fragment>
-                                    ))}
-                                </List>
-                            </AccordionContent>
-                        </Accordion>
-                    </Section>
-
                     {/* Contact Information */}
                     <Section header="Контактная информация">
+                        {department.contactInfo?.location && (
+                            <Cell
+                                subhead="Telegram:"
+                            >
+                                -
+                            </Cell>
+                        )}
+
+                        <Divider />
+
+                        {department.contactInfo?.email && (
+                            <Cell
+                                subhead="Email:"
+                            >
+                                {department.contactInfo.email}
+                            </Cell>
+                        )}
+
+                        <Divider />
+
+                        {department.contactInfo?.phone && (
+                            <Cell
+                                subhead="Телефон:"
+                            >
+                                {department.contactInfo.phone}
+                            </Cell>
+                        )}
+                    </Section>
+
+                    {/* <Section header="Контактная информация">
                         <div className="px-4 py-3">
                             {department.contactInfo?.location && (
                                 <div className="mb-2">
                                     <div className="text-xs" style={{ color: 'var(--tgui--hint_color)' }}>
-                                        Адрес:
+                                        Штаб:
                                     </div>
                                     <div className="text-sm">{department.contactInfo.location}</div>
                                 </div>
@@ -485,7 +440,7 @@ export const DepartmentPage: React.FC = () => {
                                 </div>
                             )}
                         </div>
-                    </Section>
+                    </Section> */}
 
                     <Button
                         className="w-full mb-6"

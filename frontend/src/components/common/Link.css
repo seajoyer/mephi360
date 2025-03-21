@@ -1,4 +1,4 @@
-.custom-link {
-  /* color: var(--tg-theme-link-color); */
+.link {
   text-decoration: none;
+  /* color: var(--tg-theme-link-color); */
 }

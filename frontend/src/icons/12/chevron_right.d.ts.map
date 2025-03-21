@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "chevron_right.d.ts",
+  "sourceRoot": "",
+  "sources": [
+    "../../../src/icons/12/chevron_right.tsx"
+  ],
+  "names": [],
+  "mappings": ";AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,YAAY,CAAC;AAElC,eAAO,MAAM,iBAAiB,qBAAsB,IAAI,gBAMvD,CAAC"
+}

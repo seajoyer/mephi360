@@ -73,6 +73,16 @@ body {
   cursor: default !important;
 }
 
+/* Department link styling */
+.department-link {
+  display: inline-block;
+  position: relative;
+}
+
+.department-link:hover {
+  text-decoration: underline;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .tutor-page-non-interactive.tgui-b8dfba0b5c3d054c:hover {
     background: inherit !important;
@@ -122,6 +132,57 @@ body {
 }
 
 /* ======================================
+   Department Page Styles
+   ====================================== */
+
+/* Non-interactive cell styles */
+.department-page-non-interactive {
+  pointer-events: none;
+}
+
+.department-page-non-interactive.tgui-b8dfba0b5c3d054c:hover {
+  background: inherit !important;
+  cursor: default !important;
+}
+
+/* Button container with pointer events enabled */
+.department-page-button-container {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+
+/* Rating display with icon */
+.department-page-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.department-page-rating-icon {
+  margin-top: -3px;
+}
+
+/* Action buttons */
+.department-page-action-button {
+  min-width: 50px;
+  width: 50%;
+}
+
+/* Accordion content styling */
+.department-page-accordion-content {
+  color: var(--tgui--subtitle_text_color);
+}
+
+/* Smooth accordion transitions - specific to department page */
+.department-page-smooth-accordion .tgui-947b927060015de8 {
+  transition: max-height 0.25s cubic-bezier(0.33, 1, 0.68, 1) !important;
+}
+
+/* ======================================
    Prevent text selection on buttons
    and interactive elements
    ====================================== */
@@ -146,7 +207,9 @@ button,
 
 /* Apply to specific custom components where needed */
 .tutor-page-action-button,
-.tutor-page-button-container button {
+.tutor-page-button-container button,
+.department-page-action-button,
+.department-page-button-container button {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

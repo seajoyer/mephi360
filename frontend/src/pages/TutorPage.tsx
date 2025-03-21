@@ -26,6 +26,9 @@ import { RatingLayout, RATING_CATEGORIES } from '@/components/layout/RatingLayou
 import { useScrollManager } from '@/hooks/useScrollManager';
 import { AccordionSummary } from '@telegram-apps/telegram-ui/dist/components/Blocks/Accordion/components/AccordionSummary/AccordionSummary';
 import { AccordionContent } from '@telegram-apps/telegram-ui/dist/components/Blocks/Accordion/components/AccordionContent/AccordionContent';
+import { Link } from '@/components/common/Link';
+import { Icon12Chevron_right } from '@/icons/12/chevron_right';
+import { Icon12Chevron_small_right } from '@/icons/12/chevron_small_right';
 
 // Enhanced Tutor type with total raters
 interface EnhancedTutor extends Tutor {
@@ -49,6 +52,27 @@ export const TutorPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const contentRef = useRef<HTMLDivElement>(null);
+    
+    // Function to extract department ID from department name
+    const extractDepartmentId = (departmentName: string): number => {
+        // Try to extract department number (e.g., "Кафедра №30" -> 30)
+        const match = departmentName.match(/№(\d+)/);
+        if (match && match[1]) {
+            return parseInt(match[1], 10);
+        }
+        
+        // If no number found, use a simple mapping for common departments
+        // In a real app, this would be retrieved from an API or a complete mapping
+        const departmentMap: Record<string, number> = {
+            "Кафедра №1": 1,
+            "Кафедра №30": 30,
+            "Кафедра №42": 42,
+            "Кафедра №7": 7,
+            "Кафедра №15": 15
+        };
+        
+        return departmentMap[departmentName] || 97; // Default to department 97 if not found
+    };
 
     // Use our scroll manager hook
     const { scrollPosition, saveScrollPosition, restoreScrollPosition } =
@@ -219,10 +243,27 @@ export const TutorPage: React.FC = () => {
                     <div className="tutor-page-non-interactive">
                         <Cell
                             className="-mx-2 tutor-page-non-interactive"
-                            subtitle={tutor.department}
+                            subtitle={
+                                <Link
+                                    to={`/department/${extractDepartmentId(tutor.department)}`}
+                                    className="department-link"
+                                    style={{
+                                        position: 'relative',
+                                        zIndex: 2,
+                                        pointerEvents: 'auto'
+                                    }}
+                                >
+                                    <div className='flex items-center'>
+                                        {tutor.department}
+                                        &nbsp;
+                                        {<Icon12Chevron_small_right />}
+                                    </div>
+                                </Link>
+                            }
                             multiline
                             after={
                                 <Avatar
+                                    // className='-mt-4.25'
                                     size={96}
                                     src={`/assets/tutors/${tutor.imageFileName}`}
                                     style={{ backgroundColor: 'var(--tgui--section_bg_color)' }}
@@ -230,7 +271,7 @@ export const TutorPage: React.FC = () => {
                                 />
                             }
                         >
-                            <Title weight="1">
+                            <Title weight="1" className="tutor-page-name">
                                 {tutor.name.split(' ').join('\n')}
                             </Title>
                         </Cell>
@@ -315,7 +356,7 @@ export const TutorPage: React.FC = () => {
                             className="tutor-page-smooth-accordion"
                         >
                             <AccordionSummary>
-                                Как проходит занятие
+                                Как проходят занятия
                             </AccordionSummary>
                             <AccordionContent>
                                 <List className="tutor-page-accordion-content">

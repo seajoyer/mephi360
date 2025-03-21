@@ -37,7 +37,7 @@ export const Link: FC<LinkProps> = ({
       {...rest}
       to={to}
       onClick={onClick}
-      className={`custom-link ${className || ''}`}
+      className={`link ${className || ''}`}
     />
   );
 };

@@ -100,11 +100,11 @@ export const generateMockDepartments = (count: number = 10): Department[] => {
     ];
 
     const contactLocations = [
-        "Корпус А, ауд. 512",
-        "Корпус Б, ауд. 317",
-        "Корпус В, ауд. 205",
-        "Корпус Г, ауд. 418",
-        "Корпус Д, ауд. 115"
+        "А-512",
+        "Б-317",
+        "В-205",
+        "Г-418",
+        "Д-115"
     ];
 
     // Generate random ratings between 3.0 and 5.0

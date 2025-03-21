@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "link.d.ts",
+  "sourceRoot": "",
+  "sources": [
+    "../../../src/icons/24/link.tsx"
+  ],
+  "names": [],
+  "mappings": ";AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,YAAY,CAAC;AAElC,eAAO,MAAM,iBAAiB,qBAAsB,IAAI,gBAMvD,CAAC"
+}
