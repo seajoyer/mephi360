@@ -201,7 +201,7 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
                             }
                             onChange={(value) => handleRatingChange(category, value)}
                             isActive={isRatingMode}
-                            precision={0.5}
+                            precision={1}
                             initialEmpty={isRatingMode && !userRatings[category]}
                         />
 
