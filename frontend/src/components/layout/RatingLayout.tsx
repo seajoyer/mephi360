@@ -4,6 +4,12 @@ import { CustomRating } from './CustomRating';
 import { RatingCategoryWithTooltip } from './RatingCategoryWithTooltip';
 import { TUTOR_RATING_CATEGORIES } from '@/constants/ratingConstants';
 
+// Non-editable categories for department ratings
+const NON_EDITABLE_DEPARTMENT_CATEGORIES = [
+    "Качество преподавания",
+    "«Халявность»"
+];
+
 // Types for rating data
 interface UserRating {
     [category: string]: number;
@@ -64,9 +70,15 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
         setDisplayRatings(ratings);
     }, [categoryRatings, categories]);
 
-    // Check if all categories have been rated
+    // Check if all editable categories have been rated
     const allCategoriesRated = categories.every(
-        category => userRatings[category] !== undefined
+        category => {
+            // Skip checking non-editable categories for departments
+            if (entityType === 'department' && NON_EDITABLE_DEPARTMENT_CATEGORIES.includes(category)) {
+                return true;
+            }
+            return userRatings[category] !== undefined;
+        }
     );
 
     // Load user's previous rating if exists
@@ -81,7 +93,17 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
     // Start rating process
     const handleStartRating = () => {
         setIsRatingMode(true);
-        setUserRatings({});
+
+        // Initialize with existing ratings for non-editable categories
+        if (entityType === 'department') {
+            const initialRatings: UserRating = {};
+            NON_EDITABLE_DEPARTMENT_CATEGORIES.forEach(category => {
+                initialRatings[category] = displayRatings[category] || 0;
+            });
+            setUserRatings(initialRatings);
+        } else {
+            setUserRatings({});
+        }
     };
 
     // Cancel rating
@@ -112,13 +134,28 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
     const handleSaveRating = () => {
         if (!allCategoriesRated) return;
 
-        saveUserRating(entityType, tutorId, userRatings);
-        setStoredUserRatings(userRatings);
+        // For departments, make sure we're not modifying the non-editable categories
+        let ratingsToSave: UserRating = {...userRatings};
+
+        if (entityType === 'department') {
+            // Remove non-editable categories before saving to localStorage
+            NON_EDITABLE_DEPARTMENT_CATEGORIES.forEach(category => {
+                delete ratingsToSave[category];
+            });
+        }
+
+        saveUserRating(entityType, tutorId, ratingsToSave);
+        setStoredUserRatings(ratingsToSave);
         setHasUserRated(true);
 
         // Calculate updated global ratings
         const updatedRatings = { ...displayRatings };
         for (const category of categories) {
+            // Skip non-editable categories for departments
+            if (entityType === 'department' && NON_EDITABLE_DEPARTMENT_CATEGORIES.includes(category)) {
+                continue;
+            }
+
             if (userRatings[category]) {
                 updatedRatings[category] = calculateUpdatedRating(
                     displayRatings[category] || 0,
@@ -134,7 +171,7 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
 
         // Notify parent component if this is a new rating
         if (onRatingChange) {
-            onRatingChange(true, userRatings);
+            onRatingChange(true, ratingsToSave);
         }
     };
 
@@ -145,6 +182,11 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
         // Calculate updated global ratings after removing user's rating
         const updatedRatings = { ...displayRatings };
         for (const category of categories) {
+            // Skip non-editable categories for departments
+            if (entityType === 'department' && NON_EDITABLE_DEPARTMENT_CATEGORIES.includes(category)) {
+                continue;
+            }
+
             if (storedUserRatings[category]) {
                 updatedRatings[category] = calculateUpdatedRating(
                     displayRatings[category] || 0,
@@ -174,54 +216,72 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
         }));
     };
 
+    // Check if a category is non-editable for the current entity type
+    const isNonEditableCategory = (category: string): boolean => {
+        return entityType === 'department' && NON_EDITABLE_DEPARTMENT_CATEGORIES.includes(category);
+    };
+
     return (
         <div className='px-4 pb-3'>
-            {categories.map(category => (
+            {categories.map(category => {
+                const nonEditable = isNonEditableCategory(category);
+
+                return (
                 <div key={category} className="mb-4">
                     {/* Category name with tooltip */}
                     <div
                         className="text-left"
-                        style={{ color: 'var(--tgui--subtitle_text_color)' }}
+                        style={{
+                            color: nonEditable && isRatingMode
+                                ? 'var(--tgui--subtitle_text_color)'
+                                : 'var(--tgui--subtitle_text_color)'
+                        }}
                     >
                         <RatingCategoryWithTooltip
                             category={category}
                             entityType={entityType}
                         />
+
                     </div>
 
                     {/* Rating display row */}
                     <div className="flex mt-1 -ml-0.25 items-center justify-between">
                         <CustomRating
                             value={
-                                isRatingMode
+                                isRatingMode && !nonEditable
                                     ? userRatings[category] || 0  // Empty or set value in rating mode
-                                    : showingUserRating && storedUserRatings
+                                    : showingUserRating && storedUserRatings && !nonEditable
                                         ? storedUserRatings[category] || 0  // User's rating when showing
                                         : displayRatings[category] || 0  // Default global rating
                             }
-                            onChange={(value) => handleRatingChange(category, value)}
-                            isActive={isRatingMode}
-                            precision={1}
-                            initialEmpty={isRatingMode && !userRatings[category]}
+                            onChange={(value) => {
+                                if (!nonEditable) handleRatingChange(category, value);
+                            }}
+                            isActive={isRatingMode && !nonEditable}
+                            precision={0.5}
+                            initialEmpty={isRatingMode && !nonEditable && !userRatings[category]}
+                            disabled={(nonEditable && isRatingMode) || (nonEditable && showingUserRating)}
                         />
 
                         <Headline
                             weight="1"
                             className="transition-colors duration-200 ml-2"
                             style={{
-                                color: 'var(--tgui--link_color)'
+                                color: (nonEditable && isRatingMode) || (nonEditable && showingUserRating)
+                                    ? 'var(--tgui--subtitle_text_color)'
+                                    : 'var(--tgui--link_color)'
                             }}
                         >
-                            {(isRatingMode
+                            {(isRatingMode && !nonEditable
                                 ? userRatings[category] || 0
-                                : showingUserRating && storedUserRatings
+                                : showingUserRating && storedUserRatings && !nonEditable
                                     ? storedUserRatings[category] || 0
                                     : displayRatings[category] || 0
                             ).toFixed(1)}
                         </Headline>
                     </div>
                 </div>
-            ))}
+            )})}
 
             {/* Bottom buttons - transitions between states */}
             <div className="mt-6 transition-all duration-200">

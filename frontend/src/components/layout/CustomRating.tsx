@@ -10,6 +10,7 @@ interface CustomRatingProps {
     max?: number;
     precision?: PrecisionType;
     initialEmpty?: boolean;
+    disabled?: boolean; // New prop for non-editable categories
 }
 
 export const CustomRating: React.FC<CustomRatingProps> = ({
@@ -18,7 +19,8 @@ export const CustomRating: React.FC<CustomRatingProps> = ({
     isActive = false,
     max = 5,
     precision = 0.5,
-    initialEmpty = false
+    initialEmpty = false,
+    disabled = false
 }) => {
     const [hoverValue, setHoverValue] = useState<number | null>(null);
 
@@ -68,8 +70,8 @@ export const CustomRating: React.FC<CustomRatingProps> = ({
                         key={star}
                         className="mx-0.5 transition-all duration-200 ease-in-out relative"
                         style={{
-                            cursor: isActive ? 'pointer' : 'default',
-                            color: isActive ? 'var(--tgui--secondary_fill)' : 'var(--tgui--tertiary_bg_color)',
+                            cursor: isActive && !disabled ? 'pointer' : 'default',
+                            color: isActive && !disabled ? 'var(--tgui--secondary_fill)' : 'var(--tgui--tertiary_bg_color)',
                         }}
                     >
                         {/* Base star (empty) */}
@@ -79,7 +81,7 @@ export const CustomRating: React.FC<CustomRatingProps> = ({
                         <div
                             className="absolute top-0 left-0 transition-all duration-200 ease-in-out"
                             style={{
-                                color: 'var(--tgui--accent_text_color)',
+                                color: disabled ? 'var(--tgui--subtitle_text_color)' : 'var(--tgui--accent_text_color)',
                                 clipPath: `inset(0 ${100 - fillPercent}% 0 0)`,
                                 width: '100%',
                                 height: '100%',
@@ -89,8 +91,8 @@ export const CustomRating: React.FC<CustomRatingProps> = ({
                             <Icon24Star_fill />
                         </div>
 
-                        {/* Clickable areas for precision ratings */}
-                        {isActive && (
+                        {/* Clickable areas for precision ratings - only render if not disabled */}
+                        {isActive && !disabled && (
                             <div className="absolute top-0 left-0 w-full h-full flex">
                                 {Array.from({ length: 1 / precision }).map((_, i) => {
                                     const ratingValue = (star - 1) + ((i + 1) * precision);
