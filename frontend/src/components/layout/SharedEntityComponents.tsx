@@ -1,9 +1,8 @@
 import React from 'react';
-import { Button, Cell, Headline, Divider, Accordion } from '@telegram-apps/telegram-ui';
+import { Button, Cell, Headline, Divider, Accordion, List } from '@telegram-apps/telegram-ui';
 import { AccordionSummary } from '@telegram-apps/telegram-ui/dist/components/Blocks/Accordion/components/AccordionSummary/AccordionSummary';
 import { AccordionContent } from '@telegram-apps/telegram-ui/dist/components/Blocks/Accordion/components/AccordionContent/AccordionContent';
 import { RatingLayout } from './RatingLayout';
-import { TUTOR_RATING_CATEGORIES, DEPARTMENT_RATING_CATEGORIES } from '@/constants/ratingConstants';
 import { Icon20Star_fill } from '@/icons/20/star_fill';
 
 /**
@@ -83,14 +82,16 @@ export const RatingAccordion: React.FC<RatingAccordionProps> = ({
             {`Оценки (${totalRaters})`}
         </AccordionSummary>
         <AccordionContent>
-            <RatingLayout
-                tutorId={entityId}
-                categoryRatings={categoryRatings}
-                totalRaters={totalRaters}
-                onRatingChange={onRatingChange}
-                categories={categories}
-                entityType={entityType}
-            />
+            <List>
+                <RatingLayout
+                    tutorId={entityId}
+                    categoryRatings={categoryRatings}
+                    totalRaters={totalRaters}
+                    onRatingChange={onRatingChange}
+                    categories={categories}
+                    entityType={entityType}
+                />
+            </List>
         </AccordionContent>
     </Accordion>
 );
@@ -121,9 +122,9 @@ export const TextAccordion: React.FC<TextAccordionProps> = ({
     >
         <AccordionSummary>{title}</AccordionSummary>
         <AccordionContent>
-            <div className="entity-page-accordion-content">
+            <List className="entity-page-accordion-content">
                 {content}
-            </div>
+            </List>
         </AccordionContent>
     </Accordion>
 );
@@ -160,11 +161,10 @@ export const StaffAccordion: React.FC<StaffAccordionProps> = ({
                         <Cell subtitle={staffMember.position}>
                             {staffMember.name}
                         </Cell>
-                        {index < staff.slice(0, 3).length - 1 && <Divider />}
                     </React.Fragment>
                 ))}
 
-                <div className="mt-3 px-4 pb-2">
+                <List>
                     <Button
                         mode="bezeled"
                         size="m"
@@ -173,7 +173,7 @@ export const StaffAccordion: React.FC<StaffAccordionProps> = ({
                     >
                         Показать всех преподавателей
                     </Button>
-                </div>
+                </List>
             </div>
         </AccordionContent>
     </Accordion>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Headline, Button } from '@telegram-apps/telegram-ui';
+import { Headline, Button, List } from '@telegram-apps/telegram-ui';
 import { CustomRating } from './CustomRating';
 import { RatingCategoryWithTooltip } from './RatingCategoryWithTooltip';
 import { TUTOR_RATING_CATEGORIES } from '@/constants/ratingConstants';
@@ -222,7 +222,7 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
     };
 
     return (
-        <div className='px-4 pb-3'>
+        <div>
             {categories.map(category => {
                 const nonEditable = isNonEditableCategory(category);
 
@@ -245,7 +245,7 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
                     </div>
 
                     {/* Rating display row */}
-                    <div className="flex mt-1 -ml-0.25 items-center justify-between">
+                    <div className="flex items-center justify-between">
                         <CustomRating
                             value={
                                 isRatingMode && !nonEditable
@@ -258,7 +258,7 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
                                 if (!nonEditable) handleRatingChange(category, value);
                             }}
                             isActive={isRatingMode && !nonEditable}
-                            precision={0.5}
+                            precision={1}
                             initialEmpty={isRatingMode && !nonEditable && !userRatings[category]}
                             disabled={(nonEditable && isRatingMode) || (nonEditable && showingUserRating)}
                         />

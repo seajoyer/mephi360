@@ -229,7 +229,7 @@ export const DepartmentPage: React.FC = () => {
                         <div className="entity-page-non-interactive" style={{ position: 'relative' }}>
                             <CustomCell
                                 className="entity-page-non-interactive"
-                                subhead="Штаб"
+                                subhead="Локация"
                                 rightSubhead="Рейтинг"
                                 after={
                                     <RatingDisplay rating={department.ratings.overallRating} />
@@ -257,7 +257,9 @@ export const DepartmentPage: React.FC = () => {
                     </Section>
 
                     {/* Ratings section */}
-                    <Section className="entity-page-smooth-accordion">
+                    <Section
+                        className="entity-page-smooth-accordion"
+                    >
                         <RatingAccordion
                             expanded={expandedAccordions.ratings}
                             onToggle={() => toggleAccordion('ratings')}
@@ -303,7 +305,7 @@ export const DepartmentPage: React.FC = () => {
                                     multiline
                                     onClick={() => handleCopy("secretary@theor.mephi.ru", 'email')}
                                 >
-                                    secretary@theor.mephi.ru
+                                    {department.contactInfo.email}
                                 </Cell>
                                 <Divider />
                             </>

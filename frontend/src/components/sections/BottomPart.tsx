@@ -13,7 +13,9 @@ export const BottomPart: React.FC<BottomPartProps> = ({ activeSection, onSection
     const [activeInstitute, setActiveInstitute] = useState<string | null>(null);
 
     return (
-        <>
+        <div
+            className='px-1'
+        >
             <Navigation
                 activeSection={activeSection}
                 onSectionChange={onSectionChange}
@@ -29,6 +31,6 @@ export const BottomPart: React.FC<BottomPartProps> = ({ activeSection, onSection
                 className="flex-1"
                 activeInstitute={activeSection === 'stuff' ? activeInstitute : null}
             />
-        </>
+        </div>
     );
 };

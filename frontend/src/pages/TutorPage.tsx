@@ -293,7 +293,7 @@ export const TutorPage: React.FC = () => {
                         <Divider />
 
                         <TextAccordion
-                            title="Промежуточная аттестация"
+                            title="Промежуточный контроль"
                             id="intermediateAssessment"
                             expanded={expandedAccordions.intermediateAssessment}
                             onToggle={() => toggleAccordion('intermediateAssessment')}
@@ -303,7 +303,7 @@ export const TutorPage: React.FC = () => {
                         <Divider />
 
                         <TextAccordion
-                            title="Итоговая аттестация"
+                            title="Итоговый контроль"
                             id="finalAssessment"
                             expanded={expandedAccordions.finalAssessment}
                             onToggle={() => toggleAccordion('finalAssessment')}

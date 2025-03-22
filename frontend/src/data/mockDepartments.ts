@@ -76,7 +76,7 @@ export const generateMockDepartments = (count: number = 10): Department[] => {
             imageFileName: `department${id % 5 + 1}.jpg`,
             contactInfo: {
                 location: contactLocations[index % contactLocations.length],
-                email: `${name.toLowerCase().replace(/\s+/g, '.')}@university.edu`,
+                email: `secretary@theor.mephi.ru`,
                 phone: `+7 (495) ${100 + Math.floor(Math.random() * 900)}-${10 + Math.floor(Math.random() * 90)}-${10 + Math.floor(Math.random() * 90)}`
             },
             ratings: {

@@ -109,7 +109,6 @@ body {
 /* Accordion content styling */
 .entity-page-accordion-content {
   color: var(--tgui--subtitle_text_color);
-  padding: 4px 8px;
 }
 
 /* Smooth accordion transitions */

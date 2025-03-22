@@ -60,7 +60,7 @@ export const CustomRating: React.FC<CustomRatingProps> = ({
 
     return (
         <div
-            className="flex transition-all duration-200 ease-in-out"
+            className="flex transition-all -ml-0.5 duration-200 ease-in-out"
         >
             {stars.map((star) => {
                 const fillPercent = getStarFillPercent(star);
