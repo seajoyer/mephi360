@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Section } from '@telegram-apps/telegram-ui';
 import { ClubBanner } from '@/components/layout/ClubBanner';
+import { getClubs } from '@/services/apiService';
+import { useFilters } from '@/contexts/FilterContext';
 
 // Types
 interface Club {
@@ -15,75 +17,11 @@ interface Club {
     organizer: string;
 }
 
-const ITEMS_PER_PAGE = 12;
-
-// Mock data generator
-const generateMockClubs = (): Club[] => {
-    const clubTypes = [
-        'Математический',
-        'Программирования',
-        'Робототехники',
-        'Дизайна',
-        'Киберспорта',
-        'Астрономии',
-        'Физики',
-        'Химии',
-        'Биологии',
-        'Лингвистики'
-    ];
-
-    const subjects = [
-        'Математика',
-        'Информатика',
-        'Инженерия',
-        'Искусство',
-        'Киберспорт',
-        'Астрономия',
-        'Физика',
-        'Химия',
-        'Биология',
-        'Лингвистика'
-    ];
-
-    const organizers = [
-        'Студенческий совет',
-        'Научное сообщество',
-        'Кафедра информатики',
-        'Кафедра физики',
-        'Кафедра математики',
-        'Спортивный клуб',
-        'Иностранные языки',
-        'Творческий центр',
-        'Робототехника',
-        'Молодежный центр'
-    ];
-
-    return Array.from({ length: 30 }, (_, index) => {
-        const clubType = clubTypes[index % clubTypes.length];
-        const subject = subjects[index % subjects.length];
-        const organizer = organizers[Math.floor(index / 3) % organizers.length];
-
-        // Create tags that match the filter values in ClubsFilters
-        const tags = [subject, organizer];
-
-        // Create a more detailed description
-        const description = `${clubType} кружок для студентов интересующихся ${clubType.toLowerCase()} наукой. Еженедельные занятия, совместные проекты и участие в конференциях. Присоединяйтесь к нашему сообществу и развивайте свои навыки вместе с нами!`;
-
-        return {
-            id: index + 1,
-            name: `Кружок "${clubType}"`,
-            description,
-            image: `/assets/clubs/club${(index % 5) + 1}.jpg`,
-            tags: tags,
-            memberCount: Math.floor(Math.random() * 80) + 20,
-            subject,
-            organizer
-        };
-    });
-};
-
-// Create a cache object to store loaded sections
-const sectionsCache: Record<string, Club[]> = {};
+interface ClubsListProps {
+    searchQuery?: string;
+    organizerFilter?: string | null;
+    subjectFilter?: string | null;
+}
 
 // Loading skeleton component
 const ClubBannerSkeleton: React.FC = () => (
@@ -114,76 +52,74 @@ const LoadingState: React.FC = () => (
     </>
 );
 
-export const ClubsList: React.FC = () => {
-    // Lazy load clubs data
-    const allClubs = useRef<Club[]>([]);
+export const ClubsList: React.FC<ClubsListProps> = ({
+    searchQuery = '',
+    organizerFilter = null,
+    subjectFilter = null
+}) => {
+    // Access filter context to get and update filters
+    const { setClubOrganizer, setClubSubject } = useFilters();
 
-    // Get cached data if available
-    const cachedData = sectionsCache['clubs'] || [];
-    const [displayedClubs, setDisplayedClubs] = useState<Club[]>(cachedData);
-    const [isLoading, setIsLoading] = useState(cachedData.length === 0);
+    const [clubs, setClubs] = useState<Club[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [cursor, setCursor] = useState<string | null>(null);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const loadingRef = useRef(false);
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadTriggerRef = useRef<HTMLDivElement>(null);
 
-    // Initialize clubs data if not already loaded
-    useEffect(() => {
-        if (allClubs.current.length === 0) {
-            try {
-                // In a real app, you'd fetch from an API here
-                allClubs.current = generateMockClubs();
-            } catch (err) {
-                setError('Failed to load clubs data');
-                console.error(err);
-            }
-        }
-    }, []);
-
-    const loadMoreClubs = useCallback(() => {
+    // Load clubs function with filters
+    const loadMoreClubs = useCallback(async () => {
         if (loadingRef.current || !hasMore || error) return;
 
         loadingRef.current = true;
         setIsLoading(true);
 
-        // Simulate API delay
-        setTimeout(() => {
-            try {
-                const startIndex = displayedClubs.length;
-                const endIndex = startIndex + ITEMS_PER_PAGE;
-                const nextItems = allClubs.current.slice(startIndex, endIndex);
+        try {
+            const response = await getClubs({
+                search: searchQuery,
+                organizer: organizerFilter || undefined,
+                subject: subjectFilter || undefined,
+                cursor: cursor || undefined,
+                limit: 12
+            });
 
-                if (nextItems.length > 0) {
-                    const newClubs = [...displayedClubs, ...nextItems];
-                    setDisplayedClubs(newClubs);
-
-                    // Update cache
-                    sectionsCache['clubs'] = newClubs;
-                    setHasMore(endIndex < allClubs.current.length);
-                } else {
-                    setHasMore(false);
-                }
-            } catch (err) {
-                setError('Error loading more clubs');
-                console.error(err);
-            } finally {
-                setIsLoading(false);
-                loadingRef.current = false;
+            if (response.items.length > 0) {
+                setClubs(prev => [...prev, ...response.items]);
+                setCursor(response.nextCursor);
+                setHasMore(!!response.nextCursor);
+            } else {
+                setHasMore(false);
             }
-        }, displayedClubs.length > 0 ? 300 : 800); // Add delay for better UX
-    }, [displayedClubs.length, hasMore, displayedClubs, error]);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Error loading clubs');
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+            loadingRef.current = false;
+        }
+    }, [cursor, hasMore, error, searchQuery, organizerFilter, subjectFilter]);
 
-    // Initial load only if no cached data
+    // Reset list when filters change
     useEffect(() => {
-        if (displayedClubs.length === 0 && !error) {
+        setClubs([]);
+        setCursor(null);
+        setHasMore(true);
+        setError(null);
+        loadingRef.current = false;
+    }, [searchQuery, organizerFilter, subjectFilter]);
+
+    // Initial load
+    useEffect(() => {
+        if (clubs.length === 0 && !error) {
             loadMoreClubs();
         }
-    }, [loadMoreClubs, error]);
+    }, [loadMoreClubs, error, clubs.length]);
 
-    // Set up Intersection Observer
+    // Set up Intersection Observer for infinite scroll
     useEffect(() => {
         const options = {
             root: null,
@@ -212,8 +148,30 @@ export const ClubsList: React.FC = () => {
             observer.observe(trigger);
             return () => observer.unobserve(trigger);
         }
-    }, [displayedClubs]);
+    }, [clubs]);
 
+    // Handle tag click to set filter
+    const handleTagClick = (tag: string) => {
+        // Determine if this tag is a subject or organizer
+        const isSubject = clubs.some(club => club.subject === tag);
+        const isOrganizer = clubs.some(club => club.organizer === tag);
+
+        if (isSubject) {
+            setClubSubject(tag);
+        } else if (isOrganizer) {
+            setClubOrganizer(tag);
+        }
+    };
+
+    // Filter tags to only show those that aren't already applied as filters
+    const filterVisibleTags = (tags: string[]) => {
+        return tags.filter(tag =>
+            (subjectFilter && tag === subjectFilter) ||
+            (organizerFilter && tag === organizerFilter) ? false : true
+        );
+    };
+
+    // Error state
     if (error) {
         return (
             <div className="p-4 text-center text-red-500">
@@ -240,14 +198,15 @@ export const ClubsList: React.FC = () => {
             }}
         >
             <div className="space-y-3">
-                {displayedClubs.map((club) => (
+                {clubs.map((club) => (
                     <div key={club.id}>
                         <ClubBanner
                             title={club.name}
                             description={club.description}
                             imageSrc={club.image}
-                            tags={club.tags}
+                            tags={filterVisibleTags(club.tags)}
                             buttonText="Подробнее"
+                            onTagClick={handleTagClick}
                             onNavigate={() => {
                                 // In a real app, navigate to club page
                                 console.log(`Navigate to club ${club.id}`);
@@ -266,17 +225,25 @@ export const ClubsList: React.FC = () => {
                 )}
 
                 {/* Show loading state when initially loading */}
-                {isLoading && displayedClubs.length === 0 && <LoadingState />}
+                {isLoading && clubs.length === 0 && <LoadingState />}
 
                 {/* Show loading indicator when loading more */}
-                {isLoading && displayedClubs.length > 0 && (
+                {isLoading && clubs.length > 0 && (
                     <div className="py-4 text-center">
                         <div className="inline-block h-6 w-6 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
                     </div>
                 )}
 
+                {/* Empty state when no results */}
+                {!isLoading && clubs.length === 0 && (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">Кружки не найдены</p>
+                        <p className="text-gray-400 text-sm mt-2">Попробуйте изменить параметры поиска</p>
+                    </div>
+                )}
+
                 {/* End of list message */}
-                {!hasMore && displayedClubs.length > 0 && (
+                {!hasMore && clubs.length > 0 && (
                     <div className="text-center py-4 text-gray-500">
                         Все кружки загружены
                     </div>

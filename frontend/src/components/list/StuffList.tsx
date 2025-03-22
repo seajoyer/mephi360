@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Section } from '@telegram-apps/telegram-ui';
 import { StuffBanner } from '@/components/layout/StuffBanner';
+import { getMaterials } from '@/services/apiService';
+import { useFilters } from '@/contexts/FilterContext';
 
 // Types
 interface StudyMaterial {
@@ -17,103 +19,13 @@ interface StudyMaterial {
 }
 
 interface StuffListProps {
+    searchQuery?: string;
+    typeFilter?: string | null;
+    teacherFilter?: string | null;
+    subjectFilter?: string | null;
+    semesterFilter?: string | null;
     activeInstitute?: string | null;
 }
-
-const ITEMS_PER_PAGE = 12;
-
-// Mock data generator
-const generateMockStudyMaterials = (): StudyMaterial[] => {
-    const materialTypes = [
-        'Теория',
-        'КР',
-        'Лаба',
-        'БДЗ',
-        'Зачет',
-        'Экзамен',
-        'Пересдача',
-        'Комиссия',
-    ];
-
-    const semesters = [
-        '1 сем',
-        '2 сем',
-        '3 сем',
-        '4 сем',
-        '5 сем',
-        '6 сем',
-        '7 сем',
-        '8 сем'
-    ];
-
-    const institutes = [
-        'ИЯФИТ',
-        'ЛаПлаз',
-        'ИФИБ',
-        'ИНТЭЛ',
-        'ИИКС',
-        'ИФТИС',
-        'ИФТЭБ',
-        'ИМО',
-        'ФБИУКС'
-    ];
-
-    const teachers = [
-        'Иванов И.И.',
-        'Петров П.П.',
-        'Сидоров С.С.',
-        'Кузнецова К.К.',
-        'Смирнова С.С.',
-        'Васильев В.В.',
-        'Михайлов М.М.',
-        'Андреев А.А.'
-    ];
-
-    const subjects = [
-        'Математика',
-        'Физика',
-        'Информатика',
-        'Программирование',
-        'Электроника',
-        'Схемотехника',
-        'Теория вероятностей',
-        'Дискретная математика',
-        'Базы данных',
-        'Операционные системы'
-    ];
-
-    return Array.from({ length: 30 }, (_, index) => {
-        // Select attributes for this material
-        const materialType = materialTypes[index % materialTypes.length];
-        const semester = semesters[Math.floor(Math.random() * semesters.length)];
-        const institute = institutes[Math.floor(Math.random() * institutes.length)];
-        const teacher = teachers[Math.floor(Math.random() * teachers.length)];
-        const subject = subjects[Math.floor(Math.random() * subjects.length)];
-
-        // Create tags from attributes - include only the filterable properties but exclude institute
-        // as it is now handled by the institute panel
-        const tags = [materialType, teacher, subject, semester].filter(Boolean);
-
-        // Create a detailed description
-        const description = `${materialType} по предмету "${subject}" для студентов ${institute}. Подготовлено преподавателем ${teacher} для ${semester}.`;
-
-        return {
-            id: index + 1,
-            title: `${subject} - ${materialType}`,
-            description,
-            tags,
-            telegramLink: `https://t.me/c/1234567890/${index + 1}`,
-            type: materialType,
-            semester,
-            teacher,
-            institute,
-            subject
-        };
-    });
-};
-
-// Create a cache object to store loaded sections
-const sectionsCache: Record<string, StudyMaterial[]> = {};
 
 // Loading skeleton component
 const StuffBannerSkeleton: React.FC = () => (
@@ -151,94 +63,97 @@ const LoadingState: React.FC = () => (
     </>
 );
 
-export const StuffList: React.FC<StuffListProps> = ({ activeInstitute = null }) => {
-    // Lazy load study materials data
-    const allMaterials = useRef<StudyMaterial[]>([]);
+export const StuffList: React.FC<StuffListProps> = ({
+    searchQuery = '',
+    typeFilter = null,
+    teacherFilter = null,
+    subjectFilter = null,
+    semesterFilter = null,
+    activeInstitute = null
+}) => {
+    // Access filter context to get and update filters
+    const { setStuffType, setStuffTeacher, setStuffSubject, setStuffSemester } = useFilters();
 
-    // Get cached data based on the active institute filter
-    const cacheKey = activeInstitute ? `stuff-${activeInstitute}` : 'stuff';
-    const cachedData = sectionsCache[cacheKey] || [];
-
-    const [displayedMaterials, setDisplayedMaterials] = useState<StudyMaterial[]>(cachedData);
-    const [isLoading, setIsLoading] = useState(cachedData.length === 0);
+    const [materials, setMaterials] = useState<StudyMaterial[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [currentFilter, setCurrentFilter] = useState<string | null>(activeInstitute);
+    const [cursor, setCursor] = useState<string | null>(null);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const loadingRef = useRef(false);
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadTriggerRef = useRef<HTMLDivElement>(null);
 
-    // Initialize study materials data if not already loaded
-    useEffect(() => {
-        if (allMaterials.current.length === 0) {
-            try {
-                // In a real app, you'd fetch from an API here
-                allMaterials.current = generateMockStudyMaterials();
-            } catch (err) {
-                setError('Failed to load study materials data');
-                console.error(err);
-            }
-        }
-    }, []);
-
-    // Reset displayed materials when institute filter changes
-    useEffect(() => {
-        if (currentFilter !== activeInstitute) {
-            setDisplayedMaterials([]);
-            setIsLoading(true);
-            setHasMore(true);
-            setCurrentFilter(activeInstitute);
-        }
-    }, [activeInstitute, currentFilter]);
-
-    const loadMoreMaterials = useCallback(() => {
+    // Load study materials with filters
+    const loadMoreMaterials = useCallback(async () => {
         if (loadingRef.current || !hasMore || error) return;
 
         loadingRef.current = true;
         setIsLoading(true);
 
-        // Simulate API delay
-        setTimeout(() => {
-            try {
-                // Filter materials by institute if selected
-                const filteredAllMaterials = activeInstitute
-                    ? allMaterials.current.filter(material => material.institute === activeInstitute)
-                    : allMaterials.current;
+        try {
+            const response = await getMaterials({
+                search: searchQuery,
+                type: typeFilter || undefined,
+                teacher: teacherFilter || undefined,
+                subject: subjectFilter || undefined,
+                semester: semesterFilter || undefined,
+                institute: activeInstitute || undefined,
+                cursor: cursor || undefined,
+                limit: 12
+            });
 
-                const startIndex = displayedMaterials.length;
-                const endIndex = startIndex + ITEMS_PER_PAGE;
-                const nextItems = filteredAllMaterials.slice(startIndex, endIndex);
-
-                if (nextItems.length > 0) {
-                    const newMaterials = [...displayedMaterials, ...nextItems];
-                    setDisplayedMaterials(newMaterials);
-
-                    // Update cache with the institute-specific key
-                    sectionsCache[cacheKey] = newMaterials;
-                    setHasMore(endIndex < filteredAllMaterials.length);
-                } else {
-                    setHasMore(false);
-                }
-            } catch (err) {
-                setError('Error loading more study materials');
-                console.error(err);
-            } finally {
-                setIsLoading(false);
-                loadingRef.current = false;
+            if (response.items.length > 0) {
+                setMaterials(prev => [...prev, ...response.items]);
+                setCursor(response.nextCursor);
+                setHasMore(!!response.nextCursor);
+            } else {
+                setHasMore(false);
             }
-        }, displayedMaterials.length > 0 ? 200 : 400); // Add delay for better UX
-    }, [displayedMaterials, hasMore, error, activeInstitute, cacheKey]);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Error loading materials');
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+            loadingRef.current = false;
+        }
+    }, [
+        cursor,
+        hasMore,
+        error,
+        searchQuery,
+        typeFilter,
+        teacherFilter,
+        subjectFilter,
+        semesterFilter,
+        activeInstitute
+    ]);
 
-    // Initial load only if no cached data
+    // Reset list when filters change
     useEffect(() => {
-        if (displayedMaterials.length === 0 && !error) {
+        setMaterials([]);
+        setCursor(null);
+        setHasMore(true);
+        setError(null);
+        loadingRef.current = false;
+    }, [
+        searchQuery,
+        typeFilter,
+        teacherFilter,
+        subjectFilter,
+        semesterFilter,
+        activeInstitute
+    ]);
+
+    // Initial load
+    useEffect(() => {
+        if (materials.length === 0 && !error) {
             loadMoreMaterials();
         }
-    }, [loadMoreMaterials, displayedMaterials.length, error]);
+    }, [loadMoreMaterials, error, materials.length]);
 
-    // Set up Intersection Observer
+    // Set up Intersection Observer for infinite scroll
     useEffect(() => {
         const options = {
             root: null,
@@ -267,8 +182,42 @@ export const StuffList: React.FC<StuffListProps> = ({ activeInstitute = null }) 
             observer.observe(trigger);
             return () => observer.unobserve(trigger);
         }
-    }, [displayedMaterials]);
+    }, [materials]);
 
+    // Handle tag click to set filter
+    const handleTagClick = (tag: string) => {
+        // Determine what kind of tag was clicked
+        const matchingMaterial = materials.find(mat =>
+            mat.type === tag ||
+            mat.teacher === tag ||
+            mat.subject === tag ||
+            mat.semester === tag
+        );
+
+        if (!matchingMaterial) return;
+
+        if (matchingMaterial.type === tag) {
+            setStuffType(tag);
+        } else if (matchingMaterial.teacher === tag) {
+            setStuffTeacher(tag);
+        } else if (matchingMaterial.subject === tag) {
+            setStuffSubject(tag);
+        } else if (matchingMaterial.semester === tag) {
+            setStuffSemester(tag);
+        }
+    };
+
+    // Filter visible tags to only show those that aren't already applied
+    const filterVisibleTags = (tags: string[]) => {
+        return tags.filter(tag =>
+            (typeFilter && tag === typeFilter) ||
+            (teacherFilter && tag === teacherFilter) ||
+            (subjectFilter && tag === subjectFilter) ||
+            (semesterFilter && tag === semesterFilter) ? false : true
+        );
+    };
+
+    // Error state
     if (error) {
         return (
             <div className="p-4 text-center text-red-500">
@@ -295,13 +244,14 @@ export const StuffList: React.FC<StuffListProps> = ({ activeInstitute = null }) 
             }}
         >
             <div className="space-y-3">
-                {displayedMaterials.map((material) => (
+                {materials.map((material) => (
                     <div key={material.id}>
                         <StuffBanner
                             title={material.title}
                             description={material.description}
-                            tags={material.tags}
+                            tags={filterVisibleTags(material.tags)}
                             telegramLink={material.telegramLink}
+                            onTagClick={handleTagClick}
                         />
                     </div>
                 ))}
@@ -316,21 +266,29 @@ export const StuffList: React.FC<StuffListProps> = ({ activeInstitute = null }) 
                 )}
 
                 {/* Show loading state when initially loading */}
-                {isLoading && displayedMaterials.length === 0 && (
+                {isLoading && materials.length === 0 && (
                     <div className='-mt-4'>
                         <LoadingState />
                     </div>
                 )}
 
                 {/* Show loading indicator when loading more */}
-                {isLoading && displayedMaterials.length > 0 && (
+                {isLoading && materials.length > 0 && (
                     <div className="py-4 text-center">
                         <div className="inline-block h-6 w-6 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
                     </div>
                 )}
 
+                {/* Empty state when no results */}
+                {!isLoading && materials.length === 0 && (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">Материалы не найдены</p>
+                        <p className="text-gray-400 text-sm mt-2">Попробуйте изменить параметры поиска</p>
+                    </div>
+                )}
+
                 {/* End of list message */}
-                {!hasMore && displayedMaterials.length > 0 && (
+                {!hasMore && materials.length > 0 && (
                     <div className="text-center py-4 text-gray-500">
                         Все материалы загружены
                     </div>

@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Input, Button, Tappable } from '@telegram-apps/telegram-ui';
+import { useFilters } from '@/contexts/FilterContext';
+import { FilterDropdown } from '@/components/common/FilterDropdown';
 
 // Icons
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
 import { Icon24Person_add } from '@/icons/24/person_add';
-import { Icon20Chevron_vertical } from '@/icons/20/chevron_vertical';
 import { Icon24Iyafit } from '@/icons/24/iyafit';
 import { Icon24Laplas } from '@/icons/24/laplas';
 import { Icon24Ifib } from '@/icons/24/ifib';
@@ -83,49 +84,6 @@ const useStickyState = (elementRef: React.RefObject<HTMLElement>, offset = 0): b
   return isSticky;
 };
 
-/**
- * Hook to determine if content needs horizontal scrolling
- */
-const useScrollable = (
-  containerRef: React.RefObject<HTMLElement>,
-  contentRef: React.RefObject<HTMLElement>
-) => {
-  const [isScrollable, setIsScrollable] = useState(false);
-  const [isMeasured, setIsMeasured] = useState(false);
-
-  const checkScrollable = useCallback(() => {
-    if (!containerRef.current || !contentRef.current) return;
-
-    const containerWidth = containerRef.current.clientWidth;
-    const contentWidth = contentRef.current.scrollWidth;
-    const shouldBeScrollable = contentWidth > containerWidth;
-
-    if (shouldBeScrollable !== isScrollable) {
-      setIsScrollable(shouldBeScrollable);
-    }
-
-    if (!isMeasured) {
-      setIsMeasured(true);
-    }
-  }, [isScrollable, isMeasured, containerRef, contentRef]);
-
-  useEffect(() => {
-    checkScrollable();
-
-    if (typeof ResizeObserver !== 'undefined' && containerRef.current && contentRef.current) {
-      const resizeObserver = new ResizeObserver(checkScrollable);
-      resizeObserver.observe(containerRef.current);
-      resizeObserver.observe(contentRef.current);
-      return () => resizeObserver.disconnect();
-    } else {
-      window.addEventListener('resize', checkScrollable);
-      return () => window.removeEventListener('resize', checkScrollable);
-    }
-  }, [checkScrollable, containerRef, contentRef]);
-
-  return { isScrollable, isMeasured, checkScrollable };
-};
-
 // ==================== Utility Components ====================
 /**
  * Button for adding new items
@@ -146,38 +104,6 @@ const AddButton = React.memo<{ onClick: () => void }>(({ onClick }) => (
   </Button>
 ));
 AddButton.displayName = 'AddButton';
-
-/**
- * Button for section filters
- */
-const FilterButton = React.memo<{ text: string; onClick: () => void }>(({ text, onClick }) => (
-  <Button
-    mode="gray"
-    size="m"
-    after={<div style={{ color: 'var(--tgui--hint_color)' }}><Icon20Chevron_vertical /></div>}
-    style={{
-      padding: 8,
-      whiteSpace: 'nowrap',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      background: 'var(--tgui--section_bg_color)',
-      width: '100%'
-    }}
-    onClick={onClick}
-    aria-haspopup="listbox"
-  >
-    <div style={{
-      color: 'var(--tgui--hint_color)',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }}>
-      <span className="font-medium">{text}</span>
-    </div>
-  </Button>
-));
-FilterButton.displayName = 'FilterButton';
 
 /**
  * Institute selection button
@@ -366,130 +292,182 @@ const ExpandableSearchInput = React.memo<ExpandableSearchInputProps>(({
 });
 ExpandableSearchInput.displayName = 'ExpandableSearchInput';
 
-// ==================== Filter Section Components ====================
-interface FilterSectionProps {
-  onFilterClick: (filter: string) => void;
-  onAddClick: () => void;
-  isHidden: boolean;
-  onContentRef: (node: HTMLDivElement | null) => void;
-  hasInstituteButton: boolean;
+// ==================== Section Specific Filter Components ====================
+
+// Info section filters
+interface InfoFiltersProps {
+  isVisible: boolean;
+  containerRef: React.RefObject<HTMLDivElement>;
   disableTransition?: boolean;
 }
 
-const TutorsFilters = React.memo<FilterSectionProps>(({
-  onFilterClick,
-  onAddClick,
-  isHidden,
-  onContentRef,
+const InfoFilters: React.FC<InfoFiltersProps> = ({
+  isVisible,
+  containerRef,
   disableTransition = false
-}) => (
-  <div
-    ref={onContentRef}
-    className={disableTransition ? "" : "transition-opacity duration-200 flex w-full"}
-    style={{
-      opacity: isHidden ? 0 : 1,
-      pointerEvents: isHidden ? 'none' : 'auto',
-      display: 'flex',
-      width: '100%',
-      transition: disableTransition ? 'none' : undefined
-    }}
-  >
-    <div style={{
-      flexGrow: 1,
-      marginRight: '8px',
-      width: 'calc(100% - 50px)'
-    }}>
-      <FilterButton
-        text="Преподаватели"
-        onClick={() => onFilterClick('departments')}
+}) => {
+  const {
+    infoFilters,
+    filterOptions,
+    optionsLoading,
+    setInfoEntityType
+  } = useFilters();
+
+  return (
+    <div
+      ref={containerRef}
+      className={disableTransition ? "flex w-full relative z-50" : "flex w-full relative z-50 transition-opacity duration-200"}
+      style={{
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? 'auto' : 'none',
+        transition: disableTransition ? 'none' : undefined
+      }}
+    >
+      <FilterDropdown
+        options={filterOptions.infoSections}
+        selectedOption={infoFilters.entityType}
+        onSelect={(option) => option ? setInfoEntityType(option as 'tutors' | 'departments') : setInfoEntityType('tutors')}
+        placeholder="Выберите тип"
+        loading={optionsLoading.infoSections}
       />
     </div>
-    <AddButton onClick={onAddClick} />
-  </div>
-));
-TutorsFilters.displayName = 'TutorsFilters';
+  );
+};
 
-const ClubsFilters = React.memo<FilterSectionProps>(({
-  onFilterClick,
-  onAddClick,
-  isHidden,
-  onContentRef,
-  disableTransition = false
-}) => (
-  <div
-    ref={onContentRef}
-    className={disableTransition ? "flex w-full" : "flex w-full transition-opacity duration-200"}
-    style={{
-      opacity: isHidden ? 0 : 1,
-      pointerEvents: isHidden ? 'none' : 'auto',
-      transition: disableTransition ? 'none' : undefined
-    }}
-  >
-    <div className="flex flex-1 mr-2">
-      <div className="flex-1 mr-2">
-        <FilterButton
-          text="Предмет"
-          onClick={() => onFilterClick('subject')}
-        />
-      </div>
-      <div className="flex-1">
-        <FilterButton
-          text="Организатор"
-          onClick={() => onFilterClick('organizers')}
-        />
-      </div>
-    </div>
-    <AddButton onClick={onAddClick} />
-  </div>
-));
-ClubsFilters.displayName = 'ClubsFilters';
+// Clubs section filters
+interface ClubsFiltersProps {
+  isVisible: boolean;
+  containerRef: React.RefObject<HTMLDivElement>;
+  onAddClick: () => void;
+  disableTransition?: boolean;
+}
 
-const StuffFilters = React.memo<FilterSectionProps>(({
-  onFilterClick,
+const ClubsFilters: React.FC<ClubsFiltersProps> = ({
+  isVisible,
+  containerRef,
   onAddClick,
-  isHidden,
-  onContentRef,
   disableTransition = false
-}) => (
-  <div
-    ref={onContentRef}
-    className={disableTransition ? "flex w-full" : "flex w-full transition-opacity duration-200"}
-    style={{
-      opacity: isHidden ? 0 : 1,
-      pointerEvents: isHidden ? 'none' : 'auto',
-      transition: disableTransition ? 'none' : undefined
-    }}
-  >
-    <div className="flex flex-1 mr-2">
-      <div className="flex-1 mr-2">
-        <FilterButton
-          text="Тип"
-          onClick={() => onFilterClick('type')}
-        />
+}) => {
+  const {
+    clubsFilters,
+    filterOptions,
+    optionsLoading,
+    setClubSubject,
+    setClubOrganizer
+  } = useFilters();
+
+  return (
+    <div
+      ref={containerRef}
+      className={disableTransition ? "flex w-full" : "flex w-full transition-opacity duration-200"}
+      style={{
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? 'auto' : 'none',
+        transition: disableTransition ? 'none' : undefined
+      }}
+    >
+      <div className="flex flex-1 mr-2">
+        <div className="flex-1 mr-2">
+          <FilterDropdown
+            options={filterOptions.clubSubjects}
+            selectedOption={clubsFilters.subject}
+            onSelect={setClubSubject}
+            placeholder="Предмет"
+            loading={optionsLoading.clubSubjects}
+          />
+        </div>
+        <div className="flex-1">
+          <FilterDropdown
+            options={filterOptions.clubOrganizers}
+            selectedOption={clubsFilters.organizer}
+            onSelect={setClubOrganizer}
+            placeholder="Организатор"
+            loading={optionsLoading.clubOrganizers}
+          />
+        </div>
       </div>
-      <div className="flex-1 mr-2">
-        <FilterButton
-          text="Препод"
-          onClick={() => onFilterClick('teacher')}
-        />
-      </div>
-      <div className="flex-1 mr-2">
-        <FilterButton
-          text="Предмет"
-          onClick={() => onFilterClick('subject')}
-        />
-      </div>
-      <div className="flex-1">
-        <FilterButton
-          text="Семестр"
-          onClick={() => onFilterClick('semester')}
-        />
-      </div>
+      <AddButton onClick={onAddClick} />
     </div>
-    <AddButton onClick={onAddClick} />
-  </div>
-));
-StuffFilters.displayName = 'StuffFilters';
+  );
+};
+
+// Stuff section filters
+interface StuffFiltersProps {
+  isVisible: boolean;
+  containerRef: React.RefObject<HTMLDivElement>;
+  onAddClick: () => void;
+  disableTransition?: boolean;
+}
+
+const StuffFilters: React.FC<StuffFiltersProps> = ({
+  isVisible,
+  containerRef,
+  onAddClick,
+  disableTransition = false
+}) => {
+  const {
+    stuffFilters,
+    filterOptions,
+    optionsLoading,
+    setStuffType,
+    setStuffTeacher,
+    setStuffSubject,
+    setStuffSemester
+  } = useFilters();
+
+  return (
+    <div
+      ref={containerRef}
+      className={disableTransition ? "flex w-full overflow-x-auto no-scrollbar" : "flex w-full overflow-x-auto no-scrollbar transition-opacity duration-200"}
+      style={{
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? 'auto' : 'none',
+        transition: disableTransition ? 'none' : undefined,
+        paddingRight: '8px'
+      }}
+    >
+      <div className="flex flex-1 mr-2">
+        <div className="flex-1 mr-2 min-w-[120px]">
+          <FilterDropdown
+            options={filterOptions.materialTypes}
+            selectedOption={stuffFilters.type}
+            onSelect={setStuffType}
+            placeholder="Тип"
+            loading={optionsLoading.materialTypes}
+          />
+        </div>
+        <div className="flex-1 mr-2 min-w-[120px]">
+          <FilterDropdown
+            options={filterOptions.materialTeachers}
+            selectedOption={stuffFilters.teacher}
+            onSelect={setStuffTeacher}
+            placeholder="Препод"
+            loading={optionsLoading.materialTeachers}
+          />
+        </div>
+        <div className="flex-1 mr-2 min-w-[120px]">
+          <FilterDropdown
+            options={filterOptions.materialSubjects}
+            selectedOption={stuffFilters.subject}
+            onSelect={setStuffSubject}
+            placeholder="Предмет"
+            loading={optionsLoading.materialSubjects}
+          />
+        </div>
+        <div className="flex-1 min-w-[120px]">
+          <FilterDropdown
+            options={filterOptions.materialSemesters}
+            selectedOption={stuffFilters.semester}
+            onSelect={setStuffSemester}
+            placeholder="Семестр"
+            loading={optionsLoading.materialSemesters}
+          />
+        </div>
+      </div>
+      <AddButton onClick={onAddClick} />
+    </div>
+  );
+};
 
 // ==================== Main Component ====================
 export const SearchPanel: React.FC<SearchPanelProps> = ({
@@ -497,6 +475,14 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
   activeInstitute = null,
   onInstituteChange = () => {}
 }) => {
+  // Access filter context
+  const {
+    infoFilters,
+    clubsFilters,
+    stuffFilters,
+    setSearchQuery
+  } = useFilters();
+
   // State for UI interactions
   const [uiState, setUiState] = useState({
     isSearchExpanded: false,
@@ -504,7 +490,6 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
     isInstituteExpanded: false,
     isInstituteTransitioning: false,
     isSectionChanging: false,
-    searchValue: ''
   });
 
   // State for Institutes button animation
@@ -518,7 +503,18 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
 
   // Custom hooks
   const isSticky = useStickyState(containerRef, 0);
-  const { isScrollable, checkScrollable } = useScrollable(filterContainerRef, filterContentRef);
+
+  // Get the current search value based on active section
+  const searchValue = useMemo(() => {
+    if (activeSection === 'info') {
+      return infoFilters.search;
+    } else if (activeSection === 'clubs') {
+      return clubsFilters.search;
+    } else if (activeSection === 'stuff') {
+      return stuffFilters.search;
+    }
+    return '';
+  }, [activeSection, infoFilters.search, clubsFilters.search, stuffFilters.search]);
 
   // Derived state
   const showInstituteButton = activeSection === 'stuff';
@@ -526,7 +522,7 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({
     activeInstitute ? INSTITUTES.find(institute => institute.id === activeInstitute) : null,
   [activeInstitute]);
   const areFiltersHidden = uiState.isSearchExpanded || uiState.isInstituteExpanded;
-const shouldShowFilters = (!uiState.isInstituteExpanded || uiState.isInstituteTransitioning) &&
+  const shouldShowFilters = (!uiState.isInstituteExpanded || uiState.isInstituteTransitioning) &&
                        (!uiState.isSearchExpanded || uiState.isSearchTransitioning);
 
   // Set UI state with transition handling
@@ -565,7 +561,7 @@ const shouldShowFilters = (!uiState.isInstituteExpanded || uiState.isInstituteTr
   // Handler for collapsing search
   const handleSearchCollapse = useCallback(() => {
     setUIStateWithTransition(
-      { isSearchExpanded: false, searchValue: '' },
+      { isSearchExpanded: false },
       'isSearchTransitioning',
       200
     );
@@ -579,16 +575,16 @@ const shouldShowFilters = (!uiState.isInstituteExpanded || uiState.isInstituteTr
   }, []);
 
   // Handler for expanding institute selection
-const handleInstituteExpand = useCallback(() => {
-  // Enable animations for user interaction
-  setShouldAnimateInstitute(true);
+  const handleInstituteExpand = useCallback(() => {
+    // Enable animations for user interaction
+    setShouldAnimateInstitute(true);
 
-  if (uiState.isSearchExpanded) {
-    handleSearchCollapse();
-  }
+    if (uiState.isSearchExpanded) {
+      handleSearchCollapse();
+    }
 
-  setUIStateWithTransition({ isInstituteExpanded: true }, 'isInstituteTransitioning');
-}, [uiState.isSearchExpanded, handleSearchCollapse]);
+    setUIStateWithTransition({ isInstituteExpanded: true }, 'isInstituteTransitioning');
+  }, [uiState.isSearchExpanded, handleSearchCollapse]);
 
   // Handler for collapsing institute selection
   const handleInstituteCollapse = useCallback(() => {
@@ -596,19 +592,19 @@ const handleInstituteExpand = useCallback(() => {
   }, []);
 
   // Handler for institute selection
-const handleInstituteSelect = useCallback((institute: string | null) => {
-  // Enable animations for user interaction
-  setShouldAnimateInstitute(true);
+  const handleInstituteSelect = useCallback((institute: string | null) => {
+    // Enable animations for user interaction
+    setShouldAnimateInstitute(true);
 
-  onInstituteChange(institute);
-  handleInstituteCollapse();
-}, [onInstituteChange, handleInstituteCollapse]);
+    onInstituteChange(institute);
+    handleInstituteCollapse();
+  }, [onInstituteChange, handleInstituteCollapse]);
 
-  // Handler for filter button clicks
-  const handleFilterClick = useCallback((filter: string) => {
-    console.log(`Filter clicked: ${filter}`);
-    // Implement actual filter logic here
-  }, []);
+  // Handler for search value changes
+  const handleSearchChange = useCallback((value: string) => {
+    console.log("Search changed to:", value);
+    setSearchQuery(value);
+  }, [setSearchQuery]);
 
   // Handler for add button clicks
   const handleAddClick = useCallback(() => {
@@ -616,93 +612,48 @@ const handleInstituteSelect = useCallback((institute: string | null) => {
     // Implement actual add item logic here
   }, []);
 
-  // Handler for search value changes
-  const handleSearchChange = useCallback((value: string) => {
-    setUiState(prev => ({ ...prev, searchValue: value }));
-  }, []);
-
   // Content ref callback for filters
   const contentRefCallback = useCallback((node: HTMLDivElement | null) => {
     filterContentRef.current = node;
-    checkScrollable();
-  }, [checkScrollable]);
-
-  // Ensure immediate measurement for initial render
-  useEffect(() => {
-    setTimeout(checkScrollable, 0);
-  }, [checkScrollable]);
+  }, []);
 
   // Handle section changes
-    useEffect(() => {
-        if (prevSectionRef.current !== activeSection) {
-            // Disable transitions during section changes
-            setUiState(prev => ({ ...prev, isSectionChanging: true }));
+  useEffect(() => {
+    if (prevSectionRef.current !== activeSection) {
+      // Disable transitions during section changes
+      setUiState(prev => ({ ...prev, isSectionChanging: true }));
 
-            // Reset institute animation state
-            setShouldAnimateInstitute(false);
+      // Reset institute animation state
+      setShouldAnimateInstitute(false);
 
-            // Re-measure
-            checkScrollable();
+      // Close expanded UI elements
+      if (uiState.isSearchExpanded) {
+        handleSearchCollapse();
+      }
 
-            // Close expanded UI elements
-            if (uiState.isSearchExpanded) {
-                handleSearchCollapse();
-            }
+      if (uiState.isInstituteExpanded) {
+        handleInstituteCollapse();
+      }
 
-            if (uiState.isInstituteExpanded) {
-                handleInstituteCollapse();
-            }
-
-            // Re-enable transitions after a delay
-            setTimeout(() => {
-                setUiState(prev => ({ ...prev, isSectionChanging: false }));
-            }, 300);
-        }
-
-        prevSectionRef.current = activeSection;
-    }, [
-        activeSection,
-        checkScrollable,
-        uiState.isSearchExpanded,
-        handleSearchCollapse,
-        uiState.isInstituteExpanded,
-        handleInstituteCollapse
-    ]);
-
-  // Render current section filters
-  const renderSectionFilters = useCallback(() => {
-    const commonProps = {
-      onFilterClick: handleFilterClick,
-      onAddClick: handleAddClick,
-      isHidden: areFiltersHidden,
-      onContentRef: contentRefCallback,
-      hasInstituteButton: showInstituteButton,
-      disableTransition: uiState.isSectionChanging
-    };
-
-    switch (activeSection) {
-      case 'clubs':
-        return <ClubsFilters {...commonProps} />;
-      case 'stuff':
-        return <StuffFilters {...commonProps} />;
-      case 'tutors':
-      default:
-        return <TutorsFilters {...commonProps} />;
+      // Re-enable transitions after a delay
+      setTimeout(() => {
+        setUiState(prev => ({ ...prev, isSectionChanging: false }));
+      }, 300);
     }
+
+    prevSectionRef.current = activeSection;
   }, [
     activeSection,
-    handleFilterClick,
-    handleAddClick,
-    areFiltersHidden,
-    contentRefCallback,
-    showInstituteButton,
-    uiState.isSectionChanging
+    uiState.isSearchExpanded,
+    handleSearchCollapse,
+    uiState.isInstituteExpanded,
+    handleInstituteCollapse
   ]);
 
   return (
     <div
       data-searchpanel
-      className="sticky top-0 z-20 pt-2 pb-2 visible"
+      className="sticky top-0 z-50 pt-2 pb-2 visible"
       ref={containerRef}
       style={{
         backgroundColor: 'var(--tgui--secondary_bg_color)',
@@ -713,7 +664,7 @@ const handleInstituteSelect = useCallback((institute: string | null) => {
         paddingLeft: '8px',
         paddingRight: '8px',
         boxSizing: 'border-box',
-        overflow: 'hidden'
+        overflow: 'visible'
       }}
     >
       <style jsx global>{`
@@ -756,25 +707,25 @@ const handleInstituteSelect = useCallback((institute: string | null) => {
         }
       `}</style>
 
-          <div className="flex gap-2">
-              {/* Institute button - visible in stuff section when not expanded */}
-              {showInstituteButton && !uiState.isInstituteExpanded && (
-                  <InstituteButton
-                      institute={selectedInstitute}
-                      isSelected={!!selectedInstitute || activeInstitute === null}
-                      onClick={handleInstituteExpand}
-                      disableAnimation={uiState.isSectionChanging || !shouldAnimateInstitute}
-                  />
-              )}
+      <div className="flex gap-2">
+        {/* Institute button - visible in stuff section when not expanded */}
+        {showInstituteButton && !uiState.isInstituteExpanded && (
+          <InstituteButton
+            institute={selectedInstitute}
+            isSelected={!!selectedInstitute || activeInstitute === null}
+            onClick={handleInstituteExpand}
+            disableAnimation={uiState.isSectionChanging || !shouldAnimateInstitute}
+          />
+        )}
 
-              {/* Expanded institute selection - only visible when expanded */}
-              {showInstituteButton && uiState.isInstituteExpanded && (
-                  <InstituteSelector
-                      activeInstitute={activeInstitute}
-                      onSelect={handleInstituteSelect}
-                      disableAnimation={uiState.isSectionChanging || !shouldAnimateInstitute}
-                  />
-              )}
+        {/* Expanded institute selection - only visible when expanded */}
+        {showInstituteButton && uiState.isInstituteExpanded && (
+          <InstituteSelector
+            activeInstitute={activeInstitute}
+            onSelect={handleInstituteSelect}
+            disableAnimation={uiState.isSectionChanging || !shouldAnimateInstitute}
+          />
+        )}
 
         {/* Search Input - hidden when institute selection is expanded */}
         {!uiState.isInstituteExpanded && (
@@ -782,7 +733,7 @@ const handleInstituteSelect = useCallback((institute: string | null) => {
             isExpanded={uiState.isSearchExpanded}
             onExpand={handleSearchExpand}
             onCollapse={handleSearchCollapse}
-            value={uiState.searchValue}
+            value={searchValue}
             onChange={handleSearchChange}
             hasInstituteButton={showInstituteButton}
             disableTransition={uiState.isSectionChanging}
@@ -790,32 +741,49 @@ const handleInstituteSelect = useCallback((institute: string | null) => {
         )}
 
         {/* Filters Container */}
-{shouldShowFilters && (
-  <div
-    ref={filterContainerRef}
-    className="relative overflow-hidden no-scrollbar"
-    style={{
-      width: uiState.isInstituteExpanded
-        ? '0'
-        : `calc(100% - 42px - 8px${showInstituteButton ? ' - 42px - 8px' : ''})`,
-      overflowX: isScrollable ? 'auto' : 'hidden',
-      opacity: uiState.isInstituteExpanded || uiState.isSearchExpanded ? 0 : 1,
-      transitionProperty: uiState.isSectionChanging ? 'none' : 'opacity, width',
-      transitionDuration: uiState.isSectionChanging ? '0ms' : '200ms',
-      transitionTimingFunction: 'ease-in-out',
-      // Add delay when showing filters after institute collapse, but no delay when hiding
-      transitionDelay: !uiState.isInstituteExpanded && uiState.isInstituteTransitioning ? '150ms' : '0ms',
-    }}
-  >
-    {isScrollable ? (
-      <div className="overflow-x-auto no-scrollbar" style={{ width: '100%' }}>
-        {renderSectionFilters()}
-      </div>
-    ) : (
-      renderSectionFilters()
-    )}
-  </div>
-)}
+        {shouldShowFilters && (
+          <div
+            ref={filterContainerRef}
+            className="relative overflow-visible"
+            style={{
+              width: uiState.isInstituteExpanded
+                ? '0'
+                : `calc(100% - 42px - 8px${showInstituteButton ? ' - 42px - 8px' : ''})`,
+              opacity: uiState.isInstituteExpanded || uiState.isSearchExpanded ? 0 : 1,
+              transitionProperty: uiState.isSectionChanging ? 'none' : 'opacity, width',
+              transitionDuration: uiState.isSectionChanging ? '0ms' : '200ms',
+              transitionTimingFunction: 'ease-in-out',
+              // Add delay when showing filters after institute collapse, but no delay when hiding
+              transitionDelay: !uiState.isInstituteExpanded && uiState.isInstituteTransitioning ? '150ms' : '0ms',
+            }}
+          >
+            {activeSection === 'info' && (
+              <InfoFilters
+                isVisible={!areFiltersHidden}
+                containerRef={filterContentRef}
+                disableTransition={uiState.isSectionChanging}
+              />
+            )}
+
+            {activeSection === 'clubs' && (
+              <ClubsFilters
+                isVisible={!areFiltersHidden}
+                containerRef={filterContentRef}
+                onAddClick={handleAddClick}
+                disableTransition={uiState.isSectionChanging}
+              />
+            )}
+
+            {activeSection === 'stuff' && (
+              <StuffFilters
+                isVisible={!areFiltersHidden}
+                containerRef={filterContentRef}
+                onAddClick={handleAddClick}
+                disableTransition={uiState.isSectionChanging}
+              />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Shadow extension element */}

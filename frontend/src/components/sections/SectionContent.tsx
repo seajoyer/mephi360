@@ -2,6 +2,8 @@ import React from 'react';
 import { TutorsList } from '@/components/list/TutorsList';
 import { ClubsList } from '@/components/list/ClubsList';
 import { StuffList } from '@/components/list/StuffList';
+import { DepartmentList } from '@/components/list/DepartmentList';
+import { useFilters } from '@/contexts/FilterContext';
 
 interface SectionContentProps {
     activeSection: string;
@@ -15,6 +17,9 @@ export const SectionContent: React.FC<SectionContentProps> = ({
     className = '',
     activeInstitute = null
 }) => {
+    // Use filter context to get active filters
+    const { infoFilters, clubsFilters, stuffFilters } = useFilters();
+
     // Using animation classes for smooth transitions
     const getDisplayClass = (section: string) => {
         return activeSection === section
@@ -24,23 +29,43 @@ export const SectionContent: React.FC<SectionContentProps> = ({
 
     return (
         <div className={`w-full ${className}`}>
+            {/* Info section (Tutors or Departments) */}
             <div
-                className={`h-full ${getDisplayClass('tutors')}`}
-                data-section="tutors"
+                className={`h-full ${getDisplayClass('info')}`}
+                data-section="info"
             >
-                <TutorsList />
+                {infoFilters.entityType === 'tutors' ? (
+                    <TutorsList searchQuery={infoFilters.search} departmentFilter={infoFilters.department} />
+                ) : (
+                    <DepartmentList searchQuery={infoFilters.search} />
+                )}
             </div>
+
+            {/* Clubs section */}
             <div
                 className={`h-full ${getDisplayClass('clubs')}`}
                 data-section="clubs"
             >
-                <ClubsList />
+                <ClubsList
+                    searchQuery={clubsFilters.search}
+                    organizerFilter={clubsFilters.organizer}
+                    subjectFilter={clubsFilters.subject}
+                />
             </div>
+
+            {/* Stuff section */}
             <div
                 className={`h-full ${getDisplayClass('stuff')}`}
                 data-section="stuff"
             >
-                <StuffList activeInstitute={activeInstitute} />
+                <StuffList
+                    searchQuery={stuffFilters.search}
+                    typeFilter={stuffFilters.type}
+                    teacherFilter={stuffFilters.teacher}
+                    subjectFilter={stuffFilters.subject}
+                    semesterFilter={stuffFilters.semester}
+                    activeInstitute={activeInstitute}
+                />
             </div>
         </div>
     );

@@ -3,10 +3,21 @@ import { Section, Cell, Avatar, Divider } from '@telegram-apps/telegram-ui';
 import { Icon16Chevron_right } from '@/icons/16/chevron_right';
 import { Icon28Heart_fill } from '@/icons/28/heart_fill';
 import { Link } from '@/components/common/Link';
-import { tutorService } from '@/services/tutorService';
-import { Tutor } from '@/types/tutor';
+import { getTutors } from '@/services/apiService';
 
-const ITEMS_PER_PAGE = 20;
+// Types
+interface Tutor {
+    id: number;
+    name: string;
+    department: string;
+    position: string;
+    imageFileName: string;
+}
+
+interface TutorsListProps {
+    searchQuery?: string;
+    departmentFilter?: string | null;
+}
 
 // Loading skeleton component
 const TutorCellSkeleton: React.FC = () => (
@@ -31,20 +42,22 @@ const LoadingState: React.FC = () => (
     </>
 );
 
-export const TutorsList: React.FC = () => {
-    // Use cached data if available
-    const [displayedTutors, setDisplayedTutors] = useState<Tutor[]>([]);
+export const TutorsList: React.FC<TutorsListProps> = ({
+    searchQuery = '',
+    departmentFilter = null
+}) => {
+    const [tutors, setTutors] = useState<Tutor[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [cursor, setCursor] = useState<string | null>(null);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const loadingRef = useRef(false);
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadTriggerRef = useRef<HTMLDivElement>(null);
 
-    // Load tutors function
+    // Load tutors function with filtering
     const loadMoreTutors = useCallback(async () => {
         if (loadingRef.current || !hasMore || error) return;
 
@@ -52,12 +65,17 @@ export const TutorsList: React.FC = () => {
         setIsLoading(true);
 
         try {
-            const nextTutors = await tutorService.getTutorsByPage(currentPage, ITEMS_PER_PAGE);
+            const response = await getTutors({
+                search: searchQuery,
+                department: departmentFilter || undefined,
+                cursor: cursor || undefined,
+                limit: 20
+            });
 
-            if (nextTutors.length > 0) {
-                setDisplayedTutors(prev => [...prev, ...nextTutors]);
-                setCurrentPage(prev => prev + 1);
-                setHasMore(nextTutors.length === ITEMS_PER_PAGE);
+            if (response.items.length > 0) {
+                setTutors(prev => [...prev, ...response.items]);
+                setCursor(response.nextCursor);
+                setHasMore(!!response.nextCursor);
             } else {
                 setHasMore(false);
             }
@@ -68,16 +86,25 @@ export const TutorsList: React.FC = () => {
             setIsLoading(false);
             loadingRef.current = false;
         }
-    }, [currentPage, hasMore, error]);
+    }, [cursor, hasMore, error, searchQuery, departmentFilter]);
+
+    // Reset list when filters change
+    useEffect(() => {
+        setTutors([]);
+        setCursor(null);
+        setHasMore(true);
+        setError(null);
+        loadingRef.current = false;
+    }, [searchQuery, departmentFilter]);
 
     // Initial load
     useEffect(() => {
-        if (displayedTutors.length === 0 && !error) {
+        if (tutors.length === 0 && !error) {
             loadMoreTutors();
         }
-    }, [loadMoreTutors, error]);
+    }, [loadMoreTutors, error, tutors.length]);
 
-    // Set up Intersection Observer
+    // Set up Intersection Observer for infinite scroll
     useEffect(() => {
         const options = {
             root: null,
@@ -106,7 +133,7 @@ export const TutorsList: React.FC = () => {
             observer.observe(trigger);
             return () => observer.unobserve(trigger);
         }
-    }, [displayedTutors]);
+    }, [tutors]);
 
     // Error state
     if (error) {
@@ -120,7 +147,7 @@ export const TutorsList: React.FC = () => {
                         loadMoreTutors();
                     }}
                 >
-                    Retry
+                    Повторить
                 </button>
             </div>
         );
@@ -135,7 +162,7 @@ export const TutorsList: React.FC = () => {
             }}
         >
             <Section>
-                {displayedTutors.map((tutor, index) => (
+                {tutors.map((tutor, index) => (
                     <div key={tutor.id}>
                         <Link to={`/tutor/${tutor.id}`}>
                             <Cell
@@ -156,7 +183,7 @@ export const TutorsList: React.FC = () => {
                                 {tutor.name}
                             </Cell>
                         </Link>
-                        {index < displayedTutors.length - 1 && <Divider />}
+                        {index < tutors.length - 1 && <Divider />}
                     </div>
                 ))}
 
@@ -170,19 +197,27 @@ export const TutorsList: React.FC = () => {
                 )}
 
                 {/* Show loading state when initially loading */}
-                {isLoading && displayedTutors.length === 0 && <LoadingState />}
+                {isLoading && tutors.length === 0 && <LoadingState />}
 
                 {/* Show loading indicator when loading more */}
-                {isLoading && displayedTutors.length > 0 && (
+                {isLoading && tutors.length > 0 && (
                     <div className="py-4 text-center">
                         <div className="inline-block h-6 w-6 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
                     </div>
                 )}
 
+                {/* Empty state when no results */}
+                {!isLoading && tutors.length === 0 && (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">Преподаватели не найдены</p>
+                        <p className="text-gray-400 text-sm mt-2">Попробуйте изменить параметры поиска</p>
+                    </div>
+                )}
+
                 {/* End of list message */}
-                {!hasMore && displayedTutors.length > 0 && (
+                {!hasMore && tutors.length > 0 && (
                     <div className="text-center py-4 text-gray-500">
-                        No more tutors to load
+                        Больше преподавателей нет
                     </div>
                 )}
             </Section>

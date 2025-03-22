@@ -1,12 +1,12 @@
 import React from 'react';
 import { InlineButtons } from '@telegram-apps/telegram-ui';
 import { InlineButtonsItem } from '@telegram-apps/telegram-ui/dist/components/Blocks/InlineButtons/components/InlineButtonsItem/InlineButtonsItem';
-import { Icon24Heart } from '@/icons/24/heart';
 import { Icon24Largegroup } from '@/icons/24/largegroup';
 import { Icon24Folder } from '@/icons/24/folder';
+import { Icon24Lightbulb } from '@/icons/24/lightbulb';
 
 export const SECTIONS = [
-    { id: 'tutors', text: 'Преподы', icon: Icon24Heart, mode: 'bezeled' },
+    { id: 'info', text: 'Инфа', icon: Icon24Lightbulb, mode: 'bezeled' },
     { id: 'clubs', text: 'Кружки', icon: Icon24Largegroup, mode: 'gray' },
     { id: 'stuff', text: 'Материалы', icon: Icon24Folder, mode: 'gray' }
 ] as const;

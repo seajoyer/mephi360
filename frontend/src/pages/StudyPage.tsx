@@ -7,7 +7,7 @@ import { BottomPart } from '@/components/sections/BottomPart';
 
 export const StudyPage: FC = () => {
     // Tracking active section
-    const [activeSection, setActiveSection] = useState<string>('tutors');
+    const [activeSection, setActiveSection] = useState<string>('info');
 
     // Handle section changes
     const handleSectionChange = (newSection: string) => {

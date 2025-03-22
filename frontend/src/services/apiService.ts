@@ -1,91 +1,8 @@
-// Generic paginated response type
-export interface PaginatedResponse<T> {
-  content: T[];
-  last: boolean;
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-  first: boolean;
-  empty: boolean;
-}
+import { mockTutors } from '@/data/mockTutors';
+import { mockDepartments } from '@/data/mockDepartments';
 
-// Base service for handling API requests
-export class ApiService {
-  private baseUrl: string;
-
-  constructor() {
-    // Get API URL from environment or use default
-    this.baseUrl = import.meta.env.VITE_API_URL || '/api';
-  }
-
-  // Helper method to build URL with query parameters
-  protected buildUrl(endpoint: string, params: Record<string, any>): string {
-    const url = new URL(`${this.baseUrl}${endpoint}`, window.location.origin);
-
-    // Add all non-undefined parameters to the URL
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined) {
-        if (Array.isArray(value)) {
-          // Handle array parameters (e.g., tags)
-          value.forEach((item) => {
-            url.searchParams.append(`${key}`, item);
-          });
-        } else {
-          url.searchParams.append(key, String(value));
-        }
-      }
-    });
-
-    return url.toString();
-  }
-
-  // Generic method to fetch paginated data with filters
-  protected async fetchPaginated<T, F>(
-    endpoint: string,
-    page: number,
-    size: number,
-    filters?: F,
-    sort?: string,
-    search?: string
-  ): Promise<PaginatedResponse<T>> {
-    try {
-      // Combine pagination params with filters
-      const params: Record<string, any> = {
-        page,
-        size,
-        sort,
-        search,
-        ...filters
-      };
-
-      const url = this.buildUrl(endpoint, params);
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
-      }
-
-      return await response.json() as PaginatedResponse<T>;
-    } catch (error) {
-      console.error('Error fetching paginated data:', error);
-      throw error;
-    }
-  }
-}
-
-// src/services/tutorService.ts (enhanced)
-import { Tutor } from '@/types/tutor';
-import { mockTutors, mockGoryachev } from '@/data/mockTutors';
-import { ApiService, PaginatedResponse } from './apiService';
-
-// Filter params for tutors
-export interface TutorFilterParams {
-  name?: string;
-  department?: string;
-  position?: string;
-  minRating?: number;
-}
+// API base URL - can be configured from environment
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Enum for data source
 export enum DataSource {
@@ -93,208 +10,488 @@ export enum DataSource {
   API = 'api'
 }
 
-// Cache for tutors (with filter keys)
-interface TutorCache {
-  [filterKey: string]: PaginatedResponse<Tutor>;
+// Global data source configuration
+let currentDataSource = DataSource.MOCK;
+
+/**
+ * Set the data source for all API calls
+ */
+export const setDataSource = (source: DataSource): void => {
+  currentDataSource = source;
+  console.log(`Data source set to: ${source}`);
+};
+
+/**
+ * Get the current data source
+ */
+export const getDataSource = (): DataSource => {
+  return currentDataSource;
+};
+
+// ====== TYPES ======
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  nextCursor: string | null;
+  total: number;
 }
 
-export class TutorService extends ApiService {
-  private dataSource: DataSource;
-  private cache: TutorCache = {};
-
-  constructor() {
-    super();
-    // Default to mock data until switched to API
-    this.dataSource = DataSource.MOCK;
-  }
-
-  // Get current data source
-  getDataSource(): DataSource {
-    return this.dataSource;
-  }
-
-  // Set data source (for development testing)
-  setDataSource(source: DataSource): void {
-    this.dataSource = source;
-    // Clear cache when switching data sources
-    this.cache = {};
-    console.log(`Data source set to: ${source}`);
-  }
-
-  // Generate a cache key from filters
-  private generateCacheKey(page: number, size: number, filters?: TutorFilterParams, search?: string): string {
-    const filterString = filters ? JSON.stringify(filters) : '';
-    return `tutors-page${page}-size${size}-search${search || ''}-${filterString}`;
-  }
-
-  // Fetch tutors with filtering and pagination
-  async getTutors(
-    page: number,
-    size: number,
-    filters?: TutorFilterParams,
-    sort?: string,
-    search?: string
-  ): Promise<PaginatedResponse<Tutor>> {
-    const cacheKey = this.generateCacheKey(page, size, filters, search);
-
-    // Check cache first
-    if (this.cache[cacheKey]) {
-      return this.cache[cacheKey];
-    }
-
-    if (this.dataSource === DataSource.MOCK) {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Filter mock data
-      let filteredTutors = [...mockTutors];
-
-      // Apply filters
-      if (filters) {
-        if (filters.name) {
-          const nameFilter = filters.name.toLowerCase();
-          filteredTutors = filteredTutors.filter(t =>
-            t.name.toLowerCase().includes(nameFilter)
-          );
-        }
-
-        if (filters.department) {
-          const deptFilter = filters.department.toLowerCase();
-          filteredTutors = filteredTutors.filter(t =>
-            t.department.toLowerCase().includes(deptFilter)
-          );
-        }
-
-        if (filters.position) {
-          const posFilter = filters.position.toLowerCase();
-          filteredTutors = filteredTutors.filter(t =>
-            t.position.toLowerCase().includes(posFilter)
-          );
-        }
-
-        if (filters.minRating) {
-          filteredTutors = filteredTutors.filter(t =>
-            t.ratings.overallRating >= filters.minRating!
-          );
-        }
-      }
-
-      // Apply search (if provided)
-      if (search) {
-        const searchTerm = search.toLowerCase();
-        filteredTutors = filteredTutors.filter(t =>
-          t.name.toLowerCase().includes(searchTerm) ||
-          t.department.toLowerCase().includes(searchTerm) ||
-          t.position.toLowerCase().includes(searchTerm)
-        );
-      }
-
-      // Apply sorting
-      if (sort) {
-        const [field, direction] = sort.split(',');
-        const isAsc = direction !== 'desc';
-
-        filteredTutors.sort((a, b) => {
-          let valueA, valueB;
-
-          // Handle different sort fields
-          if (field === 'name') {
-            valueA = a.name;
-            valueB = b.name;
-          } else if (field === 'rating') {
-            valueA = a.ratings.overallRating;
-            valueB = b.ratings.overallRating;
-          } else {
-            // Default sort by name
-            valueA = a.name;
-            valueB = b.name;
-          }
-
-          // String comparison
-          if (typeof valueA === 'string' && typeof valueB === 'string') {
-            return isAsc
-              ? valueA.localeCompare(valueB)
-              : valueB.localeCompare(valueA);
-          }
-
-          // Number comparison
-          return isAsc
-            ? Number(valueA) - Number(valueB)
-            : Number(valueB) - Number(valueA);
-        });
-      }
-
-      // Calculate pagination
-      const startIdx = page * size;
-      const endIdx = startIdx + size;
-      const paginatedTutors = filteredTutors.slice(startIdx, endIdx);
-
-      const response: PaginatedResponse<Tutor> = {
-        content: paginatedTutors,
-        last: endIdx >= filteredTutors.length,
-        totalElements: filteredTutors.length,
-        totalPages: Math.ceil(filteredTutors.length / size),
-        size: size,
-        number: page,
-        first: page === 0,
-        empty: paginatedTutors.length === 0
-      };
-
-      // Cache the result
-      this.cache[cacheKey] = response;
-      return response;
-
-    } else {
-      // Use real API
-      const response = await this.fetchPaginated<Tutor, TutorFilterParams>(
-        '/tutors',
-        page,
-        size,
-        filters,
-        sort,
-        search
-      );
-
-      // Cache the result
-      this.cache[cacheKey] = response;
-      return response;
-    }
-  }
-
-  // Get individual tutor by ID (keep existing implementation)
-  async getTutorById(id: number): Promise<Tutor | null> {
-    if (this.dataSource === DataSource.MOCK) {
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      if (id === 1) {
-        return JSON.parse(JSON.stringify(mockGoryachev));
-      }
-
-      const tutor = mockTutors.find(t => t.id === id);
-      return tutor ? JSON.parse(JSON.stringify(tutor)) : null;
-    } else {
-      try {
-        const response = await fetch(`${this.baseUrl}/tutors/${id}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch tutor with ID ${id}`);
-        }
-        return await response.json();
-      } catch (error) {
-        console.error('Error fetching tutor:', error);
-        return null;
-      }
-    }
-  }
-
-  // For backward compatibility with existing code
-  async getTutorsByPage(page: number, itemsPerPage: number): Promise<Tutor[]> {
-    const response = await this.getTutors(page - 1, itemsPerPage);
-    return response.content;
-  }
+export interface DropdownOption {
+  id: string;
+  name: string;
 }
 
-// Create singleton instance
-export const tutorService = new TutorService();
+// ====== MOCK DATA ======
 
-// Similarly enhanced services can be created for ClubService and StudyMaterialService
-// following the same pattern but with their specific filter parameters
+// Mock clubs data
+const mockClubs = Array.from({ length: 30 }, (_, index) => {
+  const subjects = [
+    'Математика', 'Информатика', 'Инженерия', 'Искусство',
+    'Киберспорт', 'Астрономия', 'Физика', 'Химия'
+  ];
+
+  const organizers = [
+    'Студенческий совет', 'Научное сообщество', 'Кафедра информатики',
+    'Кафедра физики', 'Кафедра математики', 'Спортивный клуб'
+  ];
+
+  const subject = subjects[index % subjects.length];
+  const organizer = organizers[Math.floor(index / 5) % organizers.length];
+
+  return {
+    id: index + 1,
+    name: `Кружок ${subject}`,
+    description: `Описание кружка ${subject}`,
+    image: `/assets/clubs/club${(index % 5) + 1}.jpg`,
+    tags: [subject, organizer],
+    memberCount: Math.floor(Math.random() * 80) + 20,
+    department: `Кафедра №${Math.floor(Math.random() * 50) + 1}`,
+    subject,
+    organizer
+  };
+});
+
+// Mock study materials data
+const mockMaterials = Array.from({ length: 50 }, (_, index) => {
+  const types = ['Теория', 'КР', 'Лаба', 'БДЗ', 'Зачет', 'Экзамен'];
+  const semesters = ['1 сем', '2 сем', '3 сем', '4 сем', '5 сем', '6 сем'];
+  const teachers = ['Иванов И.И.', 'Петров П.П.', 'Сидоров С.С.', 'Кузнецова К.К.'];
+  const subjects = ['Математика', 'Физика', 'Информатика', 'Программирование'];
+  const institutes = ['ИЯФИТ', 'ЛаПлаз', 'ИФИБ', 'ИИКС', 'ИФТИС'];
+
+  const type = types[index % types.length];
+  const semester = semesters[Math.floor(index / 8) % semesters.length];
+  const teacher = teachers[Math.floor(index / 6) % teachers.length];
+  const subject = subjects[Math.floor(index / 4) % subjects.length];
+  const institute = institutes[Math.floor(index / 10) % institutes.length];
+
+  return {
+    id: index + 1,
+    title: `${subject} - ${type}`,
+    description: `${type} по предмету "${subject}" для студентов ${institute}`,
+    tags: [type, teacher, subject, semester],
+    telegramLink: `https://t.me/c/1234567890/${index + 1}`,
+    type,
+    semester,
+    teacher,
+    institute,
+    subject
+  };
+});
+
+/**
+ * Filter array with search text
+ * Improved implementation that works with any nested object structure
+ */
+function applyTextSearch<T>(data: T[], search: string): T[] {
+  if (!search || search.trim() === '') return data;
+
+  const searchLower = search.toLowerCase().trim();
+
+  // Function to check if an object contains the search term
+  const containsSearchTerm = (obj: any): boolean => {
+    if (!obj) return false;
+
+    // Check if it's a string and contains the search term
+    if (typeof obj === 'string') {
+      return obj.toLowerCase().includes(searchLower);
+    }
+
+    // If it's an array, check each element
+    if (Array.isArray(obj)) {
+      return obj.some(item => containsSearchTerm(item));
+    }
+
+    // If it's an object, check each property
+    if (typeof obj === 'object') {
+      return Object.values(obj).some(value => containsSearchTerm(value));
+    }
+
+    return false;
+  };
+
+  return data.filter(item => containsSearchTerm(item));
+}
+
+/**
+ * Generate mock paginated response from array
+ */
+function createMockPaginatedResponse<T>(
+  data: T[],
+  filter: Record<string, any>,
+  itemsPerPage: number = 20
+): PaginatedResponse<T> {
+  const { search, cursor } = filter;
+  let filteredData = [...data];
+
+  // Apply text search across all properties
+  if (search && typeof search === 'string' && search.trim() !== '') {
+    filteredData = applyTextSearch(filteredData, search);
+  }
+
+  // Apply specific filters for each entity type
+  if ('department' in filter && filter.department) {
+    filteredData = filteredData.filter(item =>
+      // @ts-ignore - We know tutors have department
+      item.department && item.department.includes(filter.department)
+    );
+  }
+
+  // Club filters
+  if ('organizer' in filter && filter.organizer) {
+    filteredData = filteredData.filter((item: any) =>
+      item.organizer === filter.organizer
+    );
+  }
+
+  if ('subject' in filter && filter.subject) {
+    filteredData = filteredData.filter((item: any) =>
+      item.subject === filter.subject
+    );
+  }
+
+  // Material filters
+  if ('type' in filter && filter.type) {
+    filteredData = filteredData.filter((item: any) =>
+      item.type === filter.type
+    );
+  }
+
+  if ('teacher' in filter && filter.teacher) {
+    filteredData = filteredData.filter((item: any) =>
+      item.teacher === filter.teacher
+    );
+  }
+
+  if ('semester' in filter && filter.semester) {
+    filteredData = filteredData.filter((item: any) =>
+      item.semester === filter.semester
+    );
+  }
+
+  if ('institute' in filter && filter.institute) {
+    filteredData = filteredData.filter((item: any) =>
+      item.institute === filter.institute
+    );
+  }
+
+  // Handle cursor-based pagination
+  let startIndex = 0;
+  if (cursor) {
+    startIndex = parseInt(cursor, 10);
+    if (isNaN(startIndex)) startIndex = 0;
+  }
+
+  const endIndex = startIndex + (filter.limit || itemsPerPage);
+  const items = filteredData.slice(startIndex, endIndex);
+  const nextCursor = endIndex < filteredData.length ? endIndex.toString() : null;
+
+  console.log(`Filter applied: ${JSON.stringify(filter)}`);
+  console.log(`Items found: ${filteredData.length}, returning ${items.length} items`);
+
+  return {
+    items,
+    nextCursor,
+    total: filteredData.length
+  };
+}
+
+// ====== SEARCH AND FILTER FUNCTIONS ======
+
+/**
+ * Get filtered tutors list
+ */
+export const getTutors = async (filter: Record<string, any> = {}): Promise<PaginatedResponse<any>> => {
+  if (currentDataSource === DataSource.MOCK) {
+    console.log('Getting tutors with filter:', filter);
+    return createMockPaginatedResponse(mockTutors, filter);
+  }
+
+  const url = new URL(`${API_BASE_URL}/api/tutors`);
+
+  // Add filter parameters
+  Object.entries(filter).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, String(value));
+    }
+  });
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Failed to fetch tutors: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get filtered departments list
+ */
+export const getDepartments = async (filter: Record<string, any> = {}): Promise<PaginatedResponse<any>> => {
+  if (currentDataSource === DataSource.MOCK) {
+    console.log('Getting departments with filter:', filter);
+    return createMockPaginatedResponse(mockDepartments, filter);
+  }
+
+  const url = new URL(`${API_BASE_URL}/api/departments`);
+
+  // Add filter parameters
+  Object.entries(filter).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, String(value));
+    }
+  });
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Failed to fetch departments: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get filtered clubs list
+ */
+export const getClubs = async (filter: Record<string, any> = {}): Promise<PaginatedResponse<any>> => {
+  if (currentDataSource === DataSource.MOCK) {
+    console.log('Getting clubs with filter:', filter);
+    return createMockPaginatedResponse(mockClubs, filter);
+  }
+
+  const url = new URL(`${API_BASE_URL}/api/clubs`);
+
+  // Add filter parameters
+  Object.entries(filter).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, String(value));
+    }
+  });
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Failed to fetch clubs: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get filtered materials list
+ */
+export const getMaterials = async (filter: Record<string, any> = {}): Promise<PaginatedResponse<any>> => {
+  if (currentDataSource === DataSource.MOCK) {
+    console.log('Getting materials with filter:', filter);
+    return createMockPaginatedResponse(mockMaterials, filter);
+  }
+
+  const url = new URL(`${API_BASE_URL}/api/materials`);
+
+  // Add filter parameters
+  Object.entries(filter).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, String(value));
+    }
+  });
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Failed to fetch materials: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+// ====== DROPDOWN OPTIONS ======
+
+/**
+ * Get department options for dropdown
+ */
+export const getDepartmentOptions = async (): Promise<{ items: DropdownOption[] }> => {
+  if (currentDataSource === DataSource.MOCK) {
+    // Create options from mock departments
+    const options = mockDepartments.map(dept => ({
+      id: dept.number,
+      name: `${dept.number} ${dept.name}`
+    }));
+
+    return { items: options };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/departments/options`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch department options: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get club organizers for dropdown
+ */
+export const getClubOrganizers = async (): Promise<{ items: DropdownOption[] }> => {
+  if (currentDataSource === DataSource.MOCK) {
+    const uniqueOrganizers = Array.from(new Set(
+      mockClubs.map(club => club.organizer)
+    )).sort();
+
+    const options = uniqueOrganizers.map(org => ({
+      id: org,
+      name: org
+    }));
+
+    return { items: options };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/clubs/organizers`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch club organizers: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get club subjects for dropdown
+ */
+export const getClubSubjects = async (): Promise<{ items: DropdownOption[] }> => {
+  if (currentDataSource === DataSource.MOCK) {
+    const uniqueSubjects = Array.from(new Set(
+      mockClubs.map(club => club.subject)
+    )).sort();
+
+    const options = uniqueSubjects.map(subject => ({
+      id: subject,
+      name: subject
+    }));
+
+    return { items: options };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/clubs/subjects`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch club subjects: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get material types for dropdown
+ */
+export const getMaterialTypes = async (): Promise<{ items: DropdownOption[] }> => {
+  if (currentDataSource === DataSource.MOCK) {
+    const uniqueTypes = Array.from(new Set(
+      mockMaterials.map(mat => mat.type)
+    )).sort();
+
+    const options = uniqueTypes.map(type => ({
+      id: type,
+      name: type
+    }));
+
+    return { items: options };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/materials/types`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch material types: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get teachers for dropdown
+ */
+export const getMaterialTeachers = async (): Promise<{ items: DropdownOption[] }> => {
+  if (currentDataSource === DataSource.MOCK) {
+    const uniqueTeachers = Array.from(new Set(
+      mockMaterials.map(mat => mat.teacher)
+    )).sort();
+
+    const options = uniqueTeachers.map(teacher => ({
+      id: teacher,
+      name: teacher
+    }));
+
+    return { items: options };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/materials/teachers`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch material teachers: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get subjects for dropdown
+ */
+export const getMaterialSubjects = async (): Promise<{ items: DropdownOption[] }> => {
+  if (currentDataSource === DataSource.MOCK) {
+    const uniqueSubjects = Array.from(new Set(
+      mockMaterials.map(mat => mat.subject)
+    )).sort();
+
+    const options = uniqueSubjects.map(subject => ({
+      id: subject,
+      name: subject
+    }));
+
+    return { items: options };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/materials/subjects`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch material subjects: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get semesters for dropdown
+ */
+export const getMaterialSemesters = async (): Promise<{ items: DropdownOption[] }> => {
+  if (currentDataSource === DataSource.MOCK) {
+    const uniqueSemesters = Array.from(new Set(
+      mockMaterials.map(mat => mat.semester)
+    )).sort();
+
+    const options = uniqueSemesters.map(semester => ({
+      id: semester,
+      name: semester
+    }));
+
+    return { items: options };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/materials/semesters`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch material semesters: ${response.status}`);
+  }
+
+  return await response.json();
+};

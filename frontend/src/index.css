@@ -11,7 +11,7 @@ body {
 }
 
 .tgui-0f5050defacbf813 {
-  /* padding: var(--input-padding, 10px); */
+  padding: var(--input-padding, 10px);
   transition: padding 0.3s ease-in-out;
 }
 
@@ -186,4 +186,37 @@ button,
 .contact-info-value {
   word-break: break-word;
   overflow-wrap: anywhere;
+}
+
+/* ======================================
+   FilterDropdown Styles
+   ====================================== */
+/* FilterDropdown CSS */
+.filter-dropdown {
+  position: relative;
+  width: 100%;
+  z-index: 100; /* Ensure it appears above other elements */
+}
+
+.filter-dropdown .dropdown-options {
+  position: absolute;
+  width: 100%;
+  z-index: 1000;
+  background: var(--tgui--bg_color);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Fix z-index for the entire SearchPanel */
+[data-searchpanel] {
+  z-index: 200 !important;
+}
+
+/* Make sure filter buttons are fully clickable */
+.filter-dropdown button {
+  width: 100%;
+  z-index: 10;
 }

@@ -4,6 +4,7 @@ import { Navigate, Route, Routes, HashRouter } from 'react-router-dom';
 
 import { routes } from '@/navigation/routes.tsx';
 import { ScrollReset } from '@/components/common/ScrollReset';
+import { FilterProvider } from '@/contexts/FilterContext';
 
 export function App() {
     const lp = retrieveLaunchParams();
@@ -17,14 +18,16 @@ export function App() {
             appearance={isDark?.valueOf() ? 'dark' : 'light'}
             platform='ios'
         >
-            <HashRouter>
-                {/* ScrollReset needs to be inside the Router context */}
-                <ScrollReset />
-                <Routes>
-                    {routes.map((route) => <Route key={route.path} {...route} />)}
-                    <Route path="*" element={<Navigate to="/study/tutors"/>}/>
-                </Routes>
-            </HashRouter>
+            <FilterProvider>
+                <HashRouter>
+                    {/* ScrollReset needs to be inside the Router context */}
+                    <ScrollReset />
+                    <Routes>
+                        {routes.map((route) => <Route key={route.path} {...route} />)}
+                        <Route path="*" element={<Navigate to="/study/info"/>}/>
+                    </Routes>
+                </HashRouter>
+            </FilterProvider>
         </AppRoot>
     );
 }

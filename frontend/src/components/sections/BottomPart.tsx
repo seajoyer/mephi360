@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SearchPanel } from '@/components/layout/SearchPanel';
 import { SectionContent } from '@/components/sections/SectionContent';
 import { Navigation } from '@/components/layout/Navigation';
+import { useFilters } from '@/contexts/FilterContext';
 
 interface BottomPartProps {
     activeSection: string;
@@ -9,13 +10,20 @@ interface BottomPartProps {
 }
 
 export const BottomPart: React.FC<BottomPartProps> = ({ activeSection, onSectionChange }) => {
-    // State for the selected institute
+    // State for the selected institute (for stuff section)
     const [activeInstitute, setActiveInstitute] = useState<string | null>(null);
 
+    // Access filter context
+    const { stuffFilters, setStuffInstitute } = useFilters();
+
+    // Handler for institute change
+    const handleInstituteChange = (institute: string | null) => {
+        setActiveInstitute(institute);
+        setStuffInstitute(institute);
+    };
+
     return (
-        <div
-            className='px-1'
-        >
+        <>
             <Navigation
                 activeSection={activeSection}
                 onSectionChange={onSectionChange}
@@ -23,7 +31,7 @@ export const BottomPart: React.FC<BottomPartProps> = ({ activeSection, onSection
             <SearchPanel
                 activeSection={activeSection}
                 activeInstitute={activeSection === 'stuff' ? activeInstitute : null}
-                onInstituteChange={setActiveInstitute}
+                onInstituteChange={handleInstituteChange}
             />
             <SectionContent
                 activeSection={activeSection}
@@ -31,6 +39,6 @@ export const BottomPart: React.FC<BottomPartProps> = ({ activeSection, onSection
                 className="flex-1"
                 activeInstitute={activeSection === 'stuff' ? activeInstitute : null}
             />
-        </div>
+        </>
     );
 };

@@ -7,14 +7,25 @@ interface StuffBannerProps {
     description: string;
     tags?: string[];
     telegramLink: string; // URL to the telegram message
+    onTagClick?: (tag: string) => void;
 }
 
 export const StuffBanner: React.FC<StuffBannerProps> = ({
     title,
     description,
     tags = [],
-    telegramLink
+    telegramLink,
+    onTagClick
 }) => {
+    // Handler for tag click
+    const handleTagClick = (e: React.MouseEvent, tag: string) => {
+        e.preventDefault(); // Prevent navigation to telegramLink
+        e.stopPropagation(); // Prevent event bubbling
+        if (onTagClick) {
+            onTagClick(tag);
+        }
+    };
+
     return (
         <Section className="overflow-hidden">
             <Link to={telegramLink} className="block">
@@ -38,9 +49,13 @@ export const StuffBanner: React.FC<StuffBannerProps> = ({
 
                         <div className="mt-3">
                             <div className="flex flex-wrap gap-2">
-                                {/* Display only filter values as chips */}
+                                {/* Display tags as chips with click handler */}
                                 {tags.map((tag, index) => (
-                                    <Chip key={index} mode="outline">
+                                    <Chip
+                                        key={index}
+                                        mode="outline"
+                                        onClick={(e) => handleTagClick(e, tag)}
+                                    >
                                         <Subheadline level="2" weight="3">
                                             {tag}
                                         </Subheadline>

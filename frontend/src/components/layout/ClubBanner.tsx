@@ -8,6 +8,7 @@ interface ClubBannerProps {
     imageSrc: string;
     tags?: string[];
     onNavigate?: () => void;
+    onTagClick?: (tag: string) => void;
     buttonText?: string;
 }
 
@@ -17,6 +18,7 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
     imageSrc,
     tags = [],
     onNavigate,
+    onTagClick,
     buttonText = 'Перейти'
 }) => {
     const [expanded, setExpanded] = useState(false);
@@ -31,6 +33,14 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
 
     const handleToggle = () => {
         setExpanded(!expanded);
+    };
+
+    // Handler for tag click
+    const handleTagClick = (e: React.MouseEvent, tag: string) => {
+        e.stopPropagation(); // Prevent container toggle
+        if (onTagClick) {
+            onTagClick(tag);
+        }
     };
 
     return (
@@ -74,7 +84,11 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
                         <div className="flex flex-wrap gap-2 pr-10 relative">
                             {/* Display only filter values as chips */}
                             {tags.map((tag, index) => (
-                                <Chip key={index} mode="outline">
+                                <Chip
+                                    key={index}
+                                    mode="outline"
+                                    onClick={(e) => handleTagClick(e, tag)}
+                                >
                                     <Subheadline level="2" weight="3">
                                         {tag}
                                     </Subheadline>
