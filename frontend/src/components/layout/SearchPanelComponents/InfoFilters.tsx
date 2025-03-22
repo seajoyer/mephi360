@@ -24,8 +24,8 @@ export const InfoFilters: React.FC<InfoFiltersProps> = ({
     <div
       ref={containerRef}
       className={`
-        ${disableTransition ? "" : "transition-opacity duration-200"}
-        flex w-full relative z-50
+        ${disableTransition && "transition-opacity duration-200"}
+        flex
       `}
       style={{
         opacity: isVisible ? 1 : 0,

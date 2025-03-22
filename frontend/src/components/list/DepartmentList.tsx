@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Section, Cell, Avatar, Divider } from '@telegram-apps/telegram-ui';
 import { Icon16Chevron_right } from '@/icons/16/chevron_right';
-import { Icon24Addhome } from '@/icons/24/addhome';
+import { Icon24Home } from '@/icons/24/home';
 import { Link } from '@/components/common/Link';
 import { getDepartments } from '@/services/apiService';
 
@@ -164,12 +164,12 @@ export const DepartmentList: React.FC<DepartmentsListProps> = ({
                   <Avatar
                     size={40}
                     src={`/assets/departments/department${department.id % 5 + 1}.jpg`}
-                    fallbackIcon={<span><Icon24Addhome /></span>}
+                    fallbackIcon={<span><Icon24Home /></span>}
                   />
                 }
                 after={
                   <Icon16Chevron_right
-                    style={{color: 'var(--tg-theme-link-color)'}}
+                    style={{color: 'var(--tgui--hint_color)'}}
                   />
                 }
                 description={department.name}

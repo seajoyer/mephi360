@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Section, Cell, Avatar, Divider } from '@telegram-apps/telegram-ui';
 import { Icon16Chevron_right } from '@/icons/16/chevron_right';
-import { Icon28Heart_fill } from '@/icons/28/heart_fill';
+import { Icon24Tutor } from '@/icons/24/tutor';
 import { Link } from '@/components/common/Link';
 import { getTutors } from '@/services/apiService';
 
@@ -170,12 +170,12 @@ export const TutorsList: React.FC<TutorsListProps> = ({
                                     <Avatar
                                         size={40}
                                         src={`/assets/tutors/${tutor.imageFileName}`}
-                                        fallbackIcon={<span><Icon28Heart_fill /></span>}
+                                        fallbackIcon={<span><Icon24Tutor /></span>}
                                     />
                                 }
                                 after={
                                     <Icon16Chevron_right
-                                        style={{color: 'var(--tg-theme-link-color)'}}
+                                        style={{ color: 'var(--tgui--hint_color)' }}
                                     />
                                 }
                                 description={tutor.department}
