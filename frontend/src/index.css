@@ -11,7 +11,7 @@ body {
 }
 
 .tgui-0f5050defacbf813 {
-  padding: var(--input-padding, 10px);
+  /* padding: var(--input-padding, 10px); */
   transition: padding 0.3s ease-in-out;
 }
 

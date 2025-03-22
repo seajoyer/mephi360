@@ -1,0 +1,24 @@
+import { _ as _extends } from "@swc/helpers/_/_extends";
+import { _ as _object_destructuring_empty } from "@swc/helpers/_/_object_destructuring_empty";
+import { _ as _object_spread } from "@swc/helpers/_/_object_spread";
+import { _ as _object_spread_props } from "@swc/helpers/_/_object_spread_props";
+import { jsx as _jsx } from "react/jsx-runtime";
+
+export const Icon24Channel_fill = (_param) => {
+  var restProps = _extends({}, _object_destructuring_empty(_param));
+  return /*#__PURE__*/ _jsx("svg", _object_spread_props(_object_spread({
+    width: "24",
+    height: "24",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg"
+  }, restProps), {
+    children: /*#__PURE__*/ _jsx("path", {
+      fillRule: "evenodd",
+      clipRule: "evenodd",
+      d: "M7.76471 15.2358H10.244C10.4771 15.2358 10.5936 15.2358 10.707 15.2445C11.2309 15.2843 11.7359 15.4611 12.1734 15.7581C12.2681 15.8223 12.3601 15.8953 12.544 16.0413L14.7341 17.7801C16.4239 19.1216 17.2688 19.7923 17.9781 19.7862C18.5952 19.7808 19.1767 19.4905 19.5597 18.9966C20 18.4288 20 17.3363 20 15.1512V7.63498C20 5.44991 20 4.35737 19.5597 3.78961C19.1767 3.29571 18.5952 3.0054 17.9781 3.00004C17.2688 2.99388 16.4239 3.66464 14.7341 5.00615L12.5441 6.74484C12.3602 6.89082 12.2681 6.96393 12.1734 7.02816C11.7359 7.32507 11.2309 7.50195 10.707 7.54175C10.5936 7.55037 10.4771 7.55037 10.244 7.55037H7.76471C5.68552 7.55037 4 9.27082 4 11.3931C4 13.5154 5.68552 15.2358 7.76471 15.2358ZM7.82383 17.2034C7.76432 17.3733 7.76432 17.5851 7.76432 18.0086V19.0786C7.76432 20.1398 8.60708 21 9.64668 21C10.6863 21 11.529 20.1398 11.529 19.0786V18.0086C11.529 17.5851 11.529 17.3733 11.4695 17.2034C11.3667 16.9097 11.1403 16.6787 10.8526 16.5737C10.6862 16.513 10.4787 16.513 10.0637 16.513H9.22963C8.81465 16.513 8.60717 16.513 8.44072 16.5737C8.15305 16.6787 7.92666 16.9097 7.82383 17.2034Z",
+      fill: "currentColor"
+    })
+  }));
+};
+
+//# sourceMappingURL=channel_fill.js.map

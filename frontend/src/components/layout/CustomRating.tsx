@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Icon24Star_fill } from '@/icons/24/star_fill';
+import { Icon24Alt_star_fill } from '@/icons/24/alt_star_fill';
 
 type PrecisionType = 0.25 | 0.5 | 1;
 
@@ -75,7 +75,7 @@ export const CustomRating: React.FC<CustomRatingProps> = ({
                         }}
                     >
                         {/* Base star (empty) */}
-                        <Icon24Star_fill />
+                        <Icon24Alt_star_fill />
 
                         {/* Filled overlay with clip-path for partial fills - always render for smooth transitions */}
                         <div
@@ -88,7 +88,7 @@ export const CustomRating: React.FC<CustomRatingProps> = ({
                                 opacity: fillPercent > 0 ? 1 : 0 // Instead of conditional rendering, use opacity
                             }}
                         >
-                            <Icon24Star_fill />
+                            <Icon24Alt_star_fill />
                         </div>
 
                         {/* Clickable areas for precision ratings - only render if not disabled */}

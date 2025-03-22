@@ -245,7 +245,7 @@ export const RatingLayout: React.FC<RatingLayoutProps> = ({
                     </div>
 
                     {/* Rating display row */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex mt-1 items-center justify-between">
                         <CustomRating
                             value={
                                 isRatingMode && !nonEditable

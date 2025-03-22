@@ -9,9 +9,11 @@ import {
     Title,
     Section,
     Divider,
+    Select,
+    Textarea,
 } from '@telegram-apps/telegram-ui';
 import { Icon24Discussion_fill } from '@/icons/24/discussion_fill';
-import { Icon24Home } from '@/icons/24/home';
+import { Icon24Addhome } from '@/icons/24/addhome';
 import { Icon20Copy } from '@/icons/20/copy';
 import { Icon20Check } from '@/icons/20/check';
 import { copyTextToClipboard } from '@telegram-apps/sdk-react';
@@ -32,6 +34,8 @@ import {
     ActionButtons
 } from '@/components/layout/SharedEntityComponents';
 import { Icon24Channel_fill } from '@/icons/24/channel_fill';
+import { Icon24Plus } from '@/icons/24/plus';
+import { Icon20Questionmark } from '@/icons/20/questionmark';
 
 // Calculate average rating across all categories
 const calculateMeanRating = (categoryRatings: { [key: string]: number }): number => {
@@ -206,141 +210,52 @@ export const DepartmentPage: React.FC = () => {
                     <div className="entity-page-non-interactive">
                         <Cell
                             className="-mx-2 entity-page-non-interactive"
-                            subtitle={department.name}
-                            multiline
-                            after={
-                                <Image
-                                    size={60}
-                                    src={`/assets/departments/${department.imageFileName}`}
-                                    style={{ backgroundColor: 'var(--tgui--section_bg_color)' }}
-                                    fallbackIcon={<Icon24Home />}
-                                />
-                            }
                         >
                             <Title weight="1">
-                                Кафедра {department.number}
+                                Добавить
                             </Title>
                         </Cell>
                     </div>
 
-                    {/* Rating and department head */}
-                    <Section>
-                        <div className="entity-page-non-interactive" style={{ position: 'relative' }}>
-                            <CustomCell
-                                className="entity-page-non-interactive"
-                                subhead="Локация"
-                                rightSubhead="Рейтинг"
-                                after={
-                                    <RatingDisplay rating={department.ratings.overallRating} />
-                                }
-                            >
-                                <Title level="3" weight="1">
-                                    {department.contactInfo?.location}
-                                </Title>
-                            </CustomCell>
+                    <Select
+                    >
+                        <option>Преподавателя</option>
+                        <option>Кафедру</option>
+                        <option>Кружок</option>
+                    </Select>
 
-                            {/* Action buttons */}
-                            <ActionButtons
-                                primaryAction={{
-                                    label: "Отзывы",
-                                    icon: <Icon24Discussion_fill />,
-                                    onClick: handleReviewsClick
-                                }}
-                                secondaryAction={{
-                                    label: "Канал",
-                                    icon: <Icon24Channel_fill />,
-                                    onClick: handleWebsiteClick
-                                }}
-                            />
-                        </div>
-                    </Section>
-
-                    {/* Ratings section */}
                     <Section
-                        className="entity-page-smooth-accordion"
+                        header="ФИО"
                     >
-                        <RatingAccordion
-                            expanded={expandedAccordions.ratings}
-                            onToggle={() => toggleAccordion('ratings')}
-                            entityId={department.id}
-                            categoryRatings={department.ratings.categoryRatings}
-                            totalRaters={department.ratings.totalRaters}
-                            onRatingChange={handleRatingChange}
-                            categories={DEPARTMENT_RATING_CATEGORIES}
-                            entityType="department"
+                        <Textarea
+                            placeholder="Иванов Иван Иванович"
                         />
-
-                        <Divider />
-
-                        {/* Staff listing */}
-                        {department.staff && department.staff.length > 0 && (
-                            <StaffAccordion
-                                expanded={expandedAccordions.staff}
-                                onToggle={() => toggleAccordion('staff')}
-                                staff={department.staff}
-                                onViewAllStaff={handleStaffClick}
-                            />
-                        )}
                     </Section>
 
-                    {/* Contact Information */}
-                    <Section header="Контактная информация">
-                        {department.contactInfo?.email && (
-                            <>
-                                <Cell
-                                    subhead="Email:"
-                                    className="contact-info-value"
-                                    after={
-                                        copiedField === 'email' ? (
-                                            <Icon20Check
-                                                style={{ color: `var(--tgui--accent_text_color)` }}
-                                            />
-                                        ) : (
-                                            <Icon20Copy
-                                                style={{ color: `var(--tgui--subtitle_text_color)` }}
-                                            />
-                                        )
-                                    }
-                                    multiline
-                                    onClick={() => handleCopy("secretary@theor.mephi.ru", 'email')}
-                                >
-                                    {department.contactInfo.email}
-                                </Cell>
-                                <Divider />
-                            </>
-                        )}
-
-                        {department.contactInfo?.phone && (
-                            <Cell
-                                subhead="Телефон:"
-                                className="contact-info-value"
-                                after={
-                                    copiedField === 'phone' ? (
-                                        <Icon20Check
-                                            style={{ color: `var(--tgui--accent_text_color)` }}
-                                        />
-                                    ) : (
-                                        <Icon20Copy
-                                            style={{ color: `var(--tgui--subtitle_text_color)` }}
-                                        />
-                                    )
-                                }
-                                multiline
-                                onClick={() => handleCopy(department.contactInfo?.phone || '', 'phone')}
-                            >
-                                {department.contactInfo.phone}
-                            </Cell>
-                        )}
-                    </Section>
-
-                    <Button
-                        className="w-full mb-6"
-                        mode="plain"
-                        size="m"
-                        onClick={handleShare}
+                    <Section
+                        header="Кафедра"
                     >
-                        Поделиться
-                    </Button>
+                        <Select
+                        >
+                            <option>№1</option>
+                            <option>№2</option>
+                            <option>№3</option>
+                            <option>№4</option>
+                            <option>№5</option>
+                            <option>№6</option>
+                            <option>№7</option>
+                            <option>№8</option>
+                            <option>№9</option>
+                        </Select>
+                    </Section>
+
+                    <Section
+                        header="Подтверждающая ссылка"
+                    >
+                        <Textarea
+                            placeholder="home.mephi.ru/..."
+                        />
+                    </Section>
                 </List>
             </div>
         </Page>
