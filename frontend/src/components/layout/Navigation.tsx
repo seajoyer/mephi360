@@ -4,11 +4,12 @@ import { InlineButtonsItem } from '@telegram-apps/telegram-ui/dist/components/Bl
 import { Icon24Largegroup } from '@/icons/24/largegroup';
 import { Icon24Folder } from '@/icons/24/folder';
 import { Icon24Lightbulb } from '@/icons/24/lightbulb';
+import { Icon24Plus } from '@/icons/24/plus';
+import { Icon24Edit } from '@/icons/24/edit';
 
 export const SECTIONS = [
-    { id: 'info', text: 'Инфа', icon: Icon24Lightbulb, mode: 'bezeled' },
-    { id: 'clubs', text: 'Кружки', icon: Icon24Largegroup, mode: 'gray' },
-    { id: 'stuff', text: 'Материалы', icon: Icon24Folder, mode: 'gray' }
+    { id: 'add', text: 'Дополнить', icon: Icon24Plus, mode: 'bezeled' },
+    { id: 'edit', text: 'Править', icon: Icon24Edit, mode: 'gray' },
 ] as const;
 
 interface NavigationProps {
@@ -31,7 +32,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                     <InlineButtonsItem
                         key={id}
                         text={text}
-                        mode={activeSection === id ? 'bezeled' : 'plain'}
+                        mode={'plain'}
                         onClick={() => onSectionChange(id)}
                     >
                         <Icon />

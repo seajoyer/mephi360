@@ -25,6 +25,7 @@ export const TopButtons: FC = () => {
                 size="s"
                 style={{
                     position: 'absolute',
+                    display: 'flex',
                     left: 0,
                     top: '50%',
                     transform: 'translateY(-50%)'
@@ -37,7 +38,8 @@ export const TopButtons: FC = () => {
             <SegmentedControl
                 style={{
                     width: 'calc(100% - 150px)',
-                    minWidth: '190px'
+                    minWidth: '190px',
+                    opacity: 0
                 }}
             >
                 <SegmentedControlItem

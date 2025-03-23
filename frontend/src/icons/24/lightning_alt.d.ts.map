@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "lightning_alt.d.ts",
+  "sourceRoot": "",
+  "sources": [
+    "../../../src/icons/24/lightning_alt.tsx"
+  ],
+  "names": [],
+  "mappings": ";AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,YAAY,CAAC;AAElC,eAAO,MAAM,iBAAiB,qBAAsB,IAAI,gBAMvD,CAAC"
+}

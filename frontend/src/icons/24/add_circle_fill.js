@@ -4,7 +4,7 @@ import { _ as _object_spread } from "@swc/helpers/_/_object_spread";
 import { _ as _object_spread_props } from "@swc/helpers/_/_object_spread_props";
 import { jsx as _jsx } from "react/jsx-runtime";
 
-export const Icon24Plus = (_param) => {
+export const Icon24Add_circle_fill = (_param) => {
   var restProps = _extends({}, _object_destructuring_empty(_param));
   return /*#__PURE__*/ _jsx("svg", _object_spread_props(_object_spread({
     width: "24",
@@ -15,10 +15,10 @@ export const Icon24Plus = (_param) => {
     children: /*#__PURE__*/ _jsx("path", {
       fillRule: "evenodd",
       clipRule: "evenodd",
-      d: "M2.5 12.0695C2.49672 11.5741 2.89568 11.1698 3.39112 11.1665L11.1088 11.1087L11.1666 3.39114C11.1699 2.8957 11.5742 2.49674 12.0696 2.50002C12.565 2.5033 12.964 2.90759 12.9607 3.40303L12.9031 11.0968L20.597 11.0393C21.0924 11.036 21.4967 11.435 21.5 11.9304C21.5033 12.4259 21.1043 12.8302 20.6089 12.8334L12.8912 12.8911L12.8334 20.6089C12.8301 21.1043 12.4259 21.5033 11.9304 21.5C11.435 21.4967 11.036 21.0924 11.0393 20.597L11.0969 12.903L3.40301 12.9606C2.90757 12.9639 2.50328 12.5649 2.5 12.0695Z",
+      d: "M12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23ZM12.9 7C12.9 6.50294 12.4971 6.1 12 6.1C11.5029 6.1 11.1 6.50294 11.1 7V11.1H7C6.50294 11.1 6.1 11.5029 6.1 12C6.1 12.4971 6.50294 12.9 7 12.9H11.1V17C11.1 17.4971 11.5029 17.9 12 17.9C12.4971 17.9 12.9 17.4971 12.9 17V12.9H17C17.4971 12.9 17.9 12.4971 17.9 12C17.9 11.5029 17.4971 11.1 17 11.1H12.9V7Z",
       fill: "currentColor"
     })
   }));
 };
 
-//# sourceMappingURL=plus.js.map
+//# sourceMappingURL=add_circle_fill.js.map
