@@ -2,28 +2,29 @@ import { SegmentedControl, IconButton, Subheadline } from '@telegram-apps/telegr
 import { SegmentedControlItem } from "@telegram-apps/telegram-ui/dist/components/Navigation/SegmentedControl/components/SegmentedControlItem/SegmentedControlItem";
 import type { FC } from 'react';
 
-/* import { Link } from '@/components/Link/Link.tsx'; */
-
 import { Icon24Channel } from '@/icons/24/channel';
-import { Icon24Support } from '@/icons/24/support';
-import { Icon24Laplas } from '@/icons/24/laplas';
+import { Icon24Iiks } from '@/icons/24/iiks';
 
 export const TopButtons: FC = () => {
     return (
-        <div style={{
+        <div
+        style={{
+            marginTop: '8px',
             position: 'relative',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             width: '100%',
             boxSizing: 'border-box',
-        }}>
+        }}
+        >
 
             {/* Left IconButton */}
             <IconButton
                 mode="gray"
                 size="s"
                 style={{
+                    marginLeft: '8px',
                     position: 'absolute',
                     display: 'flex',
                     left: 0,
@@ -31,15 +32,15 @@ export const TopButtons: FC = () => {
                     transform: 'translateY(-50%)'
                 }}
             >
-                <Icon24Laplas />
+                <Icon24Iiks />
             </IconButton>
 
             {/* Centered SegmentedControl */}
             <SegmentedControl
                 style={{
                     width: 'calc(100% - 150px)',
+                    opacity: 0,
                     minWidth: '190px',
-                    opacity: 0
                 }}
             >
                 <SegmentedControlItem
@@ -69,6 +70,7 @@ export const TopButtons: FC = () => {
                 mode="gray"
                 size="s"
                 style={{
+                    marginRight: '8px',
                     position: 'absolute',
                     right: 0,
                     top: '50%',

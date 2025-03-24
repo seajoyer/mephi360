@@ -46,7 +46,7 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
     return (
         <Section className="overflow-hidden">
             <div onClick={handleToggle} className="block cursor-pointer">
-                <div className="p-4 transition-all duration-300 ease-in-out">
+                <div className="p-4 transition-all duration-200 ease-in-out">
                     <div className="flex items-start justify-between">
                         <div className="flex-1 pr-3">
                             <div className='mb-0.25'>
@@ -56,7 +56,7 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
                             </div>
                             <div
                                 ref={descriptionRef}
-                                className="leading-2 overflow-hidden transition-all duration-300 ease-in-out relative"
+                                className="leading-2 overflow-hidden transition-all duration-200 ease-in-out relative"
                                 style={{
                                     maxHeight: `${descriptionHeight}px`,
                                     color: 'var(--tgui--hint_color)'
@@ -95,7 +95,7 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
                                 </Chip>
                             ))}
                             <div
-                                className="absolute right-0 bottom-0 transform transition-transform duration-300 ease-in-out"
+                                className="absolute right-0 bottom-0 transform transition-transform duration-200 ease-in-out"
                                 style={{
                                     transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
                                     marginBottom: '6px',
@@ -109,7 +109,7 @@ export const ClubBanner: React.FC<ClubBannerProps> = ({
                 </div>
 
                 <div
-                    className="px-4 transition-all duration-300 ease-in-out overflow-hidden"
+                    className="px-4 transition-all duration-200 ease-in-out overflow-hidden"
                     style={{
                         maxHeight: expanded ? '60px' : '0px',
                         opacity: expanded ? 1 : 0,

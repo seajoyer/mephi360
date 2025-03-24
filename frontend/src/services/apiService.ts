@@ -46,13 +46,13 @@ export interface DropdownOption {
 // Mock clubs data
 const mockClubs = Array.from({ length: 30 }, (_, index) => {
   const subjects = [
-    'Математика', 'Информатика', 'Инженерия', 'Искусство',
-    'Киберспорт', 'Астрономия', 'Физика', 'Химия'
+    'Математика', 'IT', 'Английский',
+    'Астрономия', 'Физика', 'Химия'
   ];
 
   const organizers = [
-    'Студенческий совет', 'Научное сообщество', 'Кафедра информатики',
-    'Кафедра физики', 'Кафедра математики', 'Спортивный клуб'
+    'Студ. совет', 'СНО', 'Мат. лиига',
+    'Старостат', 'Реактор', 'Авторсикий'
   ];
 
   const subject = subjects[index % subjects.length];
@@ -61,7 +61,7 @@ const mockClubs = Array.from({ length: 30 }, (_, index) => {
   return {
     id: index + 1,
     name: `Кружок ${subject}`,
-    description: `Описание кружка ${subject}`,
+    description: `Описание кружка lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`,
     image: `/assets/clubs/club${(index % 5) + 1}.jpg`,
     tags: [subject, organizer],
     memberCount: Math.floor(Math.random() * 80) + 20,

@@ -1,14 +1,38 @@
 import { RouteProps } from 'react-router-dom';
-import { StudyPage } from '@/pages/StudyPage';
+import { WikiPage } from '@/pages/WikiPage';
 import { TutorPage } from '@/pages/TutorPage';
+import { TutorsListPage } from '@/pages/TutorsListPage';
 import { DepartmentPage } from '@/pages/DepartmentPage';
+import { DepartmentsListPage } from '@/pages/DepartmentsListPage';
+import { CirclesPage } from '@/pages/CirclesPage';
+import { StuffPage } from '@/pages/StuffPage';
 import { EnvUnsupported } from '@/components/EnvUnsupported';
 
 // Define app routes
 export const routes: RouteProps[] = [
     {
-        path: '/study/:section?',
-        element: <StudyPage />
+        path: '/wiki',
+        element: <WikiPage />
+    },
+    {
+        path: '/circles',
+        element: <CirclesPage />
+    },
+    {
+        path: '/active',
+        element: <WikiPage /> // Will be replaced with dedicated page
+    },
+    {
+        path: '/stuff',
+        element: <StuffPage />
+    },
+    {
+        path: '/tutors',
+        element: <TutorsListPage />
+    },
+    {
+        path: '/departments',
+        element: <DepartmentsListPage />
     },
     {
         path: '/tutor/:id',

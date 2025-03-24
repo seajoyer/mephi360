@@ -220,3 +220,95 @@ button,
   width: 100%;
   z-index: 10;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Search panel styles */
+
+/* Ensure no scrollbars on horizontal scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animation for institute buttons */
+@keyframes instituteButtonFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes firstButtonFadeIn {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.institute-button-animate {
+  opacity: 0;
+  animation: instituteButtonFadeIn 0.10s ease-out forwards;
+}
+
+.institute-button-animate-first {
+  opacity: 0;
+  animation: firstButtonFadeIn 0.10s ease-out forwards;
+}
+
+/* Modal animation */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-enter {
+  animation: modalFadeIn 0.2s ease-out forwards;
+}
+
+/* Filter button hover effect */
+.filter-button {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.filter-button:active {
+  opacity: 0.8;
+}
+
+/* Search transition */
+.search-expand-transition {
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Shadow transition for sticky headers */
+.sticky-shadow-transition {
+  transition: box-shadow 0.2s ease-in-out;
+}

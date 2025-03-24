@@ -32,14 +32,16 @@ export const StuffBanner: React.FC<StuffBannerProps> = ({
                 <Tappable Component="div">
                     <div className="p-4">
                         <div className="flex-1">
-                            <div className='mb-1'>
+                            <div className='mb-0.25'>
                                 <Text weight="2">
                                     <span style={{ color: 'var(--tgui--link_color)' }}>{title}</span>
                                 </Text>
                             </div>
                             <div
-                                className="leading-normal"
-                                style={{ color: 'var(--tgui--hint_color)' }}
+                                className="leading-2"
+                                style={{
+                                    color: 'var(--tgui--hint_color)'
+                                }}
                             >
                                 <Caption level="1" weight="3">
                                     {description}
@@ -47,8 +49,8 @@ export const StuffBanner: React.FC<StuffBannerProps> = ({
                             </div>
                         </div>
 
-                        <div className="mt-3">
-                            <div className="flex flex-wrap gap-2">
+                        <div>
+                            <div className="flex mt-3 flex-wrap gap-2">
                                 {/* Display tags as chips with click handler */}
                                 {tags.map((tag, index) => (
                                     <Chip

@@ -24,7 +24,7 @@ export function App() {
                     <ScrollReset />
                     <Routes>
                         {routes.map((route) => <Route key={route.path} {...route} />)}
-                        <Route path="*" element={<Navigate to="/study/info"/>}/>
+                        <Route path="*" element={<Navigate to="/wiki"/>}/>
                     </Routes>
                 </HashRouter>
             </FilterProvider>

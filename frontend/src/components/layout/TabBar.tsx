@@ -1,29 +1,21 @@
+import { useNavigate, useLocation } from 'react-router-dom';
 import type { FC } from 'react';
 import { FixedLayout } from '@telegram-apps/telegram-ui';
 import { Tabbar } from '@telegram-apps/telegram-ui';
-import { Icon24Heart } from '@/icons/24/heart';
-import { Icon24Largegroup } from '@/icons/24/largegroup';
 import { Icon24Folder } from '@/icons/24/folder';
 import { Icon24Globe } from '@/icons/24/globe';
 import { Icon24Lifebuoy } from '@/icons/24/lifebuoy';
-import { Icon24Lightbulb } from '@/icons/24/lightbulb';
-import { Icon24Lightning } from '@/icons/24/lightning';
 import { Icon24Lightning_alt } from '@/icons/24/lightning_alt';
 
-interface TabBarProps {
-    className?: string;
-    activeSection: string;
-    onSectionChange: (section: string) => void;
-}
+export const TabBar: FC = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const currentPath = location.pathname.split('/')[1] || 'wiki';
 
-export const TabBar: FC<TabBarProps> = ({
-    className = '',
-    activeSection,
-    onSectionChange
-}) => {
     const tabs = [
         {
             id: 'wiki',
+            path: '/wiki',
             icon: (
                 <div className="flex flex-col items-center">
                     <div className="mb-0 min-h-6">
@@ -35,6 +27,7 @@ export const TabBar: FC<TabBarProps> = ({
         },
         {
             id: 'circles',
+            path: '/circles',
             icon: (
                 <div className="flex flex-col items-center">
                     <div className="mb-0 min-h-6">
@@ -46,6 +39,7 @@ export const TabBar: FC<TabBarProps> = ({
         },
         {
             id: 'active',
+            path: '/active',
             icon: (
                 <div className="flex flex-col items-center">
                     <div className="mb-0 min-h-6">
@@ -57,6 +51,7 @@ export const TabBar: FC<TabBarProps> = ({
         },
         {
             id: 'stuff',
+            path: '/stuff',
             icon: (
                 <div className="flex flex-col items-center">
                     <div className="mb-0 min-h-6">
@@ -68,14 +63,22 @@ export const TabBar: FC<TabBarProps> = ({
         },
     ];
 
+    const handleTabClick = (tabId: string, path: string) => {
+        navigate(path);
+    };
+
     return (
-        <FixedLayout vertical="bottom" className={`${className}`}>
-            <Tabbar>
-                {tabs.map(({ id, icon }) => (
+        <FixedLayout vertical="bottom" style={{ zIndex: 10 }}>
+            <Tabbar
+                style={{
+                    backgroundColor: 'var(--tgui--secondary_bg_color)'
+                }}
+            >
+                {tabs.map(({ id, path, icon }) => (
                     <Tabbar.Item
                         key={id}
-                        selected={id === 'wiki'}
-                        onClick={() => onSectionChange(id)}
+                        selected={id === currentPath}
+                        onClick={() => handleTabClick(id, path)}
                     >
                         {icon}
                     </Tabbar.Item>
