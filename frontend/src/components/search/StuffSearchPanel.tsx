@@ -2,12 +2,13 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Input, Button } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
-import { FilterDropdown, FilterOption } from './FilterDropdown';
+import { FilterSelectionPage } from '@/pages/FilterSelectionPage';
 import {
   getMaterialTypes,
   getMaterialTeachers,
   getMaterialSubjects,
   getMaterialSemesters,
+  DropdownOption
 } from '@/services/apiService';
 import { FilterContainer, FilterButton } from './SearchPanelComponents';
 
@@ -151,10 +152,10 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isInstituteExpanded, setIsInstituteExpanded] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
-    types: [] as FilterOption[],
-    teachers: [] as FilterOption[],
-    subjects: [] as FilterOption[],
-    semesters: [] as FilterOption[],
+    types: [] as DropdownOption[],
+    teachers: [] as DropdownOption[],
+    subjects: [] as DropdownOption[],
+    semesters: [] as DropdownOption[],
   });
   const [isLoading, setIsLoading] = useState({
     types: false,
@@ -163,8 +164,8 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
     semesters: false,
   });
 
-  // State for modals
-  const [activeModal, setActiveModal] = useState<'type' | 'teacher' | 'subject' | 'semester' | null>(null);
+  // State for filter selection page
+  const [showFilterPage, setShowFilterPage] = useState<'none' | 'type' | 'teacher' | 'subject' | 'semester'>('none');
 
   // State for sticky detection
   const [isSticky, setIsSticky] = useState(false);
@@ -291,17 +292,12 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
     setIsInstituteExpanded(false);
   }, [onInstituteFilterChange]);
 
-  // Open filter modal
-  const openFilterModal = (modalType: 'type' | 'teacher' | 'subject' | 'semester') => {
-    setActiveModal(modalType);
-  };
-
   // Check if filters should be shown (not when search or institute is expanded)
   const areFiltersHidden = isSearchExpanded || isInstituteExpanded;
   const selectedInstitute = instituteFilter ? INSTITUTES.find(institute => institute.id === instituteFilter) : null;
 
   // Find selected option names for display
-  const getSelectedOptionName = (options: FilterOption[], selectedId: string | null) => {
+  const getSelectedOptionName = (options: DropdownOption[], selectedId: string | null) => {
     if (!selectedId) return '';
     const option = options.find(opt => opt.id === selectedId);
     return option ? option.name : '';
@@ -312,6 +308,73 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
   const subjectOptionName = getSelectedOptionName(filterOptions.subjects, subjectFilter);
   const semesterOptionName = getSelectedOptionName(filterOptions.semesters, semesterFilter);
 
+  // Handle selecting options
+  const handleTypeSelect = (typeId: string | null) => {
+    onTypeFilterChange(typeId);
+    setShowFilterPage('none');
+  };
+
+  const handleTeacherSelect = (teacherId: string | null) => {
+    onTeacherFilterChange(teacherId);
+    setShowFilterPage('none');
+  };
+
+  const handleSubjectSelect = (subjectId: string | null) => {
+    onSubjectFilterChange(subjectId);
+    setShowFilterPage('none');
+  };
+
+  const handleSemesterSelect = (semesterId: string | null) => {
+    onSemesterFilterChange(semesterId);
+    setShowFilterPage('none');
+  };
+
+  // Render FilterSelectionPage based on showFilterPage
+  if (showFilterPage === 'type') {
+    return (
+      <FilterSelectionPage
+        title="Выберите тип"
+        options={filterOptions.types}
+        selectedOption={typeFilter}
+        onSelect={handleTypeSelect}
+      />
+    );
+  }
+
+  if (showFilterPage === 'teacher') {
+    return (
+      <FilterSelectionPage
+        title="Выберите преподавателя"
+        options={filterOptions.teachers}
+        selectedOption={teacherFilter}
+        onSelect={handleTeacherSelect}
+      />
+    );
+  }
+
+  if (showFilterPage === 'subject') {
+    return (
+      <FilterSelectionPage
+        title="Выберите предмет"
+        options={filterOptions.subjects}
+        selectedOption={subjectFilter}
+        onSelect={handleSubjectSelect}
+      />
+    );
+  }
+
+  if (showFilterPage === 'semester') {
+    return (
+      <FilterSelectionPage
+        title="Выберите семестр"
+        options={filterOptions.semesters}
+        selectedOption={semesterFilter}
+        onSelect={handleSemesterSelect}
+      />
+    );
+  }
+
+  // Main view of the search panel
   return (
     <div
       ref={panelRef}
@@ -446,7 +509,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
           <FilterButton
             label={typeFilter ? typeOptionName : 'Тип'}
             selected={!!typeFilter}
-            onClick={() => openFilterModal('type')}
+            onClick={() => setShowFilterPage('type')}
             onClear={() => onTypeFilterChange(null)}
           />
 
@@ -454,7 +517,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
           <FilterButton
             label={teacherFilter ? teacherOptionName : 'Препод'}
             selected={!!teacherFilter}
-            onClick={() => openFilterModal('teacher')}
+            onClick={() => setShowFilterPage('teacher')}
             onClear={() => onTeacherFilterChange(null)}
           />
 
@@ -462,7 +525,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
           <FilterButton
             label={subjectFilter ? subjectOptionName : 'Предмет'}
             selected={!!subjectFilter}
-            onClick={() => openFilterModal('subject')}
+            onClick={() => setShowFilterPage('subject')}
             onClear={() => onSubjectFilterChange(null)}
           />
 
@@ -470,7 +533,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
           <FilterButton
             label={semesterFilter ? semesterOptionName : 'Семестр'}
             selected={!!semesterFilter}
-            onClick={() => openFilterModal('semester')}
+            onClick={() => setShowFilterPage('semester')}
             onClear={() => onSemesterFilterChange(null)}
           />
         </FilterContainer>
@@ -501,39 +564,6 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
           </div>
         )}
       </div>
-
-      {/* Filter modals */}
-      <FilterDropdown
-        isOpen={activeModal === 'type'}
-        options={filterOptions.types}
-        selectedOption={typeFilter}
-        onSelect={onTypeFilterChange}
-        title="Выберите тип"
-      />
-
-      <FilterDropdown
-        isOpen={activeModal === 'teacher'}
-        options={filterOptions.teachers}
-        selectedOption={teacherFilter}
-        onSelect={onTeacherFilterChange}
-        title="Выберите преподавателя"
-      />
-
-      <FilterDropdown
-        isOpen={activeModal === 'subject'}
-        options={filterOptions.subjects}
-        selectedOption={subjectFilter}
-        onSelect={onSubjectFilterChange}
-        title="Выберите предмет"
-      />
-
-      <FilterDropdown
-        isOpen={activeModal === 'semester'}
-        options={filterOptions.semesters}
-        selectedOption={semesterFilter}
-        onSelect={onSemesterFilterChange}
-        title="Выберите семестр"
-      />
     </div>
   );
 };

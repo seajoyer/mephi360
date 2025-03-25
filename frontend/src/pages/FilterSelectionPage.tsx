@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { backButton } from '@telegram-apps/sdk-react';
 import { Page } from '@/components/Page';
 import { Cell, List, Section } from '@telegram-apps/telegram-ui';
 
@@ -15,8 +16,37 @@ export const FilterSelectionPage: React.FC<FilterSelectionPageProps> = ({
   selectedOption,
   onSelect
 }) => {
+  // Track if we've already handled the back button to prevent double-handling
+  const hasHandledBack = useRef(false);
+
+  // Handle back button directly via the Telegram SDK
+  useEffect(() => {
+    // Make sure we show the back button
+    backButton.show();
+
+    // Register the back button handler
+    const unsubscribe = backButton.onClick(() => {
+      // Only handle the back button once to prevent double-triggering
+      if (!hasHandledBack.current) {
+        hasHandledBack.current = true;
+
+        // Close the filter selection with the current selection
+        onSelect(selectedOption);
+      }
+
+      // Always prevent default navigation by returning true
+      return true;
+    });
+
+    // Clean up when unmounting
+    return () => {
+      unsubscribe();
+      hasHandledBack.current = false;
+    };
+  }, [onSelect, selectedOption]);
+
   return (
-    <Page back={true}>
+    <Page back={false}>
       <List>
         <Section header={title}>
           {/* "All" option */}

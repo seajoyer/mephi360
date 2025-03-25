@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
-import { FilterDropdown, FilterOption } from './FilterDropdown';
+import { FilterSelectionPage } from '@/pages/FilterSelectionPage';
 import { getDepartmentOptions } from '@/services/apiService';
 import { FilterContainer, FilterButton, SearchPanelStyles } from './SearchPanelComponents';
 
@@ -20,9 +20,12 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
   onDepartmentFilterChange
 }) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [departmentOptions, setDepartmentOptions] = useState<FilterOption[]>([]);
+  const [departmentOptions, setDepartmentOptions] = useState<{ id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isDepartmentModalOpen, setIsDepartmentModalOpen] = useState(false);
+
+  // State for filter selection page
+  const [showDepartmentFilter, setShowDepartmentFilter] = useState(false);
+
   const [isSticky, setIsSticky] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -92,11 +95,23 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
     onSearchChange(''); // Clear search when collapsing
   };
 
-  // Handle department filter modal
+  // Handle selecting a department
   const handleDepartmentSelect = (departmentId: string | null) => {
     onDepartmentFilterChange(departmentId);
-    setIsDepartmentModalOpen(false);
+    setShowDepartmentFilter(false);
   };
+
+  // Render FilterSelectionPage for department selection
+  if (showDepartmentFilter) {
+    return (
+      <FilterSelectionPage
+        title="Выберите кафедру"
+        options={departmentOptions}
+        selectedOption={departmentFilter}
+        onSelect={handleDepartmentSelect}
+      />
+    );
+  }
 
   return (
     <div
@@ -180,22 +195,13 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
             <FilterButton
               label={departmentFilter ? selectedDepartmentName : 'Все кафедры'}
               selected={!!departmentFilter}
-              onClick={() => setIsDepartmentModalOpen(true)}
+              onClick={() => setShowDepartmentFilter(true)}
               onClear={() => onDepartmentFilterChange(null)}
               expandable={true}
             />
           </FilterContainer>
         )}
       </div>
-
-      {/* Department filter dropdown */}
-      <FilterDropdown
-        isOpen={isDepartmentModalOpen}
-        options={departmentOptions}
-        selectedOption={departmentFilter}
-        onSelect={handleDepartmentSelect}
-        title="Выберите кафедру"
-      />
     </div>
   );
 };

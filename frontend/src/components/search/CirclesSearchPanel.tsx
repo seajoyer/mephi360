@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
-import { FilterDropdown, FilterOption } from './FilterDropdown';
-import { getClubOrganizers, getClubSubjects } from '@/services/apiService';
+import { backButton } from '@telegram-apps/sdk-react';
+import { FilterSelectionPage } from '@/pages/FilterSelectionPage';
+import { getClubOrganizers, getClubSubjects, DropdownOption } from '@/services/apiService';
 import { FilterContainer, FilterButton, SearchPanelStyles } from './SearchPanelComponents';
 
 interface CirclesSearchPanelProps {
@@ -24,18 +25,21 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
   onSubjectFilterChange
 }) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [organizerOptions, setOrganizerOptions] = useState<FilterOption[]>([]);
-  const [subjectOptions, setSubjectOptions] = useState<FilterOption[]>([]);
+  const [organizerOptions, setOrganizerOptions] = useState<DropdownOption[]>([]);
+  const [subjectOptions, setSubjectOptions] = useState<DropdownOption[]>([]);
   const [isLoading, setIsLoading] = useState({
     organizers: false,
     subjects: false
   });
 
-  // State for modals
-  const [activeModal, setActiveModal] = useState<'organizer' | 'subject' | null>(null);
+  // State for filter selection page
+  const [showFilterPage, setShowFilterPage] = useState<'none' | 'organizer' | 'subject'>('none');
 
   // State for sticky detection
   const [isSticky, setIsSticky] = useState(false);
+
+  // Keep track of original back button handler
+  const originalBackHandlerRef = useRef<(() => void) | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -69,6 +73,32 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
       }
     };
   }, []);
+
+  // Set up back button handler for filter selection
+  useEffect(() => {
+    if (showFilterPage !== 'none') {
+      // Save the original back handler if we haven't already
+      if (originalBackHandlerRef.current === null) {
+        // Store a function that will restore the default back behavior
+        originalBackHandlerRef.current = () => {};
+      }
+
+      // Override back button to close filter selection instead of navigating
+      const unsubscribe = backButton.onClick(() => {
+        setShowFilterPage('none');
+        return true; // Prevent default navigation
+      });
+
+      return () => {
+        unsubscribe();
+        // When filter selection is closed, restore original behavior
+        if (showFilterPage === 'none' && originalBackHandlerRef.current) {
+          originalBackHandlerRef.current();
+          originalBackHandlerRef.current = null;
+        }
+      };
+    }
+  }, [showFilterPage]);
 
   // Load filter options
   useEffect(() => {
@@ -112,13 +142,8 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
     onSearchChange(''); // Clear search when collapsing
   };
 
-  // Open filter modal
-  const openFilterModal = (modalType: 'organizer' | 'subject') => {
-    setActiveModal(modalType);
-  };
-
   // Find selected option names for display
-  const getSelectedOptionName = (options: FilterOption[], selectedId: string | null) => {
+  const getSelectedOptionName = (options: DropdownOption[], selectedId: string | null) => {
     if (!selectedId) return '';
     const option = options.find(opt => opt.id === selectedId);
     return option ? option.name : '';
@@ -127,118 +152,148 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
   const organizerOptionName = getSelectedOptionName(organizerOptions, organizerFilter);
   const subjectOptionName = getSelectedOptionName(subjectOptions, subjectFilter);
 
+  // Handle selecting options
+  const handleOrganizerSelect = (organizerId: string | null) => {
+    onOrganizerFilterChange(organizerId);
+    setShowFilterPage('none');
+  };
+
+  const handleSubjectSelect = (subjectId: string | null) => {
+    onSubjectFilterChange(subjectId);
+    setShowFilterPage('none');
+  };
+
   return (
-    <div
-      ref={panelRef}
-      className={`search-panel ${isSticky ? 'sticky' : ''}`}
-      data-searchpanel="circles"
-    >
-      <SearchPanelStyles />
+    <>
+      {/* Filter Selection Overlay */}
+      {showFilterPage !== 'none' && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1000,
+            background: 'var(--tgui--bg_color)'
+          }}
+        >
+          {showFilterPage === 'subject' && (
+            <FilterSelectionPage
+              title="Выберите предмет"
+              options={subjectOptions}
+              selectedOption={subjectFilter}
+              onSelect={handleSubjectSelect}
+            />
+          )}
 
-      <div className="flex gap-2 items-center">
-        {/* Search button (collapsed) */}
-        {!isSearchExpanded && (
-          <div
-            className="flex-shrink-0"
-            style={{
-              width: '42px'
-            }}
-          >
-            <div className="relative">
-              <div
-                className="absolute inset-0 z-10 cursor-pointer"
-                onClick={handleSearchExpand}
-                aria-label="Expand search"
-                role="button"
-                tabIndex={0}
-              />
+          {showFilterPage === 'organizer' && (
+            <FilterSelectionPage
+              title="Выберите организатора"
+              options={organizerOptions}
+              selectedOption={organizerFilter}
+              onSelect={handleOrganizerSelect}
+            />
+          )}
+        </div>
+      )}
 
+      {/* Main Search Panel */}
+      <div
+        ref={panelRef}
+        className={`search-panel ${isSticky ? 'sticky' : ''}`}
+        data-searchpanel="circles"
+      >
+        <SearchPanelStyles />
+
+        <div className="flex gap-2 items-center">
+          {/* Search button (collapsed) */}
+          {!isSearchExpanded && (
+            <div
+              className="flex-shrink-0"
+              style={{
+                width: '42px'
+              }}
+            >
+              <div className="relative">
+                <div
+                  className="absolute inset-0 z-10 cursor-pointer"
+                  onClick={handleSearchExpand}
+                  aria-label="Expand search"
+                  role="button"
+                  tabIndex={0}
+                />
+
+                <Input
+                  ref={inputRef}
+                  placeholder=""
+                  value={searchQuery}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  aria-label="Search"
+                  style={{
+                    width: '42px',
+                    height: '42px'
+                  }}
+                  before={
+                    <div
+                      className="translate-x-[calc(50%-12px)]"
+                      aria-hidden="true"
+                    >
+                      <Icon24Search />
+                    </div>
+                  }
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Search expanded - takes full width */}
+          {isSearchExpanded && (
+            <div className="flex-1">
               <Input
                 ref={inputRef}
-                placeholder=""
+                placeholder="Поиск кружков..."
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 aria-label="Search"
-                style={{
-                  width: '42px',
-                  height: '42px'
-                }}
-                before={
+                after={
                   <div
-                    className="translate-x-[calc(50%-12px)]"
-                    aria-hidden="true"
+                    style={{
+                      display: 'flex',
+                      position: 'relative',
+                      zIndex: 20,
+                      cursor: 'pointer'
+                    }}
+                    onClick={handleSearchCollapse}
+                    aria-label="Close search"
                   >
-                    <Icon24Search />
+                    <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
                   </div>
                 }
               />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Search expanded - takes full width */}
-        {isSearchExpanded && (
-          <div className="flex-1">
-            <Input
-              ref={inputRef}
-              placeholder="Поиск кружков..."
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              aria-label="Search"
-              after={
-                <div
-                  style={{
-                    display: 'flex',
-                    position: 'relative',
-                    zIndex: 20,
-                    cursor: 'pointer'
-                  }}
-                  onClick={handleSearchCollapse}
-                  aria-label="Close search"
-                >
-                  <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
-                </div>
-              }
+          {/* Filters - only visible when search is not expanded */}
+          <FilterContainer isHidden={isSearchExpanded}>
+            {/* Subject filter button */}
+            <FilterButton
+              label={subjectFilter ? subjectOptionName : 'Предмет'}
+              selected={!!subjectFilter}
+              onClick={() => setShowFilterPage('subject')}
+              onClear={() => onSubjectFilterChange(null)}
             />
-          </div>
-        )}
 
-        {/* Filters - only visible when search is not expanded */}
-        <FilterContainer isHidden={isSearchExpanded}>
-          {/* Subject filter button */}
-          <FilterButton
-            label={subjectFilter ? subjectOptionName : 'Предмет'}
-            selected={!!subjectFilter}
-            onClick={() => openFilterModal('subject')}
-            onClear={() => onSubjectFilterChange(null)}
-          />
-
-          {/* Organizer filter button */}
-          <FilterButton
-            label={organizerFilter ? organizerOptionName : 'Организатор'}
-            selected={!!organizerFilter}
-            onClick={() => openFilterModal('organizer')}
-            onClear={() => onOrganizerFilterChange(null)}
-          />
-        </FilterContainer>
+            {/* Organizer filter button */}
+            <FilterButton
+              label={organizerFilter ? organizerOptionName : 'Организатор'}
+              selected={!!organizerFilter}
+              onClick={() => setShowFilterPage('organizer')}
+              onClear={() => onOrganizerFilterChange(null)}
+            />
+          </FilterContainer>
+        </div>
       </div>
-
-      {/* Filter modals */}
-      <FilterDropdown
-        isOpen={activeModal === 'subject'}
-        options={subjectOptions}
-        selectedOption={subjectFilter}
-        onSelect={onSubjectFilterChange}
-        title="Выберите предмет"
-      />
-
-      <FilterDropdown
-        isOpen={activeModal === 'organizer'}
-        options={organizerOptions}
-        selectedOption={organizerFilter}
-        onSelect={onOrganizerFilterChange}
-        title="Выберите организатора"
-      />
-    </div>
+    </>
   );
 };

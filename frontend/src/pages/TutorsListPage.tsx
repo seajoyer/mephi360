@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Page } from '@/components/Page';
 import { TutorsList } from '@/components/list/TutorsList';
 import { TutorsSearchPanel } from '@/components/search/TutorsSearchPanel';
@@ -9,19 +9,19 @@ export const TutorsListPage: React.FC = () => {
 
   return (
     <Page back={true}>
-      <div className="px-2 overflow-x-hidden">
+      <div className="p-2">
         <TutorsSearchPanel
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           departmentFilter={departmentFilter}
           onDepartmentFilterChange={setDepartmentFilter}
         />
-      </div>
 
         <TutorsList
           searchQuery={searchQuery}
           departmentFilter={departmentFilter}
         />
+      </div>
     </Page>
   );
 };
