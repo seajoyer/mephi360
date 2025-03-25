@@ -3,42 +3,34 @@ import { Input } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
 import { FilterDropdown, FilterOption } from './FilterDropdown';
-import { getClubOrganizers, getClubSubjects } from '@/services/apiService';
+import { getDepartmentOptions } from '@/services/apiService';
 import { FilterContainer, FilterButton, SearchPanelStyles } from './SearchPanelComponents';
 
-interface CirclesSearchPanelProps {
+interface BlogsSearchPanelProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  organizerFilter: string | null;
-  onOrganizerFilterChange: (organizer: string | null) => void;
-  subjectFilter: string | null;
-  onSubjectFilterChange: (subject: string | null) => void;
+  departmentFilter: string | null;
+  onDepartmentFilterChange: (department: string | null) => void;
 }
 
-export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
+export const BlogsSearchPanel: React.FC<BlogsSearchPanelProps> = ({
   searchQuery,
   onSearchChange,
-  organizerFilter,
-  onOrganizerFilterChange,
-  subjectFilter,
-  onSubjectFilterChange
+  departmentFilter,
+  onDepartmentFilterChange
 }) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [organizerOptions, setOrganizerOptions] = useState<FilterOption[]>([]);
-  const [subjectOptions, setSubjectOptions] = useState<FilterOption[]>([]);
-  const [isLoading, setIsLoading] = useState({
-    organizers: false,
-    subjects: false
-  });
-
-  // State for modals
-  const [activeModal, setActiveModal] = useState<'organizer' | 'subject' | null>(null);
-
-  // State for sticky detection
+  const [departmentOptions, setDepartmentOptions] = useState<FilterOption[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDepartmentModalOpen, setIsDepartmentModalOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
-
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // Find selected department name
+  const selectedDepartmentName = departmentFilter
+    ? departmentOptions.find(dept => dept.id === departmentFilter)?.name || ''
+    : '';
 
   // Set up IntersectionObserver to detect sticky state
   useEffect(() => {
@@ -70,33 +62,21 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
     };
   }, []);
 
-  // Load filter options
+  // Load department options
   useEffect(() => {
-    const loadOptions = async () => {
-      // Load club organizers
-      setIsLoading(prev => ({ ...prev, organizers: true }));
+    const loadDepartments = async () => {
+      setIsLoading(true);
       try {
-        const organizersResponse = await getClubOrganizers();
-        setOrganizerOptions(organizersResponse.items);
+        const response = await getDepartmentOptions();
+        setDepartmentOptions(response.items);
       } catch (error) {
-        console.error('Error loading organizers:', error);
+        console.error('Error loading departments:', error);
       } finally {
-        setIsLoading(prev => ({ ...prev, organizers: false }));
-      }
-
-      // Load club subjects
-      setIsLoading(prev => ({ ...prev, subjects: true }));
-      try {
-        const subjectsResponse = await getClubSubjects();
-        setSubjectOptions(subjectsResponse.items);
-      } catch (error) {
-        console.error('Error loading subjects:', error);
-      } finally {
-        setIsLoading(prev => ({ ...prev, subjects: false }));
+        setIsLoading(false);
       }
     };
 
-    loadOptions();
+    loadDepartments();
   }, []);
 
   // Toggle search expansion
@@ -112,26 +92,17 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
     onSearchChange(''); // Clear search when collapsing
   };
 
-  // Open filter modal
-  const openFilterModal = (modalType: 'organizer' | 'subject') => {
-    setActiveModal(modalType);
+  // Handle department filter modal
+  const handleDepartmentSelect = (departmentId: string | null) => {
+    onDepartmentFilterChange(departmentId);
+    setIsDepartmentModalOpen(false);
   };
-
-  // Find selected option names for display
-  const getSelectedOptionName = (options: FilterOption[], selectedId: string | null) => {
-    if (!selectedId) return '';
-    const option = options.find(opt => opt.id === selectedId);
-    return option ? option.name : '';
-  };
-
-  const organizerOptionName = getSelectedOptionName(organizerOptions, organizerFilter);
-  const subjectOptionName = getSelectedOptionName(subjectOptions, subjectFilter);
 
   return (
     <div
       ref={panelRef}
       className={`search-panel ${isSticky ? 'sticky' : ''}`}
-      data-searchpanel="circles"
+      data-searchpanel="blogs"
     >
       <SearchPanelStyles />
 
@@ -176,12 +147,12 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
           </div>
         )}
 
-        {/* Search expanded - takes full width */}
+        {/* Search expanded */}
         {isSearchExpanded && (
           <div className="flex-1">
             <Input
               ref={inputRef}
-              placeholder="Поиск кружков..."
+              placeholder="Поиск преподавателей..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               aria-label="Search"
@@ -203,41 +174,27 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
           </div>
         )}
 
-        {/* Filters - only visible when search is not expanded */}
-        <FilterContainer isHidden={isSearchExpanded}>
-          {/* Subject filter button */}
-          <FilterButton
-            label={subjectFilter ? subjectOptionName : 'Предмет'}
-            selected={!!subjectFilter}
-            onClick={() => openFilterModal('subject')}
-            onClear={() => onSubjectFilterChange(null)}
-          />
-
-          {/* Organizer filter button */}
-          <FilterButton
-            label={organizerFilter ? organizerOptionName : 'Организатор'}
-            selected={!!organizerFilter}
-            onClick={() => openFilterModal('organizer')}
-            onClear={() => onOrganizerFilterChange(null)}
-          />
-        </FilterContainer>
+        {/* Department filter button - only visible when search is not expanded */}
+        {!isSearchExpanded && (
+          <FilterContainer>
+            <FilterButton
+              label={departmentFilter ? selectedDepartmentName : 'Все кафедры'}
+              selected={!!departmentFilter}
+              onClick={() => setIsDepartmentModalOpen(true)}
+              onClear={() => onDepartmentFilterChange(null)}
+              expandable={true}
+            />
+          </FilterContainer>
+        )}
       </div>
 
-      {/* Filter modals */}
+      {/* Department filter dropdown */}
       <FilterDropdown
-        isOpen={activeModal === 'subject'}
-        options={subjectOptions}
-        selectedOption={subjectFilter}
-        onSelect={onSubjectFilterChange}
-        title="Выберите предмет"
-      />
-
-      <FilterDropdown
-        isOpen={activeModal === 'organizer'}
-        options={organizerOptions}
-        selectedOption={organizerFilter}
-        onSelect={onOrganizerFilterChange}
-        title="Выберите организатора"
+        isOpen={isDepartmentModalOpen}
+        options={departmentOptions}
+        selectedOption={departmentFilter}
+        onSelect={handleDepartmentSelect}
+        title="Выберите кафедру"
       />
     </div>
   );

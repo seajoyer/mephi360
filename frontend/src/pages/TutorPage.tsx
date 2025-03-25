@@ -238,7 +238,10 @@ export const TutorPage: React.FC = () => {
 
                     {/* Position and rating - non-interactive wrapper with interactive buttons */}
                     <Section>
-                        <div className="entity-page-non-interactive" style={{ position: 'relative' }}>
+                        <div
+                            className="entity-page-non-interactive"
+                            style={{ position: 'relative' }}
+                        >
                             <CustomCell
                                 className="entity-page-non-interactive"
                                 subhead="Должность"

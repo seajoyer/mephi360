@@ -94,9 +94,9 @@ export const WikiPage: FC = () => {
                                         style={{ color: `var(--tgui--hint_color)` }}
                                     />
                                 }
-                                onClick={() => console.log('Channels clicked')}
+                                onClick={() => handleCellClick('/blogs')}
                             >
-                                Каналы
+                                Tg блоги
                             </Cell>
                         </Section>
 

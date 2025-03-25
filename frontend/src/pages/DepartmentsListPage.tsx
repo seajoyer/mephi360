@@ -8,7 +8,7 @@ export const DepartmentsListPage: React.FC = () => {
 
   return (
     <Page back={true}>
-      <div className="px-0">
+      <div className="pl-2 overflow-x-hidden">
         <DepartmentsSearchPanel
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}

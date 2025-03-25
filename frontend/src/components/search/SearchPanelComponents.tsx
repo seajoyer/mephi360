@@ -2,6 +2,8 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Button } from '@telegram-apps/telegram-ui';
 import { Icon24Close } from '@/icons/24/close';
 import { Icon20Chevron_vertical } from '@/icons/20/chevron_vertical';
+import { Icon20Chevron_down } from '@/icons/20/chevron_down';
+import { Icon16Chevron } from '@/icons/16/chevron';
 
 interface FilterContainerProps {
   children: React.ReactNode;
@@ -66,6 +68,9 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
     return null;
   }
 
+  // Count React children to distribute width evenly
+  const childCount = React.Children.count(children);
+
   return (
     <div
       ref={containerRef}
@@ -78,13 +83,14 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
         ref={contentRef}
         className="flex gap-2"
         style={{
-          minWidth: expandFilters ? '100%' : 'max-content',
           width: expandFilters ? '100%' : 'auto',
-          display: 'flex',
-          justifyContent: expandFilters ? 'space-between' : 'flex-start'
         }}
       >
-        {children}
+        {expandFilters
+          ? React.Children.map(children, (child) => (
+              <div style={{ flex: `1 1 ${100 / childCount}%` }}>{child}</div>
+            ))
+          : children}
       </div>
     </div>
   );
@@ -117,24 +123,15 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
         paddingLeft: '10px',
         paddingRight: '10px',
         background: 'var(--tgui--section_bg_color)',
-        color: selected ? 'var(--tgui--text_color)' : 'var(--tgui--subtitle_text_color)',
-        textAlign: 'left',
-        position: 'relative',
-        minWidth: '80px',
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        textOverflow: 'ellipsis',
-        flexGrow: expandable ? 1 : 0, // Allow growing if expandable
-        flexShrink: 0,
+        width: '100%',
       }}
       onClick={onClick}
       after={
         selected ? (
           <Icon24Close
             style={{
-              color: 'var(--tgui--hint_color)',
-              flexShrink: 0,
-              cursor: 'pointer'
+              cursor: 'pointer',
+              marginRight: '-2px',
             }}
             onClick={onClear ? (e) => {
               e.stopPropagation();
@@ -142,21 +139,23 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
             } : undefined}
           />
         ) : (
-          <Icon20Chevron_vertical style={{
-            flexShrink: 0
-          }} />
+          <Icon16Chevron />
         )
       }
     >
-      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        {label}
-      </span>
+          <div
+              style={{
+                  color: selected ? 'var(--tgui--text_color)' : 'var(--tgui--subtitle_text_color)',
+              }}
+          >
+              {label}
+          </div>
     </Button>
   );
 };
 
 /**
- * Common styles for all search panels
+ * Common styles for all search panels - fixed to prevent horizontal overflow
  */
 export const SearchPanelStyles = () => (
   <style jsx global>{`
@@ -164,15 +163,13 @@ export const SearchPanelStyles = () => (
       position: sticky;
       top: 0;
       z-index: 50;
-      padding-top: 8px;
-      padding-bottom: 8px;
+      padding-top: 16px;
+      padding-bottom: 16px;
       background-color: var(--tgui--secondary_bg_color);
       transition: box-shadow 0.2s ease-in-out;
-      width: calc(100% + 16px);
-      margin-left: -8px;
-      padding-left: 8px;
-      padding-right: 8px;
+      width: 100%;
       box-sizing: border-box;
+      overflow-x: hidden;
     }
 
     .search-panel.sticky {

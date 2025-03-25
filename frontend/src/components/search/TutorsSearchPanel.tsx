@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
-import { FilterModal, FilterOption } from './FilterModal';
+import { FilterDropdown, FilterOption } from './FilterDropdown';
 import { getDepartmentOptions } from '@/services/apiService';
 import { FilterContainer, FilterButton, SearchPanelStyles } from './SearchPanelComponents';
 
@@ -178,7 +178,7 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
         {!isSearchExpanded && (
           <FilterContainer>
             <FilterButton
-              label={departmentFilter ? selectedDepartmentName : 'Выберите кафедру'}
+              label={departmentFilter ? selectedDepartmentName : 'Все кафедры'}
               selected={!!departmentFilter}
               onClick={() => setIsDepartmentModalOpen(true)}
               onClear={() => onDepartmentFilterChange(null)}
@@ -188,8 +188,8 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
         )}
       </div>
 
-      {/* Department filter modal */}
-      <FilterModal
+      {/* Department filter dropdown */}
+      <FilterDropdown
         isOpen={isDepartmentModalOpen}
         options={departmentOptions}
         selectedOption={departmentFilter}

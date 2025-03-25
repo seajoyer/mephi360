@@ -2,6 +2,7 @@ import { RouteProps } from 'react-router-dom';
 import { WikiPage } from '@/pages/WikiPage';
 import { TutorPage } from '@/pages/TutorPage';
 import { TutorsListPage } from '@/pages/TutorsListPage';
+import { BlogsListPage } from '@/pages/BlogsListPage';
 import { DepartmentPage } from '@/pages/DepartmentPage';
 import { DepartmentsListPage } from '@/pages/DepartmentsListPage';
 import { CirclesPage } from '@/pages/CirclesPage';
@@ -33,6 +34,10 @@ export const routes: RouteProps[] = [
     {
         path: '/departments',
         element: <DepartmentsListPage />
+    },
+    {
+        path: '/blogs',
+        element: <BlogsListPage />
     },
     {
         path: '/tutor/:id',

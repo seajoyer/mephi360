@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Page } from '@/components/Page';
-import { TutorsList } from '@/components/list/TutorsList';
-import { TutorsSearchPanel } from '@/components/search/TutorsSearchPanel';
+import { BlogsList } from '@/components/list/BlogsList';
+import { BlogsSearchPanel } from '@/components/search/BlogsSearchPanel';
 
-export const TutorsListPage: React.FC = () => {
+export const BlogsListPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState<string | null>(null);
 
   return (
     <Page back={true}>
       <div className="px-2 overflow-x-hidden">
-        <TutorsSearchPanel
+        <BlogsSearchPanel
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           departmentFilter={departmentFilter}
@@ -18,7 +18,7 @@ export const TutorsListPage: React.FC = () => {
         />
       </div>
 
-        <TutorsList
+        <BlogsList
           searchQuery={searchQuery}
           departmentFilter={departmentFilter}
         />

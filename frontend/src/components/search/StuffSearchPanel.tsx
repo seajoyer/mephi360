@@ -2,8 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Input, Button } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
-import { Icon20Chevron_vertical } from '@/icons/20/chevron_vertical';
-import { FilterModal, FilterOption } from './FilterModal';
+import { FilterDropdown, FilterOption } from './FilterDropdown';
 import {
   getMaterialTypes,
   getMaterialTeachers,
@@ -324,8 +323,8 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
           position: sticky;
           top: 0;
           z-index: 50;
-          padding-top: 8px;
-          padding-bottom: 8px;
+          padding-top: 16px;
+          padding-bottom: 16px;
           background-color: var(--tgui--secondary_bg_color);
           transition: box-shadow 0.2s ease-in-out;
           width: calc(100% + 16px);
@@ -504,7 +503,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
       </div>
 
       {/* Filter modals */}
-      <FilterModal
+      <FilterDropdown
         isOpen={activeModal === 'type'}
         options={filterOptions.types}
         selectedOption={typeFilter}
@@ -512,7 +511,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
         title="Выберите тип"
       />
 
-      <FilterModal
+      <FilterDropdown
         isOpen={activeModal === 'teacher'}
         options={filterOptions.teachers}
         selectedOption={teacherFilter}
@@ -520,7 +519,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
         title="Выберите преподавателя"
       />
 
-      <FilterModal
+      <FilterDropdown
         isOpen={activeModal === 'subject'}
         options={filterOptions.subjects}
         selectedOption={subjectFilter}
@@ -528,7 +527,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
         title="Выберите предмет"
       />
 
-      <FilterModal
+      <FilterDropdown
         isOpen={activeModal === 'semester'}
         options={filterOptions.semesters}
         selectedOption={semesterFilter}

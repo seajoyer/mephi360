@@ -5,7 +5,7 @@ import { LargeTitle, Subheadline } from '@telegram-apps/telegram-ui';
 
 export const TopText: FC = () => {
     return (
-        <div className="flex flex-col gap-1.5 mt-2 pt-9 pb-9 text-center">
+        <div className="flex flex-col gap-1.5 mt-2 pt-7 pb-7 text-center">
             <Subheadline
                 level="1"
                 weight="3"
