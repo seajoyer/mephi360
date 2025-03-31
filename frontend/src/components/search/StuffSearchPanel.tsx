@@ -579,7 +579,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
         </div>
       </div>
 
-      {/* Modal Filter Overlay */}
+{/* Modal Filter Overlay */}
       <ModalOverlay
         title={getFilterTitle()}
         options={getFilterOptions()}
@@ -587,6 +587,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
         onSelect={handleFilterSelect}
         onClose={closeFilterOverlay}
         isVisible={filterOverlay.isVisible}
+        parentHasBackButton={true}
       />
     </>
   );

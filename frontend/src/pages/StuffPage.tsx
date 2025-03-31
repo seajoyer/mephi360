@@ -11,7 +11,7 @@ import {
 import { TopButtons } from '@/components/layout/TopButtons';
 import { StuffPageButtons } from '@/components/layout/StuffPageButtons';
 import { TabBar } from '@/components/layout/TabBar';
-import { FilterSelectionOverlay } from '@/components/search/FilterSelectionOverlay';
+import { ModalOverlay } from '@/components/search/ModalOverlay';
 import { useFilters } from '@/contexts/FilterContext';
 import {
   DropdownOption
@@ -238,8 +238,8 @@ export const StuffPage: React.FC = () => {
 
         <TabBar />
 
-{/* Filter Selection Overlay */}
-        <FilterSelectionOverlay
+{/* Modal Filter Overlay */}
+        <ModalOverlay
           title={getFilterTitle()}
           options={getFilterOptions()}
           selectedOption={getSelectedOption()}

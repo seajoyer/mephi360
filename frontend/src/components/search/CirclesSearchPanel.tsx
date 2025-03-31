@@ -281,7 +281,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
         </div>
       </div>
 
-      {/* Modal Filter Overlay */}
+{/* Modal Filter Overlay */}
       <ModalOverlay
         title={getFilterTitle()}
         options={getFilterOptions()}
@@ -289,6 +289,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
         onSelect={handleFilterSelect}
         onClose={closeFilterOverlay}
         isVisible={filterOverlay.isVisible}
+        parentHasBackButton={false} // CirclesPage has no back button
       />
     </>
   );

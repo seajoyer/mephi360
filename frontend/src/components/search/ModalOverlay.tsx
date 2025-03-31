@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { List, Cell, Section } from '@telegram-apps/telegram-ui';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { backButton } from '@telegram-apps/sdk-react';
 
 interface ModalOverlayProps {
   title: string;
@@ -9,6 +10,7 @@ interface ModalOverlayProps {
   onSelect: (option: string | null) => void;
   onClose: () => void;
   isVisible: boolean;
+  parentHasBackButton?: boolean;
 }
 
 export const ModalOverlay: React.FC<ModalOverlayProps> = ({
@@ -17,42 +19,96 @@ export const ModalOverlay: React.FC<ModalOverlayProps> = ({
   selectedOption,
   onSelect,
   onClose,
-  isVisible
+  isVisible,
+  parentHasBackButton = false
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const prevBackHandlerRef = useRef<(() => boolean) | null>(null);
+  const isHandlerSetRef = useRef(false);
 
-  // Create a unique modal location when the overlay becomes visible
+  // Handle back button visibility and handler
   useEffect(() => {
     if (isVisible) {
-      // Push a dummy state to history that we can pop when closing the modal
-      navigate(`${location.pathname}?modal=filter`, {
-        replace: false, // Important: don't replace current history
-        state: { isModal: true } // Mark this as a modal state
-      });
-    }
-  }, [isVisible, navigate, location.pathname]);
+      // Show back button when overlay is visible
+      backButton.show();
 
-  // Listen for navigation events that would close the modal
-  useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
-      // If our modal is open and navigation happens, close it
-      if (isVisible && !event.state?.isModal) {
-        onClose();
+      try {
+        // Store previous handler if any
+        const currentHandler = backButton._onClick;
+        if (currentHandler && typeof currentHandler === 'function') {
+          prevBackHandlerRef.current = currentHandler;
+        }
+      } catch (e) {
+        console.error("Error accessing back button handler", e);
       }
-    };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [isVisible, onClose]);
+      // Set custom back button handler
+      const backButtonHandler = () => {
+        onClose();
+        return true; // Prevent default back navigation
+      };
 
-  // Handle selection and close modal
+      // Set our handler
+      const cleanup = backButton.onClick(backButtonHandler);
+      isHandlerSetRef.current = true;
+
+      // Add history state for browsers that support it
+      if (window.history && window.history.pushState) {
+        // Add a history entry without actually navigating
+        window.history.pushState(
+          { isModal: true },
+          document.title,
+          `${location.pathname}?modal=filter`
+        );
+
+        // Listen for back button via history
+        const popstateHandler = () => {
+          if (isVisible) {
+            onClose();
+          }
+        };
+
+        window.addEventListener('popstate', popstateHandler);
+
+        return () => {
+          // Restore previous back button handler
+          cleanup();
+          isHandlerSetRef.current = false;
+
+          // Hide back button if parent doesn't need it
+          if (!parentHasBackButton) {
+            backButton.hide();
+          } else if (prevBackHandlerRef.current) {
+            // Restore previous handler if parent needs back button
+            backButton.onClick(prevBackHandlerRef.current);
+          }
+
+          // Remove popstate listener
+          window.removeEventListener('popstate', popstateHandler);
+        };
+      }
+
+      // If history API not available, just handle the cleanup
+      return () => {
+        cleanup();
+        isHandlerSetRef.current = false;
+
+        // Hide back button if parent doesn't need it
+        if (!parentHasBackButton) {
+          backButton.hide();
+        } else if (prevBackHandlerRef.current) {
+          // Restore previous handler if parent needs back button
+          backButton.onClick(prevBackHandlerRef.current);
+        }
+      };
+    }
+  }, [isVisible, onClose, parentHasBackButton, location.pathname]);
+
+  // Handle selection
   const handleSelect = (option: string | null) => {
     onSelect(option);
     onClose();
-
-    // Navigate back to remove our modal URL
-    navigate(-1);
   };
 
   // Don't render anything if not visible

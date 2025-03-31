@@ -210,6 +210,7 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
         onSelect={handleDepartmentSelect}
         onClose={closeFilterOverlay}
         isVisible={filterOverlayVisible}
+        parentHasBackButton={true}
       />
     </>
   );
