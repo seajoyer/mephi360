@@ -218,7 +218,8 @@ export const StuffPage: React.FC = () => {
           </Section>
 
           <Button
-            className="w-full"
+            className="mt-1 w-full"
+            size='m'
             mode="bezeled"
             after={<Icon16Chevron_right />}
             onClick={handleShowResults}

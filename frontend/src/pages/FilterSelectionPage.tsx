@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { backButton } from '@telegram-apps/sdk-react';
-import { Page } from '@/components/Page';
 import { Cell, List, Section } from '@telegram-apps/telegram-ui';
+import { ScrollUpButton } from '@/components/common/ScrollUpButton';
 
 interface FilterSelectionPageProps {
   title: string;
@@ -16,62 +16,102 @@ export const FilterSelectionPage: React.FC<FilterSelectionPageProps> = ({
   selectedOption,
   onSelect
 }) => {
-  // Track if we've already handled the back button to prevent double-handling
-  const hasHandledBack = useRef(false);
+  // Reference to keep track of previous back button handler
+  const previousHandlerRef = useRef<(() => boolean) | null>(null);
 
-  // Handle back button directly via the Telegram SDK
+  // Handle back button
   useEffect(() => {
-    // Make sure we show the back button
-    backButton.show();
-
-    // Register the back button handler
-    const unsubscribe = backButton.onClick(() => {
-      // Only handle the back button once to prevent double-triggering
-      if (!hasHandledBack.current) {
-        hasHandledBack.current = true;
-
-        // Close the filter selection with the current selection
-        onSelect(selectedOption);
+    // Store the current back button handler
+    try {
+      const currentHandler = backButton.onClick();
+      if (currentHandler) {
+        previousHandlerRef.current = currentHandler;
       }
+    } catch (e) {
+      console.warn("Failed to get current back button handler:", e);
+    }
 
-      // Always prevent default navigation by returning true
-      return true;
+    // Set our handler
+    backButton.show();
+    const cleanup = backButton.onClick(() => {
+      // Close the filter selection with current selection
+      onSelect(selectedOption);
+      return true; // Prevent default navigation
     });
 
-    // Clean up when unmounting
+    // Clean up
     return () => {
-      unsubscribe();
-      hasHandledBack.current = false;
+      cleanup();
+      
+      // Restore previous handler if it exists
+      if (previousHandlerRef.current) {
+        try {
+          backButton.onClick(previousHandlerRef.current);
+        } catch (e) {
+          console.warn("Failed to restore previous back button handler:", e);
+        }
+      }
     };
   }, [onSelect, selectedOption]);
 
-  return (
-    <Page back={false}>
-      <List>
-        <Section header={title}>
-          {/* "All" option */}
-          <Cell
-            onClick={() => onSelect(null)}
-            after={selectedOption === null ? (
-              <span style={{ color: 'var(--tgui--link_color)' }}>✓</span>
-            ) : undefined}
-          >
-            Все
-          </Cell>
+  // Reset scroll position when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
-          {options.map(option => (
-            <Cell
-              key={option.id}
-              onClick={() => onSelect(option.id)}
-              after={selectedOption === option.id ? (
-                <span style={{ color: 'var(--tgui--link_color)' }}>✓</span>
-              ) : undefined}
-            >
-              {option.name}
-            </Cell>
-          ))}
-        </Section>
-      </List>
-    </Page>
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'var(--tgui--bg_color)',
+        zIndex: 1000,
+        overflow: 'auto'
+      }}
+    >
+      <div className="page-container">
+        <div className="page-content">
+          <List>
+            <Section header={title}>
+              {/* "All" option */}
+              <Cell
+                onClick={() => onSelect(null)}
+                after={selectedOption === null ? (
+                  <span style={{ color: 'var(--tgui--link_color)' }}>✓</span>
+                ) : undefined}
+              >
+                Все
+              </Cell>
+
+              {options.map(option => (
+                <Cell
+                  key={option.id}
+                  onClick={() => onSelect(option.id)}
+                  after={selectedOption === option.id ? (
+                    <span style={{ color: 'var(--tgui--link_color)' }}>✓</span>
+                  ) : undefined}
+                >
+                  {option.name}
+                </Cell>
+              ))}
+            </Section>
+          </List>
+        </div>
+
+        {/* Add sufficient bottom padding to prevent scroll jumps */}
+        <div
+          className="page-bottom-space"
+          style={{
+            height: '300px',
+            width: '100%'
+          }}
+          aria-hidden="true"
+        />
+      </div>
+      <ScrollUpButton />
+    </div>
   );
 };
