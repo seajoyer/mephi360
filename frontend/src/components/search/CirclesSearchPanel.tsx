@@ -7,290 +7,297 @@ import { getClubOrganizers, getClubSubjects, DropdownOption } from '@/services/a
 import { FilterContainer, FilterButton, SearchPanelStyles } from './SearchPanelComponents';
 
 interface CirclesSearchPanelProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  organizerFilter: string | null;
-  onOrganizerFilterChange: (organizer: string | null) => void;
-  subjectFilter: string | null;
-  onSubjectFilterChange: (subject: string | null) => void;
+    searchQuery: string;
+    onSearchChange: (query: string) => void;
+    organizerFilter: string | null;
+    onOrganizerFilterChange: (organizer: string | null) => void;
+    subjectFilter: string | null;
+    onSubjectFilterChange: (subject: string | null) => void;
 }
 
 export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
-  searchQuery,
-  onSearchChange,
-  organizerFilter,
-  onOrganizerFilterChange,
-  subjectFilter,
-  onSubjectFilterChange
+    searchQuery,
+    onSearchChange,
+    organizerFilter,
+    onOrganizerFilterChange,
+    subjectFilter,
+    onSubjectFilterChange
 }) => {
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [organizerOptions, setOrganizerOptions] = useState<DropdownOption[]>([]);
-  const [subjectOptions, setSubjectOptions] = useState<DropdownOption[]>([]);
-  const [isLoading, setIsLoading] = useState({
-    organizers: false,
-    subjects: false
-  });
+    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+    const [organizerOptions, setOrganizerOptions] = useState<DropdownOption[]>([]);
+    const [subjectOptions, setSubjectOptions] = useState<DropdownOption[]>([]);
+    const [isLoading, setIsLoading] = useState({
+        organizers: false,
+        subjects: false
+    });
 
-  // State for filter selection overlay
-  const [filterOverlay, setFilterOverlay] = useState<{
-    type: 'none' | 'organizer' | 'subject';
-    isVisible: boolean;
-  }>({ type: 'none', isVisible: false });
+    // State for filter selection overlay
+    const [filterOverlay, setFilterOverlay] = useState<{
+        type: 'none' | 'organizer' | 'subject';
+        isVisible: boolean;
+    }>({ type: 'none', isVisible: false });
 
-  // State for sticky detection
-  const [isSticky, setIsSticky] = useState(false);
+    // State for sticky detection
+    const [isSticky, setIsSticky] = useState(false);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
 
-  // Set up IntersectionObserver to detect sticky state
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsSticky(!entry.isIntersecting);
-      },
-      { threshold: 0 }
-    );
+    // Set up IntersectionObserver to detect sticky state
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsSticky(!entry.isIntersecting);
+            },
+            { threshold: 0 }
+        );
 
-    // Create a sentinel element to observe
-    const sentinel = document.createElement('div');
-    sentinel.style.height = '1px';
-    sentinel.style.position = 'absolute';
-    sentinel.style.top = '0';
-    sentinel.style.left = '0';
-    sentinel.style.width = '100%';
+        // Create a sentinel element to observe
+        const sentinel = document.createElement('div');
+        sentinel.style.height = '1px';
+        sentinel.style.position = 'absolute';
+        sentinel.style.top = '0';
+        sentinel.style.left = '0';
+        sentinel.style.width = '100%';
 
-    if (panelRef.current && panelRef.current.parentNode) {
-      panelRef.current.parentNode.insertBefore(sentinel, panelRef.current);
-      observer.observe(sentinel);
-    }
+        if (panelRef.current && panelRef.current.parentNode) {
+            panelRef.current.parentNode.insertBefore(sentinel, panelRef.current);
+            observer.observe(sentinel);
+        }
 
-    return () => {
-      observer.disconnect();
-      if (sentinel.parentNode) {
-        sentinel.parentNode.removeChild(sentinel);
-      }
+        return () => {
+            observer.disconnect();
+            if (sentinel.parentNode) {
+                sentinel.parentNode.removeChild(sentinel);
+            }
+        };
+    }, []);
+
+    // Load filter options
+    useEffect(() => {
+        const loadOptions = async () => {
+            // Load club organizers
+            setIsLoading(prev => ({ ...prev, organizers: true }));
+            try {
+                const organizersResponse = await getClubOrganizers();
+                setOrganizerOptions(organizersResponse.items);
+            } catch (error) {
+                console.error('Error loading organizers:', error);
+            } finally {
+                setIsLoading(prev => ({ ...prev, organizers: false }));
+            }
+
+            // Load club subjects
+            setIsLoading(prev => ({ ...prev, subjects: true }));
+            try {
+                const subjectsResponse = await getClubSubjects();
+                setSubjectOptions(subjectsResponse.items);
+            } catch (error) {
+                console.error('Error loading subjects:', error);
+            } finally {
+                setIsLoading(prev => ({ ...prev, subjects: false }));
+            }
+        };
+
+        loadOptions();
+    }, []);
+
+    // Toggle search expansion
+    const handleSearchExpand = () => {
+        setIsSearchExpanded(true);
+        setTimeout(() => {
+            inputRef.current?.focus();
+        }, 200);
     };
-  }, []);
 
-  // Load filter options
-  useEffect(() => {
-    const loadOptions = async () => {
-      // Load club organizers
-      setIsLoading(prev => ({ ...prev, organizers: true }));
-      try {
-        const organizersResponse = await getClubOrganizers();
-        setOrganizerOptions(organizersResponse.items);
-      } catch (error) {
-        console.error('Error loading organizers:', error);
-      } finally {
-        setIsLoading(prev => ({ ...prev, organizers: false }));
-      }
-
-      // Load club subjects
-      setIsLoading(prev => ({ ...prev, subjects: true }));
-      try {
-        const subjectsResponse = await getClubSubjects();
-        setSubjectOptions(subjectsResponse.items);
-      } catch (error) {
-        console.error('Error loading subjects:', error);
-      } finally {
-        setIsLoading(prev => ({ ...prev, subjects: false }));
-      }
+    const handleSearchCollapse = () => {
+        setIsSearchExpanded(false);
+        onSearchChange(''); // Clear search when collapsing
     };
 
-    loadOptions();
-  }, []);
+    // Find selected option names for display
+    const getSelectedOptionName = (options: DropdownOption[], selectedId: string | null) => {
+        if (!selectedId) return '';
+        const option = options.find(opt => opt.id === selectedId);
+        return option ? option.name : '';
+    };
 
-  // Toggle search expansion
-  const handleSearchExpand = () => {
-    setIsSearchExpanded(true);
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 200);
-  };
+    const organizerOptionName = getSelectedOptionName(organizerOptions, organizerFilter);
+    const subjectOptionName = getSelectedOptionName(subjectOptions, subjectFilter);
 
-  const handleSearchCollapse = () => {
-    setIsSearchExpanded(false);
-    onSearchChange(''); // Clear search when collapsing
-  };
+    // Open filter overlay
+    const openFilterOverlay = (type: 'organizer' | 'subject') => {
+        setFilterOverlay({ type, isVisible: true });
+    };
 
-  // Find selected option names for display
-  const getSelectedOptionName = (options: DropdownOption[], selectedId: string | null) => {
-    if (!selectedId) return '';
-    const option = options.find(opt => opt.id === selectedId);
-    return option ? option.name : '';
-  };
+    // Close filter overlay
+    const closeFilterOverlay = () => {
+        setFilterOverlay({ type: 'none', isVisible: false });
+    };
 
-  const organizerOptionName = getSelectedOptionName(organizerOptions, organizerFilter);
-  const subjectOptionName = getSelectedOptionName(subjectOptions, subjectFilter);
+    // Handle filter selection
+    const handleFilterSelect = (value: string | null) => {
+        switch (filterOverlay.type) {
+            case 'organizer':
+                onOrganizerFilterChange(value);
+                break;
+            case 'subject':
+                onSubjectFilterChange(value);
+                break;
+        }
+    };
 
-  // Open filter overlay
-  const openFilterOverlay = (type: 'organizer' | 'subject') => {
-    setFilterOverlay({ type, isVisible: true });
-  };
+    // Get filter options based on active filter type
+    const getFilterOptions = () => {
+        switch (filterOverlay.type) {
+            case 'organizer':
+                return organizerOptions;
+            case 'subject':
+                return subjectOptions;
+            default:
+                return [];
+        }
+    };
 
-  // Close filter overlay
-  const closeFilterOverlay = () => {
-    setFilterOverlay({ type: 'none', isVisible: false });
-  };
+    // Get filter title based on active filter type
+    const getFilterTitle = () => {
+        switch (filterOverlay.type) {
+            case 'organizer':
+                return "Выберите организатора";
+            case 'subject':
+                return "Выберите предмет";
+            default:
+                return "";
+        }
+    };
 
-  // Handle filter selection
-  const handleFilterSelect = (value: string | null) => {
-    switch (filterOverlay.type) {
-      case 'organizer':
-        onOrganizerFilterChange(value);
-        break;
-      case 'subject':
-        onSubjectFilterChange(value);
-        break;
-    }
-  };
+    // Get selected option based on active filter type
+    const getSelectedOption = () => {
+        switch (filterOverlay.type) {
+            case 'organizer':
+                return organizerFilter;
+            case 'subject':
+                return subjectFilter;
+            default:
+                return null;
+        }
+    };
 
-  // Get filter options based on active filter type
-  const getFilterOptions = () => {
-    switch (filterOverlay.type) {
-      case 'organizer':
-        return organizerOptions;
-      case 'subject':
-        return subjectOptions;
-      default:
-        return [];
-    }
-  };
-
-  // Get filter title based on active filter type
-  const getFilterTitle = () => {
-    switch (filterOverlay.type) {
-      case 'organizer':
-        return "Выберите организатора";
-      case 'subject':
-        return "Выберите предмет";
-      default:
-        return "";
-    }
-  };
-
-  // Get selected option based on active filter type
-  const getSelectedOption = () => {
-    switch (filterOverlay.type) {
-      case 'organizer':
-        return organizerFilter;
-      case 'subject':
-        return subjectFilter;
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <>
-      <div
-        ref={panelRef}
-        className={`search-panel ${isSticky ? 'sticky' : ''}`}
-        data-searchpanel="circles"
-      >
-        <SearchPanelStyles />
-
-        <div className="flex gap-2 items-center">
-          {/* Search button (collapsed) */}
-          {!isSearchExpanded && (
+    return (
+        <>
             <div
-              className="flex-shrink-0"
-              style={{
-                width: '42px'
-              }}
+                ref={panelRef}
+                className={`search-panel`}
+                data-searchpanel="circles"
             >
-              <div className="relative">
-                <div
-                  className="absolute inset-0 z-10 cursor-pointer"
-                  onClick={handleSearchExpand}
-                  aria-label="Expand search"
-                  role="button"
-                  tabIndex={0}
-                />
+                <SearchPanelStyles />
 
-                <Input
-                  ref={inputRef}
-                  placeholder=""
-                  value={searchQuery}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  aria-label="Search"
-                  style={{
-                    width: '42px',
-                    height: '42px'
-                  }}
-                  before={
-                    <div
-                      className="translate-x-[calc(50%-12px)]"
-                      aria-hidden="true"
-                    >
-                      <Icon24Search />
-                    </div>
-                  }
-                />
-              </div>
+                <div className="flex gap-2 items-center">
+                    {/* Search button (collapsed) */}
+                    {!isSearchExpanded && (
+                        <div
+                            className="flex-shrink-0"
+                            style={{
+                                width: '42px'
+                            }}
+                        >
+                            <div className="relative">
+                                <div
+                                    className="absolute inset-0 z-10 cursor-pointer"
+                                    onClick={handleSearchExpand}
+                                    aria-label="Expand search"
+                                    role="button"
+                                    tabIndex={0}
+                                />
+
+                                <Input
+                                    ref={inputRef}
+                                    placeholder=""
+                                    value={searchQuery}
+                                    onChange={(e) => onSearchChange(e.target.value)}
+                                    aria-label="Search"
+                                    style={{
+                                        width: '42px',
+                                        height: '42px'
+                                    }}
+                                    before={
+                                        <div
+                                            className="translate-x-[calc(50%-12px)]"
+                                            aria-hidden="true"
+                                        >
+                                            <Icon24Search />
+                                        </div>
+                                    }
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Search expanded - takes full width */}
+                    {isSearchExpanded && (
+                        <div className="flex-1">
+                            <Input
+                                ref={inputRef}
+                                placeholder="Поиск кружков..."
+                                value={searchQuery}
+                                onChange={(e) => onSearchChange(e.target.value)}
+                                aria-label="Search"
+                                before={
+                                    <Icon24Search
+                                        style={{
+                                            color: 'var(--tgui--hint_color)'
+                                        }}
+                                    />
+                                }
+                                after={
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            position: 'relative',
+                                            zIndex: 20,
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={handleSearchCollapse}
+                                        aria-label="Close search"
+                                    >
+                                        <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
+                                    </div>
+                                }
+                            />
+                        </div>
+                    )}
+
+                    {/* Filters - only visible when search is not expanded */}
+                    <FilterContainer isHidden={isSearchExpanded}>
+                        {/* Subject filter button */}
+                        <FilterButton
+                            label={subjectFilter ? subjectOptionName : 'Предмет'}
+                            selected={!!subjectFilter}
+                            onClick={() => openFilterOverlay('subject')}
+                            onClear={() => onSubjectFilterChange(null)}
+                        />
+
+                        {/* Organizer filter button */}
+                        <FilterButton
+                            label={organizerFilter ? organizerOptionName : 'Организатор'}
+                            selected={!!organizerFilter}
+                            onClick={() => openFilterOverlay('organizer')}
+                            onClear={() => onOrganizerFilterChange(null)}
+                        />
+                    </FilterContainer>
+                </div>
             </div>
-          )}
 
-          {/* Search expanded - takes full width */}
-          {isSearchExpanded && (
-            <div className="flex-1">
-              <Input
-                ref={inputRef}
-                placeholder="Поиск кружков..."
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                aria-label="Search"
-                after={
-                  <div
-                    style={{
-                      display: 'flex',
-                      position: 'relative',
-                      zIndex: 20,
-                      cursor: 'pointer'
-                    }}
-                    onClick={handleSearchCollapse}
-                    aria-label="Close search"
-                  >
-                    <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
-                  </div>
-                }
-              />
-            </div>
-          )}
-
-          {/* Filters - only visible when search is not expanded */}
-          <FilterContainer isHidden={isSearchExpanded}>
-            {/* Subject filter button */}
-            <FilterButton
-              label={subjectFilter ? subjectOptionName : 'Предмет'}
-              selected={!!subjectFilter}
-              onClick={() => openFilterOverlay('subject')}
-              onClear={() => onSubjectFilterChange(null)}
+            {/* Modal Filter Overlay */}
+            <ModalOverlay
+                title={getFilterTitle()}
+                options={getFilterOptions()}
+                selectedOption={getSelectedOption()}
+                onSelect={handleFilterSelect}
+                onClose={closeFilterOverlay}
+                isVisible={filterOverlay.isVisible}
+                parentHasBackButton={false}
             />
-
-            {/* Organizer filter button */}
-            <FilterButton
-              label={organizerFilter ? organizerOptionName : 'Организатор'}
-              selected={!!organizerFilter}
-              onClick={() => openFilterOverlay('organizer')}
-              onClear={() => onOrganizerFilterChange(null)}
-            />
-          </FilterContainer>
-        </div>
-      </div>
-
-{/* Modal Filter Overlay */}
-      <ModalOverlay
-        title={getFilterTitle()}
-        options={getFilterOptions()}
-        selectedOption={getSelectedOption()}
-        onSelect={handleFilterSelect}
-        onClose={closeFilterOverlay}
-        isVisible={filterOverlay.isVisible}
-        parentHasBackButton={false} // CirclesPage has no back button
-      />
-    </>
-  );
+        </>
+    );
 };

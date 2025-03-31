@@ -152,20 +152,14 @@ export const ModalOverlay: React.FC<ModalOverlayProps> = ({
         right: 0,
         bottom: 0,
         zIndex: 1000,
-        background: 'var(--tgui--bg_color)',
+        background: 'var(--tgui--secondary_bg_color)',
         overflow: 'auto'
       }}
     >
-      <div style={{
-        padding: '16px',
-        borderBottom: '1px solid var(--tgui--divider)',
-        fontWeight: 'bold',
-        fontSize: '18px'
-      }}>
-        {title}
-      </div>
       <List>
-        <Section>
+        <Section
+            header={title}
+        >
           {/* "All" option */}
           <Cell
             onClick={() => handleSelect(null)}

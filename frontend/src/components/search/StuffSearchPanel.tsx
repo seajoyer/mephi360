@@ -479,7 +479,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
             <div
               className="transition-all duration-200 ease-in-out flex-shrink-0"
               style={{
-                width: isSearchExpanded ? '42px' : '42px'
+                width: '42px'
               }}
             >
               <div className="relative">
@@ -579,7 +579,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
         </div>
       </div>
 
-{/* Modal Filter Overlay */}
+      {/* Modal Filter Overlay */}
       <ModalOverlay
         title={getFilterTitle()}
         options={getFilterOptions()}

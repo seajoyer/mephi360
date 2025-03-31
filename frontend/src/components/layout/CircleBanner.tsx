@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Section, Image, Chip, Button, Text, Caption, Subheadline } from '@telegram-apps/telegram-ui';
 import { Icon24Chevron_down } from '@/icons/24/chevron_down';
 
-interface ClubBannerProps {
+interface CircleBannerProps {
     title: string;
     description: string;
     imageSrc: string;
@@ -12,7 +12,7 @@ interface ClubBannerProps {
     buttonText?: string;
 }
 
-export const ClubBanner: React.FC<ClubBannerProps> = ({
+export const CircleBanner: React.FC<CircleBannerProps> = ({
     title,
     description,
     imageSrc,

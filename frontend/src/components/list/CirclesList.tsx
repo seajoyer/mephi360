@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Section } from '@telegram-apps/telegram-ui';
-import { ClubBanner } from '@/components/layout/ClubBanner';
-import { getClubs } from '@/services/apiService';
+import { CircleBanner } from '@/components/layout/CircleBanner';
+import { getCircles } from '@/services/apiService';
 import { useFilters } from '@/contexts/FilterContext';
 
 // Types
-interface Club {
+interface Circle {
     id: number;
     name: string;
     description: string;
@@ -17,14 +17,14 @@ interface Club {
     organizer: string;
 }
 
-interface ClubsListProps {
+interface CirclesListProps {
     searchQuery?: string;
     organizerFilter?: string | null;
     subjectFilter?: string | null;
 }
 
 // Loading skeleton component
-const ClubBannerSkeleton: React.FC = () => (
+const CircleBannerSkeleton: React.FC = () => (
     <div className="p-4 animate-pulse">
         <div className="flex items-start justify-between">
             <div className="flex-1 pr-3">
@@ -46,21 +46,21 @@ const LoadingState: React.FC = () => (
     <>
         {Array.from({ length: 3 }).map((_, index) => (
             <Section key={`skeleton-${index}`} className="mb-2">
-                <ClubBannerSkeleton />
+                <CircleBannerSkeleton />
             </Section>
         ))}
     </>
 );
 
-export const ClubsList: React.FC<ClubsListProps> = ({
+export const CirclesList: React.FC<CirclesListProps> = ({
     searchQuery = '',
     organizerFilter = null,
     subjectFilter = null
 }) => {
     // Access filter context to get and update filters
-    const { setClubOrganizer, setClubSubject } = useFilters();
+    const { setCircleOrganizer, setCircleSubject } = useFilters();
 
-    const [clubs, setClubs] = useState<Club[]>([]);
+    const [circles, setCircles] = useState<Circle[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -71,15 +71,15 @@ export const ClubsList: React.FC<ClubsListProps> = ({
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadTriggerRef = useRef<HTMLDivElement>(null);
 
-    // Load clubs function with filters
-    const loadMoreClubs = useCallback(async () => {
+    // Load circles function with filters
+    const loadMoreCircles = useCallback(async () => {
         if (loadingRef.current || !hasMore || error) return;
 
         loadingRef.current = true;
         setIsLoading(true);
 
         try {
-            const response = await getClubs({
+            const response = await getCircles({
                 search: searchQuery,
                 organizer: organizerFilter || undefined,
                 subject: subjectFilter || undefined,
@@ -88,14 +88,14 @@ export const ClubsList: React.FC<ClubsListProps> = ({
             });
 
             if (response.items.length > 0) {
-                setClubs(prev => [...prev, ...response.items]);
+                setCircles(prev => [...prev, ...response.items]);
                 setCursor(response.nextCursor);
                 setHasMore(!!response.nextCursor);
             } else {
                 setHasMore(false);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Error loading clubs');
+            setError(err instanceof Error ? err.message : 'Error loading circles');
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -105,7 +105,7 @@ export const ClubsList: React.FC<ClubsListProps> = ({
 
     // Reset list when filters change
     useEffect(() => {
-        setClubs([]);
+        setCircles([]);
         setCursor(null);
         setHasMore(true);
         setError(null);
@@ -114,10 +114,10 @@ export const ClubsList: React.FC<ClubsListProps> = ({
 
     // Initial load
     useEffect(() => {
-        if (clubs.length === 0 && !error) {
-            loadMoreClubs();
+        if (circles.length === 0 && !error) {
+            loadMoreCircles();
         }
-    }, [loadMoreClubs, error, clubs.length]);
+    }, [loadMoreCircles, error, circles.length]);
 
     // Set up Intersection Observer for infinite scroll
     useEffect(() => {
@@ -130,14 +130,14 @@ export const ClubsList: React.FC<ClubsListProps> = ({
         const observer = new IntersectionObserver((entries) => {
             const [entry] = entries;
             if (entry.isIntersecting && !loadingRef.current && hasMore) {
-                loadMoreClubs();
+                loadMoreCircles();
             }
         }, options);
 
         observerRef.current = observer;
 
         return () => observer.disconnect();
-    }, [loadMoreClubs, hasMore]);
+    }, [loadMoreCircles, hasMore]);
 
     // Observe load trigger element
     useEffect(() => {
@@ -148,18 +148,18 @@ export const ClubsList: React.FC<ClubsListProps> = ({
             observer.observe(trigger);
             return () => observer.unobserve(trigger);
         }
-    }, [clubs]);
+    }, [circles]);
 
     // Handle tag click to set filter
     const handleTagClick = (tag: string) => {
         // Determine if this tag is a subject or organizer
-        const isSubject = clubs.some(club => club.subject === tag);
-        const isOrganizer = clubs.some(club => club.organizer === tag);
+        const isSubject = circles.some(circle => circle.subject === tag);
+        const isOrganizer = circles.some(circle => circle.organizer === tag);
 
         if (isSubject) {
-            setClubSubject(tag);
+            setCircleSubject(tag);
         } else if (isOrganizer) {
-            setClubOrganizer(tag);
+            setCircleOrganizer(tag);
         }
     };
 
@@ -180,7 +180,7 @@ export const ClubsList: React.FC<ClubsListProps> = ({
                     className="block mx-auto mt-2 p-2 bg-gray-200 rounded"
                     onClick={() => {
                         setError(null);
-                        loadMoreClubs();
+                        loadMoreCircles();
                     }}
                 >
                     Повторить
@@ -198,18 +198,18 @@ export const ClubsList: React.FC<ClubsListProps> = ({
             }}
         >
             <div className="space-y-3">
-                {clubs.map((club) => (
-                    <div key={club.id}>
-                        <ClubBanner
-                            title={club.name}
-                            description={club.description}
-                            imageSrc={club.image}
-                            tags={filterVisibleTags(club.tags)}
+                {circles.map((circle) => (
+                    <div key={circle.id}>
+                        <CircleBanner
+                            title={circle.name}
+                            description={circle.description}
+                            imageSrc={circle.image}
+                            tags={filterVisibleTags(circle.tags)}
                             buttonText="Подробнее"
                             onTagClick={handleTagClick}
                             onNavigate={() => {
-                                // In a real app, navigate to club page
-                                console.log(`Navigate to club ${club.id}`);
+                                // In a real app, navigate to circle page
+                                console.log(`Navigate to circle ${circle.id}`);
                             }}
                         />
                     </div>
@@ -225,17 +225,17 @@ export const ClubsList: React.FC<ClubsListProps> = ({
                 )}
 
                 {/* Show loading state when initially loading */}
-                {isLoading && clubs.length === 0 && <LoadingState />}
+                {isLoading && circles.length === 0 && <LoadingState />}
 
                 {/* Show loading indicator when loading more */}
-                {isLoading && clubs.length > 0 && (
+                {isLoading && circles.length > 0 && (
                     <div className="py-4 text-center">
                         <div className="inline-block h-6 w-6 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
                     </div>
                 )}
 
                 {/* Empty state when no results */}
-                {!isLoading && clubs.length === 0 && (
+                {!isLoading && circles.length === 0 && (
                     <div className="text-center py-8">
                         <p className="text-gray-500">Кружки не найдены</p>
                         <p className="text-gray-400 text-sm mt-2">Попробуйте изменить параметры поиска</p>
@@ -243,7 +243,7 @@ export const ClubsList: React.FC<ClubsListProps> = ({
                 )}
 
                 {/* End of list message */}
-                {!hasMore && clubs.length > 0 && (
+                {!hasMore && circles.length > 0 && (
                     <div className="text-center py-4 text-gray-500">
                         Все кружки загружены
                     </div>

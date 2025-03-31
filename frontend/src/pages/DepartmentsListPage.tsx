@@ -4,18 +4,18 @@ import { DepartmentList } from '@/components/list/DepartmentList';
 import { DepartmentsSearchPanel } from '@/components/search/DepartmentsSearchPanel';
 
 export const DepartmentsListPage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
-  return (
-    <Page back={true}>
-      <div className="p-2">
-        <DepartmentsSearchPanel
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
+    return (
+        <Page back={true}>
+            <div className="px-2">
+                <DepartmentsSearchPanel
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                />
+            </div>
 
-        <DepartmentList searchQuery={searchQuery} />
-      </div>
-    </Page>
-  );
+            <DepartmentList searchQuery={searchQuery} />
+        </Page>
+    );
 };

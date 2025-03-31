@@ -114,7 +114,7 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
     <>
       <div
         ref={panelRef}
-        className={`search-panel ${isSticky ? 'sticky' : ''}`}
+        className={`search-panel`}
         data-searchpanel="tutors"
       >
         <SearchPanelStyles />
@@ -165,10 +165,17 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
             <div className="flex-1">
               <Input
                 ref={inputRef}
-                placeholder="Поиск преподавателей..."
+                placeholder="Лектор Грибоедов..."
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 aria-label="Search"
+                before={
+                  <Icon24Search
+                    style={{
+                      color: 'var(--tgui--hint_color)'
+                    }}
+                  />
+                }
                 after={
                   <div
                     style={{

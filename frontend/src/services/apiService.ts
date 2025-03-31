@@ -43,8 +43,8 @@ export interface DropdownOption {
 
 // ====== MOCK DATA ======
 
-// Mock clubs data
-const mockClubs = Array.from({ length: 30 }, (_, index) => {
+// Mock circles data
+const mockCircles = Array.from({ length: 30 }, (_, index) => {
   const subjects = [
     'Математика', 'IT', 'Английский',
     'Астрономия', 'Физика', 'Химия'
@@ -62,7 +62,7 @@ const mockClubs = Array.from({ length: 30 }, (_, index) => {
     id: index + 1,
     name: `Кружок ${subject}`,
     description: `Описание кружка lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`,
-    image: `/assets/clubs/club${(index % 5) + 1}.jpg`,
+    image: `/assets/circles/circle${(index % 5) + 1}.jpg`,
     tags: [subject, organizer],
     memberCount: Math.floor(Math.random() * 80) + 20,
     department: `Кафедра №${Math.floor(Math.random() * 50) + 1}`,
@@ -157,7 +157,7 @@ function createMockPaginatedResponse<T>(
     );
   }
 
-  // Club filters
+  // Circle filters
   if ('organizer' in filter && filter.organizer) {
     filteredData = filteredData.filter((item: any) =>
       item.organizer === filter.organizer
@@ -271,15 +271,15 @@ export const getDepartments = async (filter: Record<string, any> = {}): Promise<
 };
 
 /**
- * Get filtered clubs list
+ * Get filtered circles list
  */
-export const getClubs = async (filter: Record<string, any> = {}): Promise<PaginatedResponse<any>> => {
+export const getCircles = async (filter: Record<string, any> = {}): Promise<PaginatedResponse<any>> => {
   if (currentDataSource === DataSource.MOCK) {
-    console.log('Getting clubs with filter:', filter);
-    return createMockPaginatedResponse(mockClubs, filter);
+    console.log('Getting circles with filter:', filter);
+    return createMockPaginatedResponse(mockCircles, filter);
   }
 
-  const url = new URL(`${API_BASE_URL}/api/clubs`);
+  const url = new URL(`${API_BASE_URL}/api/circles`);
 
   // Add filter parameters
   Object.entries(filter).forEach(([key, value]) => {
@@ -290,7 +290,7 @@ export const getClubs = async (filter: Record<string, any> = {}): Promise<Pagina
 
   const response = await fetch(url.toString());
   if (!response.ok) {
-    throw new Error(`Failed to fetch clubs: ${response.status}`);
+    throw new Error(`Failed to fetch circles: ${response.status}`);
   }
 
   return await response.json();
@@ -347,12 +347,12 @@ export const getDepartmentOptions = async (): Promise<{ items: DropdownOption[] 
 };
 
 /**
- * Get club organizers for dropdown
+ * Get circle organizers for dropdown
  */
-export const getClubOrganizers = async (): Promise<{ items: DropdownOption[] }> => {
+export const getCircleOrganizers = async (): Promise<{ items: DropdownOption[] }> => {
   if (currentDataSource === DataSource.MOCK) {
     const uniqueOrganizers = Array.from(new Set(
-      mockClubs.map(club => club.organizer)
+      mockCircles.map(circle => circle.organizer)
     )).sort();
 
     const options = uniqueOrganizers.map(org => ({
@@ -363,21 +363,21 @@ export const getClubOrganizers = async (): Promise<{ items: DropdownOption[] }> 
     return { items: options };
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/clubs/organizers`);
+  const response = await fetch(`${API_BASE_URL}/api/circles/organizers`);
   if (!response.ok) {
-    throw new Error(`Failed to fetch club organizers: ${response.status}`);
+    throw new Error(`Failed to fetch circle organizers: ${response.status}`);
   }
 
   return await response.json();
 };
 
 /**
- * Get club subjects for dropdown
+ * Get circle subjects for dropdown
  */
-export const getClubSubjects = async (): Promise<{ items: DropdownOption[] }> => {
+export const getCircleSubjects = async (): Promise<{ items: DropdownOption[] }> => {
   if (currentDataSource === DataSource.MOCK) {
     const uniqueSubjects = Array.from(new Set(
-      mockClubs.map(club => club.subject)
+      mockCircles.map(circle => circle.subject)
     )).sort();
 
     const options = uniqueSubjects.map(subject => ({
@@ -388,9 +388,9 @@ export const getClubSubjects = async (): Promise<{ items: DropdownOption[] }> =>
     return { items: options };
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/clubs/subjects`);
+  const response = await fetch(`${API_BASE_URL}/api/circles/subjects`);
   if (!response.ok) {
-    throw new Error(`Failed to fetch club subjects: ${response.status}`);
+    throw new Error(`Failed to fetch circle subjects: ${response.status}`);
   }
 
   return await response.json();
