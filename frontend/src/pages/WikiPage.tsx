@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Page } from '@/components/Page';
 import { TopButtons } from '@/components/layout/TopButtons';
 import { TopText } from '@/components/layout/TopText';
-import { Button, Cell, List, Section, Spoiler } from '@telegram-apps/telegram-ui';
+import { Button, Cell, List, Section } from '@telegram-apps/telegram-ui';
 import { Icon24Tutor_hat } from '@/icons/24/tutor_hat';
 import { Icon16Chevron_right } from '@/icons/16/chevron_right';
 import { Icon24Home } from '@/icons/24/home';
@@ -38,9 +38,7 @@ export const WikiPage: FC = () => {
             <div>
                 <TopButtons />
                 <TopText />
-                <div
-                    // className='px-2'
-                >
+                <div>
                     <List>
                         <WikiPageButtons />
 
@@ -94,9 +92,9 @@ export const WikiPage: FC = () => {
                                         style={{ color: `var(--tgui--hint_color)` }}
                                     />
                                 }
-                                onClick={() => handleCellClick('/blogs')}
+                                onClick={() => console.log('Channels clicked')}
                             >
-                                Tg блоги
+                                Каналы
                             </Cell>
                         </Section>
 
@@ -113,6 +111,7 @@ export const WikiPage: FC = () => {
                                 Задать вопрос
                             </Cell>
                         </Section>
+
                         <Button
                             className="w-full"
                             mode="plain"

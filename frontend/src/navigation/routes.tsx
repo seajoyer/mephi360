@@ -9,7 +9,7 @@ import { StuffPage } from '@/pages/StuffPage';
 import { StuffListPage } from '@/pages/StuffListPage';
 import { EnvUnsupported } from '@/components/EnvUnsupported';
 
-// Define app routes
+// Define app routes with optional query parameters in paths
 export const routes: RouteProps[] = [
     {
         path: '/wiki',

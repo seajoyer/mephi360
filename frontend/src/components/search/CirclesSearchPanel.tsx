@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
-import { backButton } from '@telegram-apps/sdk-react';
-import { FilterSelectionPage } from '@/pages/FilterSelectionPage';
+import { ModalOverlay } from './ModalOverlay';
 import { getClubOrganizers, getClubSubjects, DropdownOption } from '@/services/apiService';
 import { FilterContainer, FilterButton, SearchPanelStyles } from './SearchPanelComponents';
 
@@ -32,14 +31,14 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
     subjects: false
   });
 
-  // State for filter selection page
-  const [showFilterPage, setShowFilterPage] = useState<'none' | 'organizer' | 'subject'>('none');
+  // State for filter selection overlay
+  const [filterOverlay, setFilterOverlay] = useState<{
+    type: 'none' | 'organizer' | 'subject';
+    isVisible: boolean;
+  }>({ type: 'none', isVisible: false });
 
   // State for sticky detection
   const [isSticky, setIsSticky] = useState(false);
-
-  // Keep track of original back button handler
-  const originalBackHandlerRef = useRef<(() => void) | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -73,32 +72,6 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
       }
     };
   }, []);
-
-  // Set up back button handler for filter selection
-  useEffect(() => {
-    if (showFilterPage !== 'none') {
-      // Save the original back handler if we haven't already
-      if (originalBackHandlerRef.current === null) {
-        // Store a function that will restore the default back behavior
-        originalBackHandlerRef.current = () => {};
-      }
-
-      // Override back button to close filter selection instead of navigating
-      const unsubscribe = backButton.onClick(() => {
-        setShowFilterPage('none');
-        return true; // Prevent default navigation
-      });
-
-      return () => {
-        unsubscribe();
-        // When filter selection is closed, restore original behavior
-        if (showFilterPage === 'none' && originalBackHandlerRef.current) {
-          originalBackHandlerRef.current();
-          originalBackHandlerRef.current = null;
-        }
-      };
-    }
-  }, [showFilterPage]);
 
   // Load filter options
   useEffect(() => {
@@ -152,53 +125,66 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
   const organizerOptionName = getSelectedOptionName(organizerOptions, organizerFilter);
   const subjectOptionName = getSelectedOptionName(subjectOptions, subjectFilter);
 
-  // Handle selecting options
-  const handleOrganizerSelect = (organizerId: string | null) => {
-    onOrganizerFilterChange(organizerId);
-    setShowFilterPage('none');
+  // Open filter overlay
+  const openFilterOverlay = (type: 'organizer' | 'subject') => {
+    setFilterOverlay({ type, isVisible: true });
   };
 
-  const handleSubjectSelect = (subjectId: string | null) => {
-    onSubjectFilterChange(subjectId);
-    setShowFilterPage('none');
+  // Close filter overlay
+  const closeFilterOverlay = () => {
+    setFilterOverlay({ type: 'none', isVisible: false });
+  };
+
+  // Handle filter selection
+  const handleFilterSelect = (value: string | null) => {
+    switch (filterOverlay.type) {
+      case 'organizer':
+        onOrganizerFilterChange(value);
+        break;
+      case 'subject':
+        onSubjectFilterChange(value);
+        break;
+    }
+  };
+
+  // Get filter options based on active filter type
+  const getFilterOptions = () => {
+    switch (filterOverlay.type) {
+      case 'organizer':
+        return organizerOptions;
+      case 'subject':
+        return subjectOptions;
+      default:
+        return [];
+    }
+  };
+
+  // Get filter title based on active filter type
+  const getFilterTitle = () => {
+    switch (filterOverlay.type) {
+      case 'organizer':
+        return "Выберите организатора";
+      case 'subject':
+        return "Выберите предмет";
+      default:
+        return "";
+    }
+  };
+
+  // Get selected option based on active filter type
+  const getSelectedOption = () => {
+    switch (filterOverlay.type) {
+      case 'organizer':
+        return organizerFilter;
+      case 'subject':
+        return subjectFilter;
+      default:
+        return null;
+    }
   };
 
   return (
     <>
-      {/* Filter Selection Overlay */}
-      {showFilterPage !== 'none' && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1000,
-            background: 'var(--tgui--bg_color)'
-          }}
-        >
-          {showFilterPage === 'subject' && (
-            <FilterSelectionPage
-              title="Выберите предмет"
-              options={subjectOptions}
-              selectedOption={subjectFilter}
-              onSelect={handleSubjectSelect}
-            />
-          )}
-
-          {showFilterPage === 'organizer' && (
-            <FilterSelectionPage
-              title="Выберите организатора"
-              options={organizerOptions}
-              selectedOption={organizerFilter}
-              onSelect={handleOrganizerSelect}
-            />
-          )}
-        </div>
-      )}
-
-      {/* Main Search Panel */}
       <div
         ref={panelRef}
         className={`search-panel ${isSticky ? 'sticky' : ''}`}
@@ -280,7 +266,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
             <FilterButton
               label={subjectFilter ? subjectOptionName : 'Предмет'}
               selected={!!subjectFilter}
-              onClick={() => setShowFilterPage('subject')}
+              onClick={() => openFilterOverlay('subject')}
               onClear={() => onSubjectFilterChange(null)}
             />
 
@@ -288,12 +274,22 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
             <FilterButton
               label={organizerFilter ? organizerOptionName : 'Организатор'}
               selected={!!organizerFilter}
-              onClick={() => setShowFilterPage('organizer')}
+              onClick={() => openFilterOverlay('organizer')}
               onClear={() => onOrganizerFilterChange(null)}
             />
           </FilterContainer>
         </div>
       </div>
+
+      {/* Modal Filter Overlay */}
+      <ModalOverlay
+        title={getFilterTitle()}
+        options={getFilterOptions()}
+        selectedOption={getSelectedOption()}
+        onSelect={handleFilterSelect}
+        onClose={closeFilterOverlay}
+        isVisible={filterOverlay.isVisible}
+      />
     </>
   );
 };

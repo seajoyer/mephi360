@@ -11,7 +11,7 @@ export const CirclesPage: React.FC = () => {
 
   return (
     <Page back={false}>
-      <div className="pl-2 overflow-x-hidden">
+      <div className="p-2">
         <CirclesSearchPanel
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}

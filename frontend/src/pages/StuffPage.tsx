@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Page } from '@/components/Page';
 import {
@@ -11,7 +11,7 @@ import {
 import { TopButtons } from '@/components/layout/TopButtons';
 import { StuffPageButtons } from '@/components/layout/StuffPageButtons';
 import { TabBar } from '@/components/layout/TabBar';
-import { FilterSelectionPage } from '@/pages/FilterSelectionPage';
+import { FilterSelectionOverlay } from '@/components/search/FilterSelectionOverlay';
 import { useFilters } from '@/contexts/FilterContext';
 import {
   DropdownOption
@@ -44,8 +44,11 @@ export const StuffPage: React.FC = () => {
   const [subjectFilter, setSubjectFilter] = useState<string | null>(null);
   const [semesterFilter, setSemesterFilter] = useState<string | null>(null);
 
-  // State for filter selection screens
-  const [filterView, setFilterView] = useState<'main' | 'type' | 'teacher' | 'subject' | 'semester'>('main');
+  // State for filter selection overlays
+  const [filterOverlay, setFilterOverlay] = useState<{
+    type: 'none' | 'type' | 'teacher' | 'subject' | 'semester';
+    isVisible: boolean;
+  }>({ type: 'none', isVisible: false });
 
   // Find selected option names for display
   const getSelectedOptionName = (options: DropdownOption[], selectedId: string | null, filterType: 'teacher' | 'subject' | 'semester' | 'type') => {
@@ -75,74 +78,81 @@ export const StuffPage: React.FC = () => {
     navigate('/stuff/list');
   };
 
-  // Handle selecting a type filter
-  const handleTypeSelect = (option: string | null) => {
-    setTypeFilter(option);
-    setFilterView('main');
+  // Open filter overlay
+  const openFilterOverlay = (type: 'type' | 'teacher' | 'subject' | 'semester') => {
+    setFilterOverlay({ type, isVisible: true });
   };
 
-  // Handle selecting a teacher filter
-  const handleTeacherSelect = (option: string | null) => {
-    setTeacherFilter(option);
-    setFilterView('main');
+  // Close filter overlay
+  const closeFilterOverlay = () => {
+    setFilterOverlay({ type: 'none', isVisible: false });
   };
 
-  // Handle selecting a subject filter
-  const handleSubjectSelect = (option: string | null) => {
-    setSubjectFilter(option);
-    setFilterView('main');
+  // Handle filter selection
+  const handleFilterSelect = (value: string | null) => {
+    switch (filterOverlay.type) {
+      case 'type':
+        setTypeFilter(value);
+        break;
+      case 'teacher':
+        setTeacherFilter(value);
+        break;
+      case 'subject':
+        setSubjectFilter(value);
+        break;
+      case 'semester':
+        setSemesterFilter(value);
+        break;
+    }
   };
 
-  // Handle selecting a semester filter
-  const handleSemesterSelect = (option: string | null) => {
-    setSemesterFilter(option);
-    setFilterView('main');
+  // Get filter options based on active filter type
+  const getFilterOptions = () => {
+    switch (filterOverlay.type) {
+      case 'type':
+        return filterOptions.materialTypes;
+      case 'teacher':
+        return filterOptions.materialTeachers;
+      case 'subject':
+        return filterOptions.materialSubjects;
+      case 'semester':
+        return filterOptions.materialSemesters;
+      default:
+        return [];
+    }
   };
 
-  // Render appropriate view based on state
-  if (filterView === 'type') {
-    return (
-      <FilterSelectionPage
-        title="Выберите тип материала"
-        options={filterOptions.materialTypes}
-        selectedOption={typeFilter}
-        onSelect={handleTypeSelect}
-      />
-    );
-  }
+  // Get filter title based on active filter type
+  const getFilterTitle = () => {
+    switch (filterOverlay.type) {
+      case 'type':
+        return "Выберите тип материала";
+      case 'teacher':
+        return "Выберите преподавателя";
+      case 'subject':
+        return "Выберите предмет";
+      case 'semester':
+        return "Выберите семестр";
+      default:
+        return "";
+    }
+  };
 
-  if (filterView === 'teacher') {
-    return (
-      <FilterSelectionPage
-        title="Выберите преподавателя"
-        options={filterOptions.materialTeachers}
-        selectedOption={teacherFilter}
-        onSelect={handleTeacherSelect}
-      />
-    );
-  }
-
-  if (filterView === 'subject') {
-    return (
-      <FilterSelectionPage
-        title="Выберите предмет"
-        options={filterOptions.materialSubjects}
-        selectedOption={subjectFilter}
-        onSelect={handleSubjectSelect}
-      />
-    );
-  }
-
-  if (filterView === 'semester') {
-    return (
-      <FilterSelectionPage
-        title="Выберите семестр"
-        options={filterOptions.materialSemesters}
-        selectedOption={semesterFilter}
-        onSelect={handleSemesterSelect}
-      />
-    );
-  }
+  // Get selected option based on active filter type
+  const getSelectedOption = () => {
+    switch (filterOverlay.type) {
+      case 'type':
+        return typeFilter;
+      case 'teacher':
+        return teacherFilter;
+      case 'subject':
+        return subjectFilter;
+      case 'semester':
+        return semesterFilter;
+      default:
+        return null;
+    }
+  };
 
   return (
     <Page back={false}>
@@ -158,7 +168,6 @@ export const StuffPage: React.FC = () => {
         </Placeholder>
 
         <List>
-
           <StuffPageButtons />
 
           <Section>
@@ -169,7 +178,7 @@ export const StuffPage: React.FC = () => {
                   style={{ color: `var(--tgui--hint_color)` }}
                 />
               }
-              onClick={() => setFilterView('teacher')}
+              onClick={() => openFilterOverlay('teacher')}
             >
               {getSelectedOptionName(filterOptions.materialTeachers, teacherFilter, 'teacher')}
             </Cell>
@@ -183,7 +192,7 @@ export const StuffPage: React.FC = () => {
                   style={{ color: `var(--tgui--hint_color)` }}
                 />
               }
-              onClick={() => setFilterView('subject')}
+              onClick={() => openFilterOverlay('subject')}
             >
               {getSelectedOptionName(filterOptions.materialSubjects, subjectFilter, 'subject')}
             </Cell>
@@ -197,7 +206,7 @@ export const StuffPage: React.FC = () => {
                   style={{ color: `var(--tgui--hint_color)` }}
                 />
               }
-              onClick={() => setFilterView('semester')}
+              onClick={() => openFilterOverlay('semester')}
             >
               {getSelectedOptionName(filterOptions.materialSemesters, semesterFilter, 'semester')}
             </Cell>
@@ -211,15 +220,14 @@ export const StuffPage: React.FC = () => {
                   style={{ color: `var(--tgui--hint_color)` }}
                 />
               }
-              onClick={() => setFilterView('type')}
+              onClick={() => openFilterOverlay('type')}
             >
               {getSelectedOptionName(filterOptions.materialTypes, typeFilter, 'type')}
             </Cell>
           </Section>
 
           <Button
-            className="mt-1 w-full"
-            size='m'
+            className="w-full"
             mode="bezeled"
             after={<Icon16Chevron_right />}
             onClick={handleShowResults}
@@ -229,6 +237,17 @@ export const StuffPage: React.FC = () => {
         </List>
 
         <TabBar />
+
+{/* Filter Selection Overlay */}
+        <FilterSelectionOverlay
+          title={getFilterTitle()}
+          options={getFilterOptions()}
+          selectedOption={getSelectedOption()}
+          onSelect={handleFilterSelect}
+          onClose={closeFilterOverlay}
+          isVisible={filterOverlay.isVisible}
+          parentHasBackButton={false} // StuffPage has no back button
+        />
       </div>
     </Page>
   );
