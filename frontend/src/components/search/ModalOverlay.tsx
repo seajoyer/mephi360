@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { List, Cell, Section } from '@telegram-apps/telegram-ui';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { backButton } from '@telegram-apps/sdk-react';
 
 interface ModalOverlayProps {
@@ -22,14 +21,14 @@ export const ModalOverlay: React.FC<ModalOverlayProps> = ({
   isVisible,
   parentHasBackButton = false
 }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
   const prevBackHandlerRef = useRef<(() => boolean) | null>(null);
   const isHandlerSetRef = useRef(false);
+  const didPushStateRef = useRef(false);
+  const isCleaningUpRef = useRef(false);
 
   // Handle back button visibility and handler
   useEffect(() => {
-    if (isVisible) {
+    if (isVisible && !isCleaningUpRef.current) {
       // Show back button when overlay is visible
       backButton.show();
 
@@ -54,17 +53,20 @@ export const ModalOverlay: React.FC<ModalOverlayProps> = ({
       isHandlerSetRef.current = true;
 
       // Add history state for browsers that support it
-      if (window.history && window.history.pushState) {
+      if (window.history && window.history.pushState && !didPushStateRef.current) {
         // Add a history entry without actually navigating
+        const currentUrl = window.location.href;
         window.history.pushState(
-          { isModal: true },
+          { isModal: true, url: currentUrl },
           document.title,
-          `${location.pathname}?modal=filter`
+          currentUrl
         );
+        didPushStateRef.current = true;
 
         // Listen for back button via history
-        const popstateHandler = () => {
-          if (isVisible) {
+        const popstateHandler = (event: PopStateEvent) => {
+          // Only handle if our overlay is still visible
+          if (isVisible && !isCleaningUpRef.current) {
             onClose();
           }
         };
@@ -86,6 +88,7 @@ export const ModalOverlay: React.FC<ModalOverlayProps> = ({
 
           // Remove popstate listener
           window.removeEventListener('popstate', popstateHandler);
+          didPushStateRef.current = false;
         };
       }
 
@@ -101,15 +104,41 @@ export const ModalOverlay: React.FC<ModalOverlayProps> = ({
           // Restore previous handler if parent needs back button
           backButton.onClick(prevBackHandlerRef.current);
         }
+
+        didPushStateRef.current = false;
       };
     }
-  }, [isVisible, onClose, parentHasBackButton, location.pathname]);
+  }, [isVisible, onClose, parentHasBackButton]);
 
-  // Handle selection
+  // Handle selection and proper cleanup
   const handleSelect = (option: string | null) => {
+    isCleaningUpRef.current = true;
+
+    // Clean up history state if we added one
+    if (didPushStateRef.current && window.history) {
+      window.history.go(-1); // Remove our history entry
+      didPushStateRef.current = false;
+    }
+
+    // Apply selection and close modal
     onSelect(option);
     onClose();
+
+    // Reset cleanup flag after a short delay
+    setTimeout(() => {
+      isCleaningUpRef.current = false;
+    }, 100);
   };
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      // Ensure we clean up when unmounting
+      isHandlerSetRef.current = false;
+      didPushStateRef.current = false;
+      isCleaningUpRef.current = false;
+    };
+  }, []);
 
   // Don't render anything if not visible
   if (!isVisible) return null;
