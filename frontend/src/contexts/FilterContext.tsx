@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import {
-  getClubOrganizers,
-  getClubSubjects,
+  getCircleOrganizers,
+  getCircleSubjects,
   getMaterialTypes,
   getMaterialTeachers,
   getMaterialSubjects,
@@ -17,7 +17,7 @@ interface InfoFilters {
   department: string | null;
 }
 
-interface ClubsFilters {
+interface CirclesFilters {
   search: string;
   organizer: string | null;
   subject: string | null;
@@ -34,8 +34,8 @@ interface StuffFilters {
 
 interface FilterOptions {
   infoSections: DropdownOption[];
-  clubOrganizers: DropdownOption[];
-  clubSubjects: DropdownOption[];
+  circleOrganizers: DropdownOption[];
+  circleSubjects: DropdownOption[];
   departments: DropdownOption[];
   materialTypes: DropdownOption[];
   materialTeachers: DropdownOption[];
@@ -46,7 +46,7 @@ interface FilterOptions {
 interface FilterContextType {
   // Current filter values for each section
   infoFilters: InfoFilters;
-  clubsFilters: ClubsFilters;
+  circlesFilters: CirclesFilters;
   stuffFilters: StuffFilters;
 
   // Filter option lists
@@ -55,8 +55,8 @@ interface FilterContextType {
   // Loading states for options
   optionsLoading: {
     infoSections: boolean;
-    clubOrganizers: boolean;
-    clubSubjects: boolean;
+    circleOrganizers: boolean;
+    circleSubjects: boolean;
     departments: boolean;
     materialTypes: boolean;
     materialTeachers: boolean;
@@ -67,8 +67,8 @@ interface FilterContextType {
   // Methods to update filter values
   setInfoEntityType: (type: 'tutors' | 'departments') => void;
   setInfoDepartment: (department: string | null) => void;
-  setClubOrganizer: (organizer: string | null) => void;
-  setClubSubject: (subject: string | null) => void;
+  setCircleOrganizer: (organizer: string | null) => void;
+  setCircleSubject: (subject: string | null) => void;
   setStuffType: (type: string | null) => void;
   setStuffTeacher: (teacher: string | null) => void;
   setStuffSubject: (subject: string | null) => void;
@@ -77,7 +77,7 @@ interface FilterContextType {
 
   // Search methods
   setSearchQuery: (query: string) => void;
-  clearAllFilters: (section: 'info' | 'clubs' | 'stuff') => void;
+  clearAllFilters: (section: 'info' | 'circles' | 'stuff') => void;
 }
 
 // Static options for info entity type
@@ -93,7 +93,7 @@ const DEFAULT_INFO_FILTERS: InfoFilters = {
   department: null
 };
 
-const DEFAULT_CLUBS_FILTERS: ClubsFilters = {
+const DEFAULT_CIRCLES_FILTERS: CirclesFilters = {
   search: '',
   organizer: null,
   subject: null
@@ -115,8 +115,8 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Info filters
   const [infoFilters, setInfoFilters] = useState<InfoFilters>(DEFAULT_INFO_FILTERS);
 
-  // Clubs filters
-  const [clubsFilters, setClubsFilters] = useState<ClubsFilters>(DEFAULT_CLUBS_FILTERS);
+  // Circles filters
+  const [circlesFilters, setCirclesFilters] = useState<CirclesFilters>(DEFAULT_CIRCLES_FILTERS);
 
   // Stuff filters
   const [stuffFilters, setStuffFilters] = useState<StuffFilters>(DEFAULT_STUFF_FILTERS);
@@ -124,8 +124,8 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Filter options state
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     infoSections: INFO_SECTION_OPTIONS,
-    clubOrganizers: [],
-    clubSubjects: [],
+    circleOrganizers: [],
+    circleSubjects: [],
     departments: [],
     materialTypes: [],
     materialTeachers: [],
@@ -136,8 +136,8 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Loading states for options
   const [optionsLoading, setOptionsLoading] = useState({
     infoSections: false,
-    clubOrganizers: true,
-    clubSubjects: true,
+    circleOrganizers: true,
+    circleSubjects: true,
     departments: true,
     materialTypes: true,
     materialTeachers: true,
@@ -146,25 +146,25 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   });
 
   // Current active section (for knowing which search to update)
-  const [activeSection, setActiveSection] = useState<'info' | 'clubs' | 'stuff'>('info');
+  const [activeSection, setActiveSection] = useState<'info' | 'circles' | 'stuff'>('info');
 
   // When the search input changes, update the appropriate section's search filter
   const setSearchQuery = (query: string) => {
     if (activeSection === 'info') {
       setInfoFilters(prev => ({ ...prev, search: query }));
-    } else if (activeSection === 'clubs') {
-      setClubsFilters(prev => ({ ...prev, search: query }));
+    } else if (activeSection === 'circles') {
+      setCirclesFilters(prev => ({ ...prev, search: query }));
     } else if (activeSection === 'stuff') {
       setStuffFilters(prev => ({ ...prev, search: query }));
     }
   };
 
   // Clear all filters for a specific section
-  const clearAllFilters = (section: 'info' | 'clubs' | 'stuff') => {
+  const clearAllFilters = (section: 'info' | 'circles' | 'stuff') => {
     if (section === 'info') {
       setInfoFilters(prev => ({ ...prev, department: null, search: '' }));
-    } else if (section === 'clubs') {
-      setClubsFilters(DEFAULT_CLUBS_FILTERS);
+    } else if (section === 'circles') {
+      setCirclesFilters(DEFAULT_CIRCLES_FILTERS);
     } else if (section === 'stuff') {
       setStuffFilters(DEFAULT_STUFF_FILTERS);
     }
@@ -175,7 +175,7 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return () => {
       // Reset all filters when component unmounts
       setInfoFilters(DEFAULT_INFO_FILTERS);
-      setClubsFilters(DEFAULT_CLUBS_FILTERS);
+      setCirclesFilters(DEFAULT_CIRCLES_FILTERS);
       setStuffFilters(DEFAULT_STUFF_FILTERS);
     };
   }, []);
@@ -186,7 +186,7 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (document.visibilityState === 'hidden') {
         // User is navigating away from the page
         setInfoFilters(DEFAULT_INFO_FILTERS);
-        setClubsFilters(DEFAULT_CLUBS_FILTERS);
+        setCirclesFilters(DEFAULT_CIRCLES_FILTERS);
         setStuffFilters(DEFAULT_STUFF_FILTERS);
       }
     };
@@ -204,8 +204,8 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, [infoFilters]);
 
   useEffect(() => {
-    setActiveSection('clubs');
-  }, [clubsFilters]);
+    setActiveSection('circles');
+  }, [circlesFilters]);
 
   useEffect(() => {
     setActiveSection('stuff');
@@ -215,17 +215,17 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
-        // Load club organizers
-        setOptionsLoading(prev => ({ ...prev, clubOrganizers: true }));
-        const organizersResponse = await getClubOrganizers();
-        setFilterOptions(prev => ({ ...prev, clubOrganizers: organizersResponse.items }));
-        setOptionsLoading(prev => ({ ...prev, clubOrganizers: false }));
+        // Load circle organizers
+        setOptionsLoading(prev => ({ ...prev, circleOrganizers: true }));
+        const organizersResponse = await getCircleOrganizers();
+        setFilterOptions(prev => ({ ...prev, circleOrganizers: organizersResponse.items }));
+        setOptionsLoading(prev => ({ ...prev, circleOrganizers: false }));
 
-        // Load club subjects
-        setOptionsLoading(prev => ({ ...prev, clubSubjects: true }));
-        const subjectsResponse = await getClubSubjects();
-        setFilterOptions(prev => ({ ...prev, clubSubjects: subjectsResponse.items }));
-        setOptionsLoading(prev => ({ ...prev, clubSubjects: false }));
+        // Load circle subjects
+        setOptionsLoading(prev => ({ ...prev, circleSubjects: true }));
+        const subjectsResponse = await getCircleSubjects();
+        setFilterOptions(prev => ({ ...prev, circleSubjects: subjectsResponse.items }));
+        setOptionsLoading(prev => ({ ...prev, circleSubjects: false }));
 
         // Load departments
         setOptionsLoading(prev => ({ ...prev, departments: true }));
@@ -273,12 +273,12 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setInfoFilters(prev => ({ ...prev, department }));
   };
 
-  const setClubOrganizer = (organizer: string | null) => {
-    setClubsFilters(prev => ({ ...prev, organizer }));
+  const setCircleOrganizer = (organizer: string | null) => {
+    setCirclesFilters(prev => ({ ...prev, organizer }));
   };
 
-  const setClubSubject = (subject: string | null) => {
-    setClubsFilters(prev => ({ ...prev, subject }));
+  const setCircleSubject = (subject: string | null) => {
+    setCirclesFilters(prev => ({ ...prev, subject }));
   };
 
   const setStuffType = (type: string | null) => {
@@ -303,14 +303,14 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const contextValue: FilterContextType = {
     infoFilters,
-    clubsFilters,
+    circlesFilters,
     stuffFilters,
     filterOptions,
     optionsLoading,
     setInfoEntityType,
     setInfoDepartment,
-    setClubOrganizer,
-    setClubSubject,
+    setCircleOrganizer,
+    setCircleSubject,
     setStuffType,
     setStuffTeacher,
     setStuffSubject,

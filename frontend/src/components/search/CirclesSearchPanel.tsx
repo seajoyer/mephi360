@@ -3,8 +3,9 @@ import { Input } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
 import { ModalOverlay } from './ModalOverlay';
-import { getClubOrganizers, getClubSubjects, DropdownOption } from '@/services/apiService';
-import { FilterContainer, FilterButton, SearchPanelStyles } from './SearchPanelComponents';
+import { getCircleOrganizers, getCircleSubjects, DropdownOption } from '@/services/apiService';
+import { FilterContainer, SearchPanelStyles } from './SearchPanelComponents';
+import { FilterButton } from './FilterButton';
 
 interface CirclesSearchPanelProps {
     searchQuery: string;
@@ -76,10 +77,10 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
     // Load filter options
     useEffect(() => {
         const loadOptions = async () => {
-            // Load club organizers
+            // Load circle organizers
             setIsLoading(prev => ({ ...prev, organizers: true }));
             try {
-                const organizersResponse = await getClubOrganizers();
+                const organizersResponse = await getCircleOrganizers();
                 setOrganizerOptions(organizersResponse.items);
             } catch (error) {
                 console.error('Error loading organizers:', error);
@@ -87,10 +88,10 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
                 setIsLoading(prev => ({ ...prev, organizers: false }));
             }
 
-            // Load club subjects
+            // Load circle subjects
             setIsLoading(prev => ({ ...prev, subjects: true }));
             try {
-                const subjectsResponse = await getClubSubjects();
+                const subjectsResponse = await getCircleSubjects();
                 setSubjectOptions(subjectsResponse.items);
             } catch (error) {
                 console.error('Error loading subjects:', error);
@@ -187,20 +188,21 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
         <>
             <div
                 ref={panelRef}
-                className={`search-panel`}
+                className={`search-panel ${isSticky ? 'sticky' : ''}`}
                 data-searchpanel="circles"
             >
                 <SearchPanelStyles />
 
                 <div className="flex gap-2 items-center">
-                    {/* Search button (collapsed) */}
-                    {!isSearchExpanded && (
-                        <div
-                            className="flex-shrink-0"
-                            style={{
-                                width: '42px'
-                            }}
-                        >
+                    {/* Search field container with transition */}
+                    <div
+                        className="flex-shrink-0 transition-all duration-200 ease-in-out"
+                        style={{
+                            width: isSearchExpanded ? 'calc(100% - 8px)' : '42px',
+                            maxWidth: isSearchExpanded ? 'calc(100% - 8px)' : '42px'
+                        }}
+                    >
+                        {!isSearchExpanded ? (
                             <div className="relative">
                                 <div
                                     className="absolute inset-0 z-10 cursor-pointer"
@@ -230,12 +232,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
                                     }
                                 />
                             </div>
-                        </div>
-                    )}
-
-                    {/* Search expanded - takes full width */}
-                    {isSearchExpanded && (
-                        <div className="flex-1">
+                        ) : (
                             <Input
                                 ref={inputRef}
                                 placeholder="Поиск кружков..."
@@ -264,8 +261,8 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
                                     </div>
                                 }
                             />
-                        </div>
-                    )}
+                        )}
+                    </div>
 
                     {/* Filters - only visible when search is not expanded */}
                     <FilterContainer isHidden={isSearchExpanded}>

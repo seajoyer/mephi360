@@ -223,3 +223,8 @@ button,
   width: 100%;
   z-index: 10;
 }
+
+.tgui-0f5050defacbf813 {
+  padding: var(--input-padding, 10px);
+  transition: all 0.2s ease-in-out;
+}

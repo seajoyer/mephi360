@@ -1,15 +1,16 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Button } from '@telegram-apps/telegram-ui';
-import { Icon24Close } from '@/icons/24/close';
-import { Icon20Chevron_vertical } from '@/icons/20/chevron_vertical';
-import { Icon20Chevron_down } from '@/icons/20/chevron_down';
-import { Icon16Chevron } from '@/icons/16/chevron';
+import { SearchPanelGlobalStyles } from './searchPanelStyles';
 
 interface FilterContainerProps {
   children: React.ReactNode;
   className?: string;
   isHidden?: boolean; // To hide when search is expanded
 }
+
+/**
+ * Export SearchPanelStyles as an alias for backward compatibility
+ */
+export const SearchPanelStyles = SearchPanelGlobalStyles;
 
 /**
  * A responsive container for filter buttons that automatically switches between
@@ -70,118 +71,71 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
 
   // Count React children to distribute width evenly
   const childCount = React.Children.count(children);
+  const childrenArray = React.Children.toArray(children);
 
-  return (
-    <div
-      ref={containerRef}
-      className={`flex-1 ${expandFilters ? '' : 'overflow-x-auto no-scrollbar'} ${className}`}
-      style={{
-        WebkitOverflowScrolling: 'touch',
-      }}
-    >
+  if (expandFilters) {
+    // Static layout with evenly distributed buttons
+    return (
       <div
-        ref={contentRef}
-        className="flex gap-2"
+        ref={containerRef}
+        className={`flex-1 ${className} transition-all duration-200 ease-in-out`}
+      >
+        <div className="flex gap-2 w-full">
+          {childrenArray.map((child, index) => (
+            <div
+              key={index}
+              style={{ flex: `1 1 ${100 / childCount}%` }}
+            >
+              {child}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  } else {
+    // Scrollable layout - critical for touch scrolling to work properly
+    return (
+      <div
+        ref={containerRef}
+        className={`flex-1 ${className}`}
         style={{
-          width: expandFilters ? '100%' : 'auto',
+          position: 'relative',
+          width: '100%',
         }}
       >
-        {expandFilters
-          ? React.Children.map(children, (child) => (
-              <div style={{ flex: `1 1 ${100 / childCount}%` }}>{child}</div>
-            ))
-          : children}
-      </div>
-    </div>
-  );
-};
-
-interface FilterButtonProps {
-  label: string;
-  selected: boolean;
-  onClick: () => void;
-  onClear?: () => void;
-  expandable?: boolean;
-}
-
-/**
- * A standardized filter button with selection state and clear functionality
- */
-export const FilterButton: React.FC<FilterButtonProps> = ({
-  label,
-  selected,
-  onClick,
-  onClear,
-  expandable = true
-}) => {
-  return (
-    <Button
-      mode="gray"
-      size="m"
-      style={{
-        justifyContent: "space-between",
-        paddingLeft: '10px',
-        paddingRight: '10px',
-        background: 'var(--tgui--section_bg_color)',
-        width: '100%',
-      }}
-      onClick={onClick}
-      after={
-        selected ? (
-          <Icon24Close
-            style={{
-              cursor: 'pointer',
-              marginRight: '-2px',
-            }}
-            onClick={onClear ? (e) => {
-              e.stopPropagation();
-              onClear();
-            } : undefined}
-          />
-        ) : (
-          <Icon16Chevron />
-        )
-      }
-    >
-          <div
+        <div
+          ref={contentRef}
+          style={{
+            display: 'flex',
+            gap: '8px',
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            paddingBottom: '4px',
+          }}
+          className="scroll-container"
+        >
+          {childrenArray.map((child, index) => (
+            <div
+              key={index}
               style={{
-                  color: selected ? 'var(--tgui--text_color)' : 'var(--tgui--subtitle_text_color)',
+                display: 'inline-block',
+                flexShrink: 0,
               }}
-          >
-              {label}
-          </div>
-    </Button>
-  );
+            >
+              {child}
+            </div>
+          ))}
+        </div>
+        <style jsx>{`
+          .scroll-container::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+          }
+        `}</style>
+      </div>
+    );
+  }
 };
-
-/**
- * Common styles for all search panels - fixed to prevent horizontal overflow
- */
-export const SearchPanelStyles = () => (
-  <style jsx global>{`
-    .search-panel {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      padding-top: 16px;
-      padding-bottom: 16px;
-      background-color: var(--tgui--secondary_bg_color);
-      transition: box-shadow 0.2s ease-in-out;
-      width: 100%;
-      box-sizing: border-box;
-      overflow-x: hidden;
-    }
-
-    .search-panel.sticky {
-      box-shadow: 0 1px 0 var(--tgui--quartenary_bg_color);
-    }
-
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-  `}</style>
-);

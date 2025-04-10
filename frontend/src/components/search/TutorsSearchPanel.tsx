@@ -4,7 +4,8 @@ import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
 import { ModalOverlay } from './ModalOverlay';
 import { getDepartmentOptions } from '@/services/apiService';
-import { FilterContainer, FilterButton, SearchPanelStyles } from './SearchPanelComponents';
+import { FilterContainer, SearchPanelStyles } from './SearchPanelComponents';
+import { FilterButton } from './FilterButton';
 
 interface TutorsSearchPanelProps {
   searchQuery: string;
@@ -114,20 +115,21 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
     <>
       <div
         ref={panelRef}
-        className={`search-panel`}
+        className={`search-panel ${isSticky ? 'sticky' : ''}`}
         data-searchpanel="tutors"
       >
         <SearchPanelStyles />
 
         <div className="flex gap-2 items-center">
-          {/* Search button (collapsed) */}
-          {!isSearchExpanded && (
-            <div
-              className="flex-shrink-0"
-              style={{
-                width: '42px'
-              }}
-            >
+          {/* Search field container with transition */}
+          <div
+            className="flex-shrink-0 transition-all duration-200 ease-in-out"
+            style={{
+              width: isSearchExpanded ? 'calc(100% - 8px)' : '42px',
+              maxWidth: isSearchExpanded ? 'calc(100% - 8px)' : '42px'
+            }}
+          >
+            {!isSearchExpanded ? (
               <div className="relative">
                 <div
                   className="absolute inset-0 z-10 cursor-pointer"
@@ -157,12 +159,7 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
                   }
                 />
               </div>
-            </div>
-          )}
-
-          {/* Search expanded */}
-          {isSearchExpanded && (
-            <div className="flex-1">
+            ) : (
               <Input
                 ref={inputRef}
                 placeholder="Лектор Грибоедов..."
@@ -191,8 +188,8 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
                   </div>
                 }
               />
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Department filter button - only visible when search is not expanded */}
           {!isSearchExpanded && (

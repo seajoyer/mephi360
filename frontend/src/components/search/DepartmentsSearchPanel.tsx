@@ -28,36 +28,38 @@ export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
     >
       <SearchPanelStyles />
 
-          <div className="flex-1">
-            <Input
-              ref={inputRef}
-              placeholder="Грибоведение..."
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              aria-label="Search"
-              before={
-                <Icon24Search
-                  style={{
-                    color: 'var(--tgui--hint_color)'
-                  }}
-                />
-              }
-              after={
-                <div
-                  style={{
-                    display: 'flex',
-                    position: 'relative',
-                    zIndex: 20,
-                    cursor: 'pointer'
-                  }}
-                  onClick={handleSearchCollapse}
-                  aria-label="Close search"
-                >
-                  <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
-                </div>
-              }
+      <div className="flex-1">
+        <Input
+          ref={inputRef}
+          placeholder="Грибоведение..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          aria-label="Search"
+          before={
+            <Icon24Search
+              style={{
+                color: 'var(--tgui--hint_color)'
+              }}
             />
-          </div>
+          }
+          after={
+            searchQuery ? (
+              <div
+                style={{
+                  display: 'flex',
+                  position: 'relative',
+                  zIndex: 20,
+                  cursor: 'pointer'
+                }}
+                onClick={handleSearchCollapse}
+                aria-label="Clear search"
+              >
+                <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
+              </div>
+            ) : null
+          }
+        />
       </div>
+    </div>
   );
 };

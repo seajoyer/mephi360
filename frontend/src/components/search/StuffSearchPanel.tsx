@@ -10,7 +10,8 @@ import {
   getMaterialSemesters,
   DropdownOption
 } from '@/services/apiService';
-import { FilterContainer, FilterButton } from './SearchPanelComponents';
+import { FilterContainer } from './SearchPanelComponents';
+import { FilterButton } from './FilterButton';
 
 // Icons for institute selector
 import { Icon24All } from '@/icons/24/all';
@@ -456,7 +457,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
         <div className="flex gap-2 items-center">
           {/* Institute button or selector */}
           {isInstituteExpanded ? (
-            <div className="flex-1 overflow-x-auto no-scrollbar">
+            <div className="flex-1 overflow-x-auto no-scrollbar transition-all duration-200 ease-in-out">
               <InstituteSelector
                 activeInstitute={instituteFilter}
                 onSelect={handleInstituteSelect}
@@ -464,7 +465,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
               />
             </div>
           ) : (
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 transition-all duration-200 ease-in-out">
               <InstituteButton
                 institute={selectedInstitute}
                 isSelected={!!selectedInstitute || instituteFilter === null}
@@ -479,11 +480,12 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
             <div
               className="transition-all duration-200 ease-in-out flex-shrink-0"
               style={{
-                width: '42px'
+                width: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
+                maxWidth: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px'
               }}
             >
-              <div className="relative">
-                {!isSearchExpanded && (
+              {!isSearchExpanded ? (
+                <div className="relative">
                   <div
                     className="absolute inset-0 z-10 cursor-pointer"
                     onClick={handleSearchExpand}
@@ -491,28 +493,50 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                     role="button"
                     tabIndex={0}
                   />
-                )}
 
+                  <Input
+                    ref={inputRef}
+                    placeholder=""
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    aria-label="Search"
+                    style={{
+                      width: '42px',
+                      height: '42px'
+                    }}
+                    before={
+                      <div
+                        className="translate-x-[calc(50%-12px)]"
+                        aria-hidden="true"
+                      >
+                        <Icon24Search />
+                      </div>
+                    }
+                  />
+                </div>
+              ) : (
                 <Input
                   ref={inputRef}
-                  placeholder=""
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  aria-label="Search"
-                  style={{
-                    width: '42px',
-                    height: '42px'
-                  }}
-                  before={
+                  placeholder="Поиск материалов..."
+                  aria-label="Search expanded"
+                  after={
                     <div
-                      className="translate-x-[calc(50%-12px)]"
-                      aria-hidden="true"
+                      style={{
+                        display: 'flex',
+                        position: 'relative',
+                        zIndex: 20,
+                        cursor: 'pointer'
+                      }}
+                      onClick={handleSearchCollapse}
+                      aria-label="Close search"
                     >
-                      <Icon24Search />
+                      <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
                     </div>
                   }
                 />
-              </div>
+              )}
             </div>
           )}
 
@@ -550,32 +574,6 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
               onClear={() => onSemesterFilterChange(null)}
             />
           </FilterContainer>
-
-          {/* Search expanded panel */}
-          {isSearchExpanded && (
-            <div className="flex-1">
-              <Input
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                placeholder="Поиск материалов..."
-                aria-label="Search expanded"
-                after={
-                  <div
-                    style={{
-                      display: 'flex',
-                      position: 'relative',
-                      zIndex: 20,
-                      cursor: 'pointer'
-                    }}
-                    onClick={handleSearchCollapse}
-                    aria-label="Close search"
-                  >
-                    <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
-                  </div>
-                }
-              />
-            </div>
-          )}
         </div>
       </div>
 
