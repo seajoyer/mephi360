@@ -16,8 +16,9 @@ export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const handleSearchCollapse = () => {
+  const handleSearchClear = () => {
     onSearchChange('');
+    inputRef.current?.focus();
   };
 
   return (
@@ -43,7 +44,6 @@ export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
             />
           }
           after={
-            searchQuery ? (
               <div
                 style={{
                   display: 'flex',
@@ -51,12 +51,11 @@ export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
                   zIndex: 20,
                   cursor: 'pointer'
                 }}
-                onClick={handleSearchCollapse}
+                onClick={handleSearchClear}
                 aria-label="Clear search"
               >
                 <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
               </div>
-            ) : null
           }
         />
       </div>

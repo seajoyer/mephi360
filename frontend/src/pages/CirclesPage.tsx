@@ -25,10 +25,10 @@ export const CirclesPage: React.FC = () => {
 
                     <Button
                       className='mt-1'
-                      mode='outline'
+                      mode='bezeled'
                       size='s'
                     >
-                      Хочу ещё
+                      Влиять
                     </Button>
                 </div>
 

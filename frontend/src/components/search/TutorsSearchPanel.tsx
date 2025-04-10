@@ -125,8 +125,9 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
           <div
             className="flex-shrink-0 transition-all duration-200 ease-in-out"
             style={{
-              width: isSearchExpanded ? 'calc(100% - 8px)' : '42px',
-              maxWidth: isSearchExpanded ? 'calc(100% - 8px)' : '42px'
+              width:    isSearchExpanded ? 'calc(100%)' : '42px',
+              maxWidth: isSearchExpanded ? 'calc(100%)' : '42px',
+              zIndex: 2 // Ensure input is above filters during transition
             }}
           >
             {!isSearchExpanded ? (
@@ -191,18 +192,17 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
             )}
           </div>
 
-          {/* Department filter button - only visible when search is not expanded */}
-          {!isSearchExpanded && (
-            <FilterContainer>
-              <FilterButton
-                label={departmentFilter ? selectedDepartmentName : 'Все кафедры'}
-                selected={!!departmentFilter}
-                onClick={openFilterOverlay}
-                onClear={() => onDepartmentFilterChange(null)}
-                expandable={true}
-              />
-            </FilterContainer>
-          )}
+          {/* Department filter button */}
+          <FilterContainer isHidden={isSearchExpanded}>
+            <FilterButton
+              label={departmentFilter ? selectedDepartmentName : 'Все кафедры'}
+              selected={!!departmentFilter}
+              onClick={openFilterOverlay}
+              onClear={() => onDepartmentFilterChange(null)}
+              expandable={true}
+              className="filter-button"
+            />
+          </FilterContainer>
         </div>
       </div>
 

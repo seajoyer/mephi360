@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@telegram-apps/telegram-ui';
-import { Icon24Close } from '@/icons/24/close';
 import { Icon16Chevron } from '@/icons/16/chevron';
+import { Icon16Cancel } from '@/icons/16/cancel';
 
 interface FilterButtonProps {
   label: string;
@@ -9,6 +9,8 @@ interface FilterButtonProps {
   onClick: () => void;
   onClear?: () => void;
   expandable?: boolean;
+  style?: React.CSSProperties;
+  className?: string;
 }
 
 /**
@@ -19,30 +21,31 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
   selected,
   onClick,
   onClear,
-  expandable = true
+  expandable = true,
+  style = {},
+  className = ''
 }) => {
   return (
     <Button
       mode="gray"
       size="m"
+      className={`filter-button ${selected ? 'filter-button-selected' : ''} ${className}`}
       style={{
         justifyContent: "space-between",
         paddingLeft: '10px',
         paddingRight: '10px',
         background: 'var(--tgui--section_bg_color)',
-        width: '100%',
-        minWidth: selected ? '110px' : label.length <= 8 ? '80px' : '110px',
+        // When in scrollable mode, set natural width based on content
         transition: 'all 0.2s ease-in-out',
-        display: 'flex',
-        flexShrink: 0,
+        whiteSpace: 'nowrap',
+        ...style
       }}
       onClick={onClick}
       after={
         selected ? (
-          <Icon24Close
+          <Icon16Cancel
             style={{
               cursor: 'pointer',
-              marginRight: '-2px',
               transition: 'opacity 0.15s ease-in-out',
               flexShrink: 0,
             }}
@@ -52,12 +55,14 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
             } : undefined}
           />
         ) : (
-          <Icon16Chevron
-            style={{
-              transition: 'opacity 0.15s ease-in-out',
-              flexShrink: 0,
-            }}
-          />
+          expandable && (
+            <Icon16Chevron
+              style={{
+                transition: 'opacity 0.15s ease-in-out',
+                flexShrink: 0,
+              }}
+            />
+          )
         )
       }
     >
@@ -66,7 +71,6 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
           color: selected ? 'var(--tgui--text_color)' : 'var(--tgui--hint_color)',
           fontWeight: !selected ? 'normal' : '',
           transition: 'color 0.15s ease-in-out, font-weight 0.15s ease-in-out',
-          whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           marginRight: '4px',

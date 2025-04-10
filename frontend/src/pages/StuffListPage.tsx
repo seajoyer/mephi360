@@ -18,7 +18,7 @@ export const StuffListPage: React.FC = () => {
 
   return (
     <Page back={true}>
-      <div className="p-2">
+      <div className="px-2">
         <StuffSearchPanel
           searchQuery={stuffFilters.search}
           onSearchChange={setSearchQuery}

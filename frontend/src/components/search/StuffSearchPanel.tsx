@@ -4,13 +4,13 @@ import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
 import { ModalOverlay } from './ModalOverlay';
 import {
-  getMaterialTypes,
-  getMaterialTeachers,
-  getMaterialSubjects,
-  getMaterialSemesters,
-  DropdownOption
+    getMaterialTypes,
+    getMaterialTeachers,
+    getMaterialSubjects,
+    getMaterialSemesters,
+    DropdownOption
 } from '@/services/apiService';
-import { FilterContainer } from './SearchPanelComponents';
+import { FilterContainer, SearchPanelStyles } from './SearchPanelComponents';
 import { FilterButton } from './FilterButton';
 
 // Icons for institute selector
@@ -27,566 +27,520 @@ import { Icon24Fbiuks } from '@/icons/24/fbiuks';
 
 // Institute type and constants
 type Institute = {
-  id: string;
-  Icon: React.ComponentType;
+    id: string;
+    Icon: React.ComponentType;
 };
 
 const INSTITUTES: Institute[] = [
-  { id: 'ИЯФИТ', Icon: Icon24Iyafit },
-  { id: 'ЛаПлаз', Icon: Icon24Laplas },
-  { id: 'ИФИБ', Icon: Icon24Ifib },
-  { id: 'ИНТЭЛ', Icon: Icon24Intel },
-  { id: 'ИИКС', Icon: Icon24Iiks },
-  { id: 'ИФТИС', Icon: Icon24Iftis },
-  { id: 'ИФТЭБ', Icon: Icon24Ifteb },
-  { id: 'ИМО', Icon: Icon24Imo },
-  { id: 'ФБИУКС', Icon: Icon24Fbiuks },
+    { id: 'ИЯФИТ', Icon: Icon24Iyafit },
+    { id: 'ЛаПлаз', Icon: Icon24Laplas },
+    { id: 'ИФИБ', Icon: Icon24Ifib },
+    { id: 'ИНТЭЛ', Icon: Icon24Intel },
+    { id: 'ИИКС', Icon: Icon24Iiks },
+    { id: 'ИФТИС', Icon: Icon24Iftis },
+    { id: 'ИФТЭБ', Icon: Icon24Ifteb },
+    { id: 'ИМО', Icon: Icon24Imo },
+    { id: 'ФБИУКС', Icon: Icon24Fbiuks },
 ];
 
 // Institute Button component
 interface InstituteButtonProps {
-  institute?: Institute;
-  isSelected?: boolean;
-  onClick: () => void;
-  animationIndex?: number;
-  disableAnimation?: boolean;
+    institute?: Institute;
+    isSelected?: boolean;
+    onClick: () => void;
+    animationIndex?: number;
+    disableAnimation?: boolean;
 }
 
 const InstituteButton: React.FC<InstituteButtonProps> = ({
-  institute,
-  isSelected = false,
-  onClick,
-  animationIndex = 0,
-  disableAnimation = false
+    institute,
+    isSelected = false,
+    onClick,
+    animationIndex = 0,
+    disableAnimation = false
 }) => {
-  const InstituteIcon = institute?.Icon || Icon24All;
-  const animationDelay = `${animationIndex * 20}ms`;
-  const animationClass = disableAnimation
-    ? ""
-    : (animationIndex === 0 ? "institute-button-animate-first" : "institute-button-animate");
+    const InstituteIcon = institute?.Icon || Icon24All;
+    const animationDelay = `${animationIndex * 20}ms`;
+    const animationClass = disableAnimation
+        ? ""
+        : (animationIndex === 0 ? "institute-button-animate-first" : "institute-button-animate");
 
-  return (
-    <Button
-      mode={isSelected ? "gray" : "plain"}
-      size="m"
-      onClick={onClick}
-      className={animationClass}
-      style={{
-        padding: '0px',
-        background: isSelected ? 'var(--tgui--section_bg_color)' : '',
-        color: 'var(--tgui--text_color)',
-        flexShrink: 0,
-        animationDelay,
-      }}
-      aria-label={institute ? `Select institute ${institute.id}` : "All institutes"}
-    >
-      <InstituteIcon />
-    </Button>
-  );
+    return (
+        <Button
+            mode={isSelected ? "gray" : "plain"}
+            size="m"
+            onClick={onClick}
+            className={animationClass}
+            style={{
+                padding: '0px',
+                background: isSelected ? 'var(--tgui--section_bg_color)' : '',
+                color: 'var(--tgui--text_color)',
+                flexShrink: 0,
+                animationDelay,
+            }}
+            aria-label={institute ? `Select institute ${institute.id}` : "All institutes"}
+        >
+            <InstituteIcon />
+        </Button>
+    );
 };
 
 // Institute Selector component with responsive behavior
 interface InstituteSelectorProps {
-  activeInstitute: string | null;
-  onSelect: (institute: string | null) => void;
-  disableAnimation?: boolean;
+    activeInstitute: string | null;
+    onSelect: (institute: string | null) => void;
+    disableAnimation?: boolean;
 }
 
 const InstituteSelector: React.FC<InstituteSelectorProps> = ({
-  activeInstitute,
-  onSelect,
-  disableAnimation = false
+    activeInstitute,
+    onSelect,
+    disableAnimation = false
 }) => {
-  // Use the FilterContainer to handle responsive behavior
-  return (
-    <FilterContainer>
-      <InstituteButton
-        onClick={() => onSelect(null)}
-        isSelected={activeInstitute === null}
-        animationIndex={0}
-        disableAnimation={disableAnimation}
-      />
+    // Use the FilterContainer to handle responsive behavior
+    return (
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+            <InstituteButton
+                onClick={() => onSelect(null)}
+                isSelected={activeInstitute === null}
+                animationIndex={0}
+                disableAnimation={disableAnimation}
+            />
 
-      {INSTITUTES.map((institute, index) => (
-        <InstituteButton
-          key={institute.id}
-          institute={institute}
-          isSelected={activeInstitute === institute.id}
-          onClick={() => onSelect(institute.id)}
-          animationIndex={index + 1}
-          disableAnimation={disableAnimation}
-        />
-      ))}
-    </FilterContainer>
-  );
+            {INSTITUTES.map((institute, index) => (
+                <InstituteButton
+                    key={institute.id}
+                    institute={institute}
+                    isSelected={activeInstitute === institute.id}
+                    onClick={() => onSelect(institute.id)}
+                    animationIndex={index + 1}
+                    disableAnimation={disableAnimation}
+                />
+            ))}
+        </div>
+    );
 };
 
 interface StuffSearchPanelProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  typeFilter: string | null;
-  onTypeFilterChange: (type: string | null) => void;
-  teacherFilter: string | null;
-  onTeacherFilterChange: (teacher: string | null) => void;
-  subjectFilter: string | null;
-  onSubjectFilterChange: (subject: string | null) => void;
-  semesterFilter: string | null;
-  onSemesterFilterChange: (semester: string | null) => void;
-  instituteFilter: string | null;
-  onInstituteFilterChange: (institute: string | null) => void;
+    searchQuery: string;
+    onSearchChange: (query: string) => void;
+    typeFilter: string | null;
+    onTypeFilterChange: (type: string | null) => void;
+    teacherFilter: string | null;
+    onTeacherFilterChange: (teacher: string | null) => void;
+    subjectFilter: string | null;
+    onSubjectFilterChange: (subject: string | null) => void;
+    semesterFilter: string | null;
+    onSemesterFilterChange: (semester: string | null) => void;
+    instituteFilter: string | null;
+    onInstituteFilterChange: (institute: string | null) => void;
 }
 
 export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
-  searchQuery,
-  onSearchChange,
-  typeFilter,
-  onTypeFilterChange,
-  teacherFilter,
-  onTeacherFilterChange,
-  subjectFilter,
-  onSubjectFilterChange,
-  semesterFilter,
-  onSemesterFilterChange,
-  instituteFilter,
-  onInstituteFilterChange
+    searchQuery,
+    onSearchChange,
+    typeFilter,
+    onTypeFilterChange,
+    teacherFilter,
+    onTeacherFilterChange,
+    subjectFilter,
+    onSubjectFilterChange,
+    semesterFilter,
+    onSemesterFilterChange,
+    instituteFilter,
+    onInstituteFilterChange
 }) => {
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [isInstituteExpanded, setIsInstituteExpanded] = useState(false);
-  const [filterOptions, setFilterOptions] = useState({
-    types: [] as DropdownOption[],
-    teachers: [] as DropdownOption[],
-    subjects: [] as DropdownOption[],
-    semesters: [] as DropdownOption[],
-  });
-  const [isLoading, setIsLoading] = useState({
-    types: false,
-    teachers: false,
-    subjects: false,
-    semesters: false,
-  });
+    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+    const [isInstituteExpanded, setIsInstituteExpanded] = useState(false);
+    const [filterOptions, setFilterOptions] = useState({
+        types: [] as DropdownOption[],
+        teachers: [] as DropdownOption[],
+        subjects: [] as DropdownOption[],
+        semesters: [] as DropdownOption[],
+    });
+    const [isLoading, setIsLoading] = useState({
+        types: false,
+        teachers: false,
+        subjects: false,
+        semesters: false,
+    });
 
-  // State for filter selection overlay
-  const [filterOverlay, setFilterOverlay] = useState<{
-    type: 'none' | 'type' | 'teacher' | 'subject' | 'semester';
-    isVisible: boolean;
-  }>({ type: 'none', isVisible: false });
+    // State for filter selection overlay
+    const [filterOverlay, setFilterOverlay] = useState<{
+        type: 'none' | 'type' | 'teacher' | 'subject' | 'semester';
+        isVisible: boolean;
+    }>({ type: 'none', isVisible: false });
 
-  // State for sticky detection
-  const [isSticky, setIsSticky] = useState(false);
+    // State for sticky detection
+    const [isSticky, setIsSticky] = useState(false);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [shouldAnimateInstitute, setShouldAnimateInstitute] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [shouldAnimateInstitute, setShouldAnimateInstitute] = useState(false);
+    const panelRef = useRef<HTMLDivElement>(null);
 
-  // Set up IntersectionObserver to detect sticky state
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsSticky(!entry.isIntersecting);
-      },
-      { threshold: 0 }
-    );
+    // Set up IntersectionObserver to detect sticky state
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsSticky(!entry.isIntersecting);
+            },
+            { threshold: 0 }
+        );
 
-    // Create a sentinel element to observe
-    const sentinel = document.createElement('div');
-    sentinel.style.height = '1px';
-    sentinel.style.position = 'absolute';
-    sentinel.style.top = '0';
-    sentinel.style.left = '0';
-    sentinel.style.width = '100%';
+        // Create a sentinel element to observe
+        const sentinel = document.createElement('div');
+        sentinel.style.height = '1px';
+        sentinel.style.position = 'absolute';
+        sentinel.style.top = '0';
+        sentinel.style.left = '0';
+        sentinel.style.width = '100%';
 
-    if (panelRef.current && panelRef.current.parentNode) {
-      panelRef.current.parentNode.insertBefore(sentinel, panelRef.current);
-      observer.observe(sentinel);
-    }
+        if (panelRef.current && panelRef.current.parentNode) {
+            panelRef.current.parentNode.insertBefore(sentinel, panelRef.current);
+            observer.observe(sentinel);
+        }
 
-    return () => {
-      observer.disconnect();
-      if (sentinel.parentNode) {
-        sentinel.parentNode.removeChild(sentinel);
-      }
+        return () => {
+            observer.disconnect();
+            if (sentinel.parentNode) {
+                sentinel.parentNode.removeChild(sentinel);
+            }
+        };
+    }, []);
+
+    // Load filter options
+    useEffect(() => {
+        const loadOptions = async () => {
+            // Load material types
+            setIsLoading(prev => ({ ...prev, types: true }));
+            try {
+                const typesResponse = await getMaterialTypes();
+                setFilterOptions(prev => ({ ...prev, types: typesResponse.items }));
+            } catch (error) {
+                console.error('Error loading types:', error);
+            } finally {
+                setIsLoading(prev => ({ ...prev, types: false }));
+            }
+
+            // Load material teachers
+            setIsLoading(prev => ({ ...prev, teachers: true }));
+            try {
+                const teachersResponse = await getMaterialTeachers();
+                setFilterOptions(prev => ({ ...prev, teachers: teachersResponse.items }));
+            } catch (error) {
+                console.error('Error loading teachers:', error);
+            } finally {
+                setIsLoading(prev => ({ ...prev, teachers: false }));
+            }
+
+            // Load material subjects
+            setIsLoading(prev => ({ ...prev, subjects: true }));
+            try {
+                const subjectsResponse = await getMaterialSubjects();
+                setFilterOptions(prev => ({ ...prev, subjects: subjectsResponse.items }));
+            } catch (error) {
+                console.error('Error loading subjects:', error);
+            } finally {
+                setIsLoading(prev => ({ ...prev, subjects: false }));
+            }
+
+            // Load material semesters
+            setIsLoading(prev => ({ ...prev, semesters: true }));
+            try {
+                const semestersResponse = await getMaterialSemesters();
+                setFilterOptions(prev => ({ ...prev, semesters: semestersResponse.items }));
+            } catch (error) {
+                console.error('Error loading semesters:', error);
+            } finally {
+                setIsLoading(prev => ({ ...prev, semesters: false }));
+            }
+        };
+
+        loadOptions();
+    }, []);
+
+    // Toggle search expansion
+    const handleSearchExpand = useCallback(() => {
+        if (isInstituteExpanded) {
+            setIsInstituteExpanded(false);
+        }
+
+        setIsSearchExpanded(true);
+        setTimeout(() => {
+            inputRef.current?.focus();
+        }, 200);
+    }, [isInstituteExpanded]);
+
+    const handleSearchCollapse = () => {
+        setIsSearchExpanded(false);
+        onSearchChange(''); // Clear search when collapsing
     };
-  }, []);
 
-  // Load filter options
-  useEffect(() => {
-    const loadOptions = async () => {
-      // Load material types
-      setIsLoading(prev => ({ ...prev, types: true }));
-      try {
-        const typesResponse = await getMaterialTypes();
-        setFilterOptions(prev => ({ ...prev, types: typesResponse.items }));
-      } catch (error) {
-        console.error('Error loading types:', error);
-      } finally {
-        setIsLoading(prev => ({ ...prev, types: false }));
-      }
+    // Toggle institute selection
+    const handleInstituteExpand = useCallback(() => {
+        // Enable animations for user interaction
+        setShouldAnimateInstitute(true);
 
-      // Load material teachers
-      setIsLoading(prev => ({ ...prev, teachers: true }));
-      try {
-        const teachersResponse = await getMaterialTeachers();
-        setFilterOptions(prev => ({ ...prev, teachers: teachersResponse.items }));
-      } catch (error) {
-        console.error('Error loading teachers:', error);
-      } finally {
-        setIsLoading(prev => ({ ...prev, teachers: false }));
-      }
+        if (isSearchExpanded) {
+            handleSearchCollapse();
+        }
 
-      // Load material subjects
-      setIsLoading(prev => ({ ...prev, subjects: true }));
-      try {
-        const subjectsResponse = await getMaterialSubjects();
-        setFilterOptions(prev => ({ ...prev, subjects: subjectsResponse.items }));
-      } catch (error) {
-        console.error('Error loading subjects:', error);
-      } finally {
-        setIsLoading(prev => ({ ...prev, subjects: false }));
-      }
+        setIsInstituteExpanded(true);
+    }, [isSearchExpanded]);
 
-      // Load material semesters
-      setIsLoading(prev => ({ ...prev, semesters: true }));
-      try {
-        const semestersResponse = await getMaterialSemesters();
-        setFilterOptions(prev => ({ ...prev, semesters: semestersResponse.items }));
-      } catch (error) {
-        console.error('Error loading semesters:', error);
-      } finally {
-        setIsLoading(prev => ({ ...prev, semesters: false }));
-      }
+    // Handle institute selection
+    const handleInstituteSelect = useCallback((institute: string | null) => {
+        // Enable animations for user interaction
+        setShouldAnimateInstitute(true);
+        onInstituteFilterChange(institute);
+        setIsInstituteExpanded(false);
+    }, [onInstituteFilterChange]);
+
+    // Check if filters should be shown (not when search or institute is expanded)
+    const areFiltersHidden = isSearchExpanded || isInstituteExpanded;
+    const selectedInstitute = instituteFilter ? INSTITUTES.find(institute => institute.id === instituteFilter) : null;
+
+    // Find selected option names for display
+    const getSelectedOptionName = (options: DropdownOption[], selectedId: string | null) => {
+        if (!selectedId) return '';
+        const option = options.find(opt => opt.id === selectedId);
+        return option ? option.name : '';
     };
 
-    loadOptions();
-  }, []);
+    const typeOptionName = getSelectedOptionName(filterOptions.types, typeFilter);
+    const teacherOptionName = getSelectedOptionName(filterOptions.teachers, teacherFilter);
+    const subjectOptionName = getSelectedOptionName(filterOptions.subjects, subjectFilter);
+    const semesterOptionName = getSelectedOptionName(filterOptions.semesters, semesterFilter);
 
-  // Toggle search expansion
-  const handleSearchExpand = useCallback(() => {
-    if (isInstituteExpanded) {
-      setIsInstituteExpanded(false);
-    }
+    // Open filter overlay
+    const openFilterOverlay = (type: 'type' | 'teacher' | 'subject' | 'semester') => {
+        setFilterOverlay({ type, isVisible: true });
+    };
 
-    setIsSearchExpanded(true);
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 200);
-  }, [isInstituteExpanded]);
+    // Close filter overlay
+    const closeFilterOverlay = () => {
+        setFilterOverlay({ type: 'none', isVisible: false });
+    };
 
-  const handleSearchCollapse = () => {
-    setIsSearchExpanded(false);
-    onSearchChange(''); // Clear search when collapsing
-  };
+    // Handle filter selection
+    const handleFilterSelect = (value: string | null) => {
+        switch (filterOverlay.type) {
+            case 'type':
+                onTypeFilterChange(value);
+                break;
+            case 'teacher':
+                onTeacherFilterChange(value);
+                break;
+            case 'subject':
+                onSubjectFilterChange(value);
+                break;
+            case 'semester':
+                onSemesterFilterChange(value);
+                break;
+        }
+    };
 
-  // Toggle institute selection
-  const handleInstituteExpand = useCallback(() => {
-    // Enable animations for user interaction
-    setShouldAnimateInstitute(true);
+    // Get filter options based on active filter type
+    const getFilterOptions = () => {
+        switch (filterOverlay.type) {
+            case 'type':
+                return filterOptions.types;
+            case 'teacher':
+                return filterOptions.teachers;
+            case 'subject':
+                return filterOptions.subjects;
+            case 'semester':
+                return filterOptions.semesters;
+            default:
+                return [];
+        }
+    };
 
-    if (isSearchExpanded) {
-      handleSearchCollapse();
-    }
+    // Get filter title based on active filter type
+    const getFilterTitle = () => {
+        switch (filterOverlay.type) {
+            case 'type':
+                return "Выберите тип";
+            case 'teacher':
+                return "Выберите преподавателя";
+            case 'subject':
+                return "Выберите предмет";
+            case 'semester':
+                return "Выберите семестр";
+            default:
+                return "";
+        }
+    };
 
-    setIsInstituteExpanded(true);
-  }, [isSearchExpanded]);
+    // Get selected option based on active filter type
+    const getSelectedOption = () => {
+        switch (filterOverlay.type) {
+            case 'type':
+                return typeFilter;
+            case 'teacher':
+                return teacherFilter;
+            case 'subject':
+                return subjectFilter;
+            case 'semester':
+                return semesterFilter;
+            default:
+                return null;
+        }
+    };
 
-  // Handle institute selection
-  const handleInstituteSelect = useCallback((institute: string | null) => {
-    // Enable animations for user interaction
-    setShouldAnimateInstitute(true);
-    onInstituteFilterChange(institute);
-    setIsInstituteExpanded(false);
-  }, [onInstituteFilterChange]);
-
-  // Check if filters should be shown (not when search or institute is expanded)
-  const areFiltersHidden = isSearchExpanded || isInstituteExpanded;
-  const selectedInstitute = instituteFilter ? INSTITUTES.find(institute => institute.id === instituteFilter) : null;
-
-  // Find selected option names for display
-  const getSelectedOptionName = (options: DropdownOption[], selectedId: string | null) => {
-    if (!selectedId) return '';
-    const option = options.find(opt => opt.id === selectedId);
-    return option ? option.name : '';
-  };
-
-  const typeOptionName = getSelectedOptionName(filterOptions.types, typeFilter);
-  const teacherOptionName = getSelectedOptionName(filterOptions.teachers, teacherFilter);
-  const subjectOptionName = getSelectedOptionName(filterOptions.subjects, subjectFilter);
-  const semesterOptionName = getSelectedOptionName(filterOptions.semesters, semesterFilter);
-
-  // Open filter overlay
-  const openFilterOverlay = (type: 'type' | 'teacher' | 'subject' | 'semester') => {
-    setFilterOverlay({ type, isVisible: true });
-  };
-
-  // Close filter overlay
-  const closeFilterOverlay = () => {
-    setFilterOverlay({ type: 'none', isVisible: false });
-  };
-
-  // Handle filter selection
-  const handleFilterSelect = (value: string | null) => {
-    switch (filterOverlay.type) {
-      case 'type':
-        onTypeFilterChange(value);
-        break;
-      case 'teacher':
-        onTeacherFilterChange(value);
-        break;
-      case 'subject':
-        onSubjectFilterChange(value);
-        break;
-      case 'semester':
-        onSemesterFilterChange(value);
-        break;
-    }
-  };
-
-  // Get filter options based on active filter type
-  const getFilterOptions = () => {
-    switch (filterOverlay.type) {
-      case 'type':
-        return filterOptions.types;
-      case 'teacher':
-        return filterOptions.teachers;
-      case 'subject':
-        return filterOptions.subjects;
-      case 'semester':
-        return filterOptions.semesters;
-      default:
-        return [];
-    }
-  };
-
-  // Get filter title based on active filter type
-  const getFilterTitle = () => {
-    switch (filterOverlay.type) {
-      case 'type':
-        return "Выберите тип";
-      case 'teacher':
-        return "Выберите преподавателя";
-      case 'subject':
-        return "Выберите предмет";
-      case 'semester':
-        return "Выберите семестр";
-      default:
-        return "";
-    }
-  };
-
-  // Get selected option based on active filter type
-  const getSelectedOption = () => {
-    switch (filterOverlay.type) {
-      case 'type':
-        return typeFilter;
-      case 'teacher':
-        return teacherFilter;
-      case 'subject':
-        return subjectFilter;
-      case 'semester':
-        return semesterFilter;
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <>
-      <div
-        ref={panelRef}
-        className={`search-panel ${isSticky ? 'sticky' : ''}`}
-        data-searchpanel="stuff"
-      >
-        <style jsx global>{`
-          .search-panel {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            padding-top: 16px;
-            padding-bottom: 16px;
-            background-color: var(--tgui--secondary_bg_color);
-            transition: box-shadow 0.2s ease-in-out;
-            width: calc(100% + 16px);
-            margin-left: -8px;
-            padding-left: 8px;
-            padding-right: 8px;
-            box-sizing: border-box;
-          }
-
-          .search-panel.sticky {
-            box-shadow: 0 1px 0 var(--tgui--quartenary_bg_color);
-          }
-
-          .no-scrollbar::-webkit-scrollbar {
-            display: none;
-          }
-          .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-
-          @keyframes instituteButtonFadeIn {
-            from {
-              opacity: 0;
-              transform: translateX(-6px);
-            }
-            to {
-              opacity: 1;
-              transform: translateX(0);
-            }
-          }
-
-          @keyframes firstButtonFadeIn {
-            from {
-              opacity: 0.5;
-            }
-            to {
-              opacity: 1;
-            }
-          }
-
-          .institute-button-animate {
-            opacity: 0;
-            animation: instituteButtonFadeIn 0.10s ease-out forwards;
-          }
-
-          .institute-button-animate-first {
-            opacity: 0;
-            animation: firstButtonFadeIn 0.10s ease-out forwards;
-          }
-        `}</style>
-
-        <div className="flex gap-2 items-center">
-          {/* Institute button or selector */}
-          {isInstituteExpanded ? (
-            <div className="flex-1 overflow-x-auto no-scrollbar transition-all duration-200 ease-in-out">
-              <InstituteSelector
-                activeInstitute={instituteFilter}
-                onSelect={handleInstituteSelect}
-                disableAnimation={!shouldAnimateInstitute}
-              />
-            </div>
-          ) : (
-            <div className="flex-shrink-0 transition-all duration-200 ease-in-out">
-              <InstituteButton
-                institute={selectedInstitute}
-                isSelected={!!selectedInstitute || instituteFilter === null}
-                onClick={handleInstituteExpand}
-                disableAnimation={!shouldAnimateInstitute}
-              />
-            </div>
-          )}
-
-          {/* Search Input - only collapsed when institute is expanded */}
-          {!isInstituteExpanded && (
+    return (
+        <>
             <div
-              className="transition-all duration-200 ease-in-out flex-shrink-0"
-              style={{
-                width: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
-                maxWidth: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px'
-              }}
+                ref={panelRef}
+                className={`search-panel ${isSticky ? 'sticky' : ''}`}
+                data-searchpanel="stuff"
             >
-              {!isSearchExpanded ? (
-                <div className="relative">
-                  <div
-                    className="absolute inset-0 z-10 cursor-pointer"
-                    onClick={handleSearchExpand}
-                    aria-label="Expand search"
-                    role="button"
-                    tabIndex={0}
-                  />
 
-                  <Input
-                    ref={inputRef}
-                    placeholder=""
-                    value={searchQuery}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                    aria-label="Search"
-                    style={{
-                      width: '42px',
-                      height: '42px'
-                    }}
-                    before={
-                      <div
-                        className="translate-x-[calc(50%-12px)]"
-                        aria-hidden="true"
-                      >
-                        <Icon24Search />
-                      </div>
-                    }
-                  />
-                </div>
-              ) : (
-                <Input
-                  ref={inputRef}
-                  value={searchQuery}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  placeholder="Поиск материалов..."
-                  aria-label="Search expanded"
-                  after={
+                <SearchPanelStyles />
+
+                <div className="flex gap-2 items-center">
+                    {/* Institute button or selector */}
                     <div
-                      style={{
-                        display: 'flex',
-                        position: 'relative',
-                        zIndex: 20,
-                        cursor: 'pointer'
-                      }}
-                      onClick={handleSearchCollapse}
-                      aria-label="Close search"
+                        className="institute-container"
+                        style={{
+                            zIndex: isInstituteExpanded ? 3 : 1,
+                            position: 'relative',
+                            flexShrink: 0
+                        }}
                     >
-                      <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
+                        {isInstituteExpanded ? (
+                            <div className="flex-1 overflow-x-auto no-scrollbar transition-all duration-200 ease-in-out">
+                                <InstituteSelector
+                                    activeInstitute={instituteFilter}
+                                    onSelect={handleInstituteSelect}
+                                    disableAnimation={!shouldAnimateInstitute}
+                                />
+                            </div>
+                        ) : (
+                            <div className="flex-shrink-0 transition-all duration-200 ease-in-out">
+                                <InstituteButton
+                                    institute={selectedInstitute}
+                                    isSelected={!!selectedInstitute || instituteFilter === null}
+                                    onClick={handleInstituteExpand}
+                                    disableAnimation={!shouldAnimateInstitute}
+                                />
+                            </div>
+                        )}
                     </div>
-                  }
-                />
-              )}
+
+                    {/* Search Input - only collapsed when institute is expanded */}
+                    {!isInstituteExpanded && (
+                        <div
+                            className="transition-all duration-200 ease-in-out flex-shrink-0"
+                            style={{
+                                width:    isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
+                                maxWidth: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
+                                zIndex: 2, // Above filter buttons but below expanded institute
+                            }}
+                        >
+                            <div className="relative">
+                                {!isSearchExpanded && (
+                                    <div
+                                        className="absolute inset-0 z-10 cursor-pointer"
+                                        onClick={handleSearchExpand}
+                                        aria-label="Expand search"
+                                        role="button"
+                                        tabIndex={0}
+                                    />
+                                )}
+
+
+                                <Input
+                                    ref={inputRef}
+                                    placeholder={isSearchExpanded ? "Поиск материалов..." : ""}
+                                    value={searchQuery}
+                                    onChange={(e) => onSearchChange(e.target.value)}
+                                    aria-label="Search"
+                                    style={{
+                                        maxWidth: isSearchExpanded ? '' : '42px',
+                                        maxHeight: isSearchExpanded ? '' : '42px',
+                                    }}
+                                    before={
+                                        <div
+                                            className="translate-x-[calc(50%-12px)]"
+                                            style={{
+                                                color: isSearchExpanded ? 'var(--tgui--hint_color)' : ''
+                                            }}
+                                            aria-hidden="true"
+                                        >
+                                            <Icon24Search />
+                                        </div>
+                                    }
+                                    after={isSearchExpanded &&
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                position: 'relative',
+                                                zIndex: 20,
+                                                cursor: 'pointer'
+                                            }}
+                                            onClick={handleSearchCollapse}
+                                            aria-label="Close search"
+                                        >
+                                            <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
+                                        </div>
+                                    }
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Filter buttons */}
+                    <FilterContainer isHidden={areFiltersHidden}>
+                        {/* Type filter button */}
+                        <FilterButton
+                            label={typeFilter ? typeOptionName : 'Тип'}
+                            selected={!!typeFilter}
+                            onClick={() => openFilterOverlay('type')}
+                            onClear={() => onTypeFilterChange(null)}
+                            className="filter-button"
+                        />
+
+                        {/* Teacher filter button */}
+                        <FilterButton
+                            label={teacherFilter ? teacherOptionName : 'Препод'}
+                            selected={!!teacherFilter}
+                            onClick={() => openFilterOverlay('teacher')}
+                            onClear={() => onTeacherFilterChange(null)}
+                            className="filter-button"
+                        />
+
+                        {/* Subject filter button */}
+                        <FilterButton
+                            label={subjectFilter ? subjectOptionName : 'Предмет'}
+                            selected={!!subjectFilter}
+                            onClick={() => openFilterOverlay('subject')}
+                            onClear={() => onSubjectFilterChange(null)}
+                            className="filter-button"
+                        />
+
+                        {/* Semester filter button */}
+                        <FilterButton
+                            label={semesterFilter ? semesterOptionName : 'Семестр'}
+                            selected={!!semesterFilter}
+                            onClick={() => openFilterOverlay('semester')}
+                            onClear={() => onSemesterFilterChange(null)}
+                            className="filter-button"
+                        />
+                    </FilterContainer>
+                </div>
             </div>
-          )}
 
-          {/* Filter buttons - controlled by FilterContainer */}
-          <FilterContainer isHidden={areFiltersHidden}>
-            {/* Type filter button */}
-            <FilterButton
-              label={typeFilter ? typeOptionName : 'Тип'}
-              selected={!!typeFilter}
-              onClick={() => openFilterOverlay('type')}
-              onClear={() => onTypeFilterChange(null)}
+            {/* Modal Filter Overlay */}
+            <ModalOverlay
+                title={getFilterTitle()}
+                options={getFilterOptions()}
+                selectedOption={getSelectedOption()}
+                onSelect={handleFilterSelect}
+                onClose={closeFilterOverlay}
+                isVisible={filterOverlay.isVisible}
+                parentHasBackButton={true}
             />
-
-            {/* Teacher filter button */}
-            <FilterButton
-              label={teacherFilter ? teacherOptionName : 'Препод'}
-              selected={!!teacherFilter}
-              onClick={() => openFilterOverlay('teacher')}
-              onClear={() => onTeacherFilterChange(null)}
-            />
-
-            {/* Subject filter button */}
-            <FilterButton
-              label={subjectFilter ? subjectOptionName : 'Предмет'}
-              selected={!!subjectFilter}
-              onClick={() => openFilterOverlay('subject')}
-              onClear={() => onSubjectFilterChange(null)}
-            />
-
-            {/* Semester filter button */}
-            <FilterButton
-              label={semesterFilter ? semesterOptionName : 'Семестр'}
-              selected={!!semesterFilter}
-              onClick={() => openFilterOverlay('semester')}
-              onClear={() => onSemesterFilterChange(null)}
-            />
-          </FilterContainer>
-        </div>
-      </div>
-
-      {/* Modal Filter Overlay */}
-      <ModalOverlay
-        title={getFilterTitle()}
-        options={getFilterOptions()}
-        selectedOption={getSelectedOption()}
-        onSelect={handleFilterSelect}
-        onClose={closeFilterOverlay}
-        isVisible={filterOverlay.isVisible}
-        parentHasBackButton={true}
-      />
-    </>
-  );
+        </>
+    );
 };

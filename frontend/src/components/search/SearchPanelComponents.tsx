@@ -4,7 +4,7 @@ import { SearchPanelGlobalStyles } from './searchPanelStyles';
 interface FilterContainerProps {
   children: React.ReactNode;
   className?: string;
-  isHidden?: boolean; // To hide when search is expanded
+  isHidden?: boolean; // To control visibility when search is expanded
 }
 
 /**
@@ -22,120 +22,169 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
   isHidden = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [expandFilters, setExpandFilters] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isScrollable, setIsScrollable] = useState(false);
+  const childArray = React.Children.toArray(children);
+  const childCount = childArray.length;
 
-  // Measure if content fits container
-  const measureContainers = useCallback(() => {
-    if (containerRef.current && contentRef.current) {
-      const containerWidth = containerRef.current.clientWidth;
-      const contentWidth = contentRef.current.scrollWidth;
+  // Function to calculate if content should be scrollable
+  const calculateLayout = useCallback(() => {
+    if (!containerRef.current || childCount === 0) return;
 
-      // If content width is less than container width, expand filters
-      setExpandFilters(contentWidth <= containerWidth);
-    }
-  }, []);
+    // Get container width
+    const containerWidth = containerRef.current.offsetWidth;
 
-  // Set up ResizeObserver to detect width changes
+    // First render content in scrollable layout to measure natural widths
+    setIsScrollable(true);
+
+    // Give time for the DOM to update
+    setTimeout(() => {
+      if (!scrollContainerRef.current) return;
+
+      // Measure actual content width when buttons have their natural size
+      const contentWidth = scrollContainerRef.current.scrollWidth;
+
+      // Add a larger buffer (20px) to avoid frequent switching
+      const shouldScroll = contentWidth > containerWidth;
+
+      console.log(`contentWidth: ${contentWidth}`)
+      console.log(`containerWidth: ${containerWidth}`)
+      console.log(`shouldScroll: ${shouldScroll}`)
+
+      // Update layout based on actual measurements
+      setIsScrollable(shouldScroll);
+    }, 50);
+  }, [childCount]);
+
+  // Run calculation when component mounts and when container size changes
   useEffect(() => {
+    if (isHidden) return;
+
+    calculateLayout();
+
+    // Set up resize observer
     const resizeObserver = new ResizeObserver(() => {
-      if (!isHidden) {
-        measureContainers();
-      }
+      calculateLayout();
     });
 
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
+      // Also observe body for layout changes
+      resizeObserver.observe(document.body);
     }
 
-    // Initial measurement
-    if (!isHidden) {
-      measureContainers();
-    }
+    // Standard resize event as fallback
+    window.addEventListener('resize', calculateLayout);
 
     return () => {
       resizeObserver.disconnect();
+      window.removeEventListener('resize', calculateLayout);
     };
-  }, [measureContainers, isHidden]);
+  }, [calculateLayout, isHidden, childCount]);
 
-  // Re-measure when visibility changes
+  // Recalculate when visibility changes
   useEffect(() => {
     if (!isHidden) {
-      setTimeout(measureContainers, 0);
+      // Delay to ensure proper rendering
+      setTimeout(calculateLayout, 100);
     }
-  }, [isHidden, measureContainers]);
+  }, [isHidden, calculateLayout]);
 
+  // Don't render anything when hidden
   if (isHidden) {
     return null;
   }
 
-  // Count React children to distribute width evenly
-  const childCount = React.Children.count(children);
-  const childrenArray = React.Children.toArray(children);
-
-  if (expandFilters) {
-    // Static layout with evenly distributed buttons
-    return (
-      <div
-        ref={containerRef}
-        className={`flex-1 ${className} transition-all duration-200 ease-in-out`}
-      >
-        <div className="flex gap-2 w-full">
-          {childrenArray.map((child, index) => (
-            <div
-              key={index}
-              style={{ flex: `1 1 ${100 / childCount}%` }}
-            >
-              {child}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  } else {
-    // Scrollable layout - critical for touch scrolling to work properly
-    return (
-      <div
-        ref={containerRef}
-        className={`flex-1 ${className}`}
-        style={{
-          position: 'relative',
-          width: '100%',
-        }}
-      >
+  return (
+    <div
+      ref={containerRef}
+      className={`filter-container ${className}`}
+      style={{
+        width: '100%',
+        position: 'relative',
+        transition: 'all 0.2s ease-in-out'
+      }}
+    >
+      {isScrollable ? (
+        // Scrollable layout
         <div
-          ref={contentRef}
+          ref={scrollContainerRef}
+          className="scrollable-container"
           style={{
             display: 'flex',
-            gap: '8px',
             overflowX: 'auto',
+            whiteSpace: 'nowrap',
             WebkitOverflowScrolling: 'touch',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
-            paddingBottom: '4px',
+            gap: '8px',
+            width: '100%',
+            overflowY: 'hidden'
           }}
-          className="scroll-container"
         >
-          {childrenArray.map((child, index) => (
+          {childArray.map((child, index) => (
             <div
               key={index}
+              className="scrollable-item"
               style={{
                 display: 'inline-block',
-                flexShrink: 0,
+                flexShrink: 0
               }}
             >
               {child}
             </div>
           ))}
         </div>
-        <style jsx>{`
-          .scroll-container::-webkit-scrollbar {
-            display: none;
-            width: 0;
-            height: 0;
-          }
-        `}</style>
-      </div>
-    );
-  }
+      ) : (
+        // Static layout with equal-width buttons
+        <div
+          className="static-container"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${childCount}, 1fr)`,
+            gap: '8px',
+            width: '100%'
+          }}
+        >
+          {childArray.map((child, index) => (
+            <div
+              key={index}
+              className="static-item"
+              style={{
+                width: '100%'
+              }}
+            >
+              {/* Clone child with forced width */}
+              {React.isValidElement(child) &&
+                React.cloneElement(child, {
+                  ...child.props,
+                  style: {
+                    ...(child.props.style || {}),
+                    width: '100%',
+                    minWidth: '0'
+                  }
+                })
+              }
+            </div>
+          ))}
+        </div>
+      )}
+
+      <style jsx>{`
+        .scrollable-container::-webkit-scrollbar {
+          display: none;
+          width: 0;
+          height: 0;
+        }
+
+        .static-container {
+          width: 100%;
+        }
+
+        .static-item, .static-item > * {
+          width: 100% !important;
+        }
+      `}</style>
+    </div>
+  );
 };

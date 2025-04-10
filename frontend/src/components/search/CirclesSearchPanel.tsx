@@ -198,70 +198,60 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
                     <div
                         className="flex-shrink-0 transition-all duration-200 ease-in-out"
                         style={{
-                            width: isSearchExpanded ? 'calc(100% - 8px)' : '42px',
-                            maxWidth: isSearchExpanded ? 'calc(100% - 8px)' : '42px'
+                            width:    isSearchExpanded ? 'calc(100%)' : '42px',
+                            maxWidth: isSearchExpanded ? 'calc(100%)' : '42px',
+                            zIndex: 2 // Ensure input is above filters during transition
                         }}
                     >
-                        {!isSearchExpanded ? (
                             <div className="relative">
-                                <div
-                                    className="absolute inset-0 z-10 cursor-pointer"
-                                    onClick={handleSearchExpand}
-                                    aria-label="Expand search"
-                                    role="button"
-                                    tabIndex={0}
-                                />
+                                {!isSearchExpanded && (
+                                    <div
+                                        className="absolute inset-0 z-10 cursor-pointer"
+                                        onClick={handleSearchExpand}
+                                        aria-label="Expand search"
+                                        role="button"
+                                        tabIndex={0}
+                                    />
+                                )}
+
 
                                 <Input
                                     ref={inputRef}
-                                    placeholder=""
+                                    placeholder={isSearchExpanded ? "Поиск материалов..." : ""}
                                     value={searchQuery}
                                     onChange={(e) => onSearchChange(e.target.value)}
                                     aria-label="Search"
                                     style={{
-                                        width: '42px',
-                                        height: '42px'
+                                        maxWidth: isSearchExpanded ? '' : '42px',
+                                        maxHeight: isSearchExpanded ? '' : '42px',
                                     }}
                                     before={
                                         <div
                                             className="translate-x-[calc(50%-12px)]"
+                                            style={{
+                                                color: isSearchExpanded ? 'var(--tgui--hint_color)' : ''
+                                            }}
                                             aria-hidden="true"
                                         >
                                             <Icon24Search />
                                         </div>
                                     }
+                                    after={isSearchExpanded &&
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                position: 'relative',
+                                                zIndex: 20,
+                                                cursor: 'pointer'
+                                            }}
+                                            onClick={handleSearchCollapse}
+                                            aria-label="Close search"
+                                        >
+                                            <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
+                                        </div>
+                                    }
                                 />
                             </div>
-                        ) : (
-                            <Input
-                                ref={inputRef}
-                                placeholder="Поиск кружков..."
-                                value={searchQuery}
-                                onChange={(e) => onSearchChange(e.target.value)}
-                                aria-label="Search"
-                                before={
-                                    <Icon24Search
-                                        style={{
-                                            color: 'var(--tgui--hint_color)'
-                                        }}
-                                    />
-                                }
-                                after={
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            position: 'relative',
-                                            zIndex: 20,
-                                            cursor: 'pointer'
-                                        }}
-                                        onClick={handleSearchCollapse}
-                                        aria-label="Close search"
-                                    >
-                                        <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
-                                    </div>
-                                }
-                            />
-                        )}
                     </div>
 
                     {/* Filters - only visible when search is not expanded */}
@@ -272,6 +262,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
                             selected={!!subjectFilter}
                             onClick={() => openFilterOverlay('subject')}
                             onClear={() => onSubjectFilterChange(null)}
+                            className="filter-button"
                         />
 
                         {/* Organizer filter button */}
@@ -280,6 +271,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
                             selected={!!organizerFilter}
                             onClick={() => openFilterOverlay('organizer')}
                             onClear={() => onOrganizerFilterChange(null)}
+                            className="filter-button"
                         />
                     </FilterContainer>
                 </div>
