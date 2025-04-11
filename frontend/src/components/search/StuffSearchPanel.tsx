@@ -12,6 +12,7 @@ import {
 } from '@/services/apiService';
 import { FilterContainer, SearchPanelStyles } from './SearchPanelComponents';
 import { FilterButton } from './FilterButton';
+import { SearchPanelBase } from './SearchPanelBase';
 
 // Icons for institute selector
 import { Icon24All } from '@/icons/24/all';
@@ -171,42 +172,8 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
         isVisible: boolean;
     }>({ type: 'none', isVisible: false });
 
-    // State for sticky detection
-    const [isSticky, setIsSticky] = useState(false);
-
     const inputRef = useRef<HTMLInputElement>(null);
     const [shouldAnimateInstitute, setShouldAnimateInstitute] = useState(false);
-    const panelRef = useRef<HTMLDivElement>(null);
-
-    // Set up IntersectionObserver to detect sticky state
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                setIsSticky(!entry.isIntersecting);
-            },
-            { threshold: 0 }
-        );
-
-        // Create a sentinel element to observe
-        const sentinel = document.createElement('div');
-        sentinel.style.height = '1px';
-        sentinel.style.position = 'absolute';
-        sentinel.style.top = '0';
-        sentinel.style.left = '0';
-        sentinel.style.width = '100%';
-
-        if (panelRef.current && panelRef.current.parentNode) {
-            panelRef.current.parentNode.insertBefore(sentinel, panelRef.current);
-            observer.observe(sentinel);
-        }
-
-        return () => {
-            observer.disconnect();
-            if (sentinel.parentNode) {
-                sentinel.parentNode.removeChild(sentinel);
-            }
-        };
-    }, []);
 
     // Load filter options
     useEffect(() => {
@@ -390,15 +357,10 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
 
     return (
         <>
-            <div
-                ref={panelRef}
-                className={`search-panel ${isSticky ? 'sticky' : ''}`}
-                data-searchpanel="stuff"
-            >
-
+            <SearchPanelBase dataAttr="stuff">
                 <SearchPanelStyles />
 
-                <div className="flex gap-2 items-center">
+                <div className="px-2 flex gap-2 items-center">
                     {/* Institute button or selector */}
                     <div
                         className="institute-container"
@@ -529,7 +491,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                         />
                     </FilterContainer>
                 </div>
-            </div>
+            </SearchPanelBase>
 
             {/* Modal Filter Overlay */}
             <ModalOverlay

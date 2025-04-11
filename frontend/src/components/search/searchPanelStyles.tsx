@@ -1,26 +1,24 @@
 import React from 'react';
 
 /**
- * Common styles for all search panels - applied globally to ensure consistent behavior
+ * Common styles for all search panels with clean implementation
  */
 export const SearchPanelGlobalStyles = () => (
   <style jsx global>{`
-    /* Panel container */
+    /* Core sticky panel styles */
     .search-panel {
       position: sticky;
       top: 0;
-      z-index: 50;
-      padding-top: 12px;
-      padding-bottom: 12px;
+      z-index: 200;
+      padding: 12px 0;
       background-color: var(--tgui--secondary_bg_color);
       transition: box-shadow 0.2s ease-in-out;
       width: 100%;
-      box-sizing: border-box;
-      overflow-x: hidden;
     }
 
-    .search-panel.sticky {
-      box-shadow: 0 1px 0 var(--tgui--quartenary_bg_color);
+    /* Shadow when scrolled */
+    .search-panel.has-shadow {
+      box-shadow: 0 1px 0 var(--tgui--divider);
     }
 
     /* Filter button styling */
@@ -30,7 +28,7 @@ export const SearchPanelGlobalStyles = () => (
       overflow: hidden;
     }
 
-    /* Force buttons to fill their containers in static layout */
+    /* Force buttons to fill containers in static layout */
     .static-container .filter-button,
     .static-item > .filter-button {
       width: 100% !important;
@@ -39,52 +37,35 @@ export const SearchPanelGlobalStyles = () => (
 
     /* Fix for grid layout in static mode */
     .static-container {
-      width: 100% !important;
-      display: grid !important;
+      width: 100%;
+      display: grid;
     }
 
-    /* ENHANCED SCROLLING SUPPORT */
-    /* Remove scrollbars but maintain scrollability */
+    /* No scrollbar but maintain scrollability */
     .scrollable-container::-webkit-scrollbar,
-    .no-scrollbar::-webkit-scrollbar,
-    [data-searchpanel] *::-webkit-scrollbar {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
     }
 
-    /* Ensure proper scrolling behavior */
     .scrollable-container,
-    .no-scrollbar,
-    [data-searchpanel] .scrollable-container {
-      -ms-overflow-style: none !important;
-      scrollbar-width: none !important;
-      -webkit-overflow-scrolling: touch !important;
-      overflow-x: auto !important;
-      overflow-y: hidden !important;
-      scroll-behavior: smooth !important;
-      touch-action: pan-x !important;
-      width: 100% !important;
-
-      /* Remove the max-width constraint that limits scrolling */
-      /* max-width: 100vw !important; */
-
-      /* Force horizontal scrolling */
-      overflow-wrap: normal !important;
-      flex-wrap: nowrap !important;
-      white-space: nowrap !important;
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-behavior: smooth;
+      touch-action: pan-x;
+      width: 100%;
+      white-space: nowrap;
     }
 
     /* Make sure scrollable items don't shrink */
     .scrollable-item {
-      flex: 0 0 auto !important;
-      display: inline-block !important;
-    }
-
-    /* Search field transition styles */
-    .tgui-8f04eff653cfa5e5, /* Input container */
-    .tgui-0f5050defacbf813 { /* Input wrapper */
-      transition: all 0.2s ease-in-out !important;
+      flex: 0 0 auto;
+      display: inline-block;
     }
 
     /* Center icon when in collapsed state */
@@ -93,25 +74,9 @@ export const SearchPanelGlobalStyles = () => (
       transition: transform 0.2s ease-in-out;
     }
 
-    /* Smooth width transitions */
-    .flex-shrink-0,
-    .flex-1,
-    .filter-container {
-      transition: width 0.2s ease-in-out, max-width 0.2s ease-in-out,
-                 flex 0.2s ease-in-out, opacity 0.2s ease-in-out,
-                 margin 0.2s ease-in-out;
-    }
-
-    /* Ensure container flex grows properly during transitions */
-    [data-searchpanel] .flex {
-      width: 100%;
-      align-items: center;
-      justify-content: flex-start;
-    }
-
     /* Institute button animation */
     .institute-button-animate {
-      animation: fadeSlideIn 0.3s ease-in-out forwards;
+      animation: fadeSlideIn 0.2s ease-in-out forwards;
       opacity: 0;
       transform: translateY(5px);
     }
@@ -130,13 +95,6 @@ export const SearchPanelGlobalStyles = () => (
       100% {
         opacity: 1;
         transform: translateY(0);
-      }
-    }
-
-    /* Fix for iOS/Safari scrolling issues */
-    @supports (-webkit-touch-callout: none) {
-      .scrollable-container {
-        -webkit-overflow-scrolling: touch !important;
       }
     }
   `}</style>

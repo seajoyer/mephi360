@@ -18,7 +18,6 @@ export const StuffListPage: React.FC = () => {
 
   return (
     <Page back={true}>
-      <div className="px-2">
         <StuffSearchPanel
           searchQuery={stuffFilters.search}
           onSearchChange={setSearchQuery}
@@ -34,6 +33,7 @@ export const StuffListPage: React.FC = () => {
           onInstituteFilterChange={setStuffInstitute}
         />
 
+      <div className="px-2">
         <StuffList
           searchQuery={stuffFilters.search}
           typeFilter={stuffFilters.type}

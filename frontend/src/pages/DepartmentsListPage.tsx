@@ -8,12 +8,10 @@ export const DepartmentsListPage: React.FC = () => {
 
     return (
         <Page back={true}>
-            <div className="px-2">
-                <DepartmentsSearchPanel
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                />
-            </div>
+            <DepartmentsSearchPanel
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+            />
 
             <DepartmentList searchQuery={searchQuery} />
         </Page>

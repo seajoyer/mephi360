@@ -3,6 +3,7 @@ import { Input } from '@telegram-apps/telegram-ui';
 import { Icon24Search } from '@/icons/24/search';
 import { Icon24Close } from '@/icons/24/close';
 import { SearchPanelStyles } from './SearchPanelComponents';
+import { SearchPanelBase } from './SearchPanelBase';
 
 interface DepartmentsSearchPanelProps {
   searchQuery: string;
@@ -14,7 +15,6 @@ export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
   onSearchChange
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
 
   const handleSearchClear = () => {
     onSearchChange('');
@@ -22,14 +22,10 @@ export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
   };
 
   return (
-    <div
-      ref={panelRef}
-      className={`search-panel`}
-      data-searchpanel="departments"
-    >
+    <SearchPanelBase dataAttr="departments">
       <SearchPanelStyles />
 
-      <div className="flex-1">
+      <div className="flex-1 px-2">
         <Input
           ref={inputRef}
           placeholder="Грибоведение..."
@@ -44,21 +40,21 @@ export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
             />
           }
           after={
-              <div
-                style={{
-                  display: 'flex',
-                  position: 'relative',
-                  zIndex: 20,
-                  cursor: 'pointer'
-                }}
-                onClick={handleSearchClear}
-                aria-label="Clear search"
-              >
-                <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
-              </div>
+            <div
+              style={{
+                display: 'flex',
+                position: 'relative',
+                zIndex: 20,
+                cursor: 'pointer'
+              }}
+              onClick={handleSearchClear}
+              aria-label="Clear search"
+            >
+              <Icon24Close style={{ color: 'var(--tgui--section_fg_color)' }} />
+            </div>
           }
         />
       </div>
-    </div>
+    </SearchPanelBase>
   );
 };

@@ -30,13 +30,25 @@ body {
 .page-container {
   min-height: calc(100vh + 300px);
   width: 100%;
-  overflow-x: hidden; /* Prevent horizontal scroll at container level */
 }
 
 /* Ensure page content has proper spacing */
 .page-content {
   width: 100%;
-  overflow-x: hidden; /* Prevent horizontal scroll at content level */
+}
+
+/* Make sure search panel is properly sticky */
+.search-panel {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+/* Make sure pages don't interfere with sticky elements */
+.page-container,
+.page-content {
+  overflow-x: visible;
+  overflow-y: visible;
 }
 
 /* Bottom space to ensure sufficient content height */
@@ -193,6 +205,8 @@ button,
 
 /* Fix z-index for the entire SearchPanel */
 [data-searchpanel] {
+  position: sticky !important;
+  top: 0 !important;
   z-index: 200 !important;
 }
 

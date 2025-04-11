@@ -28,63 +28,46 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
   const childArray = React.Children.toArray(children);
   const childCount = childArray.length;
 
-  // Function to accurately calculate if content should be scrollable
+  // Function to calculate if content should be scrollable
   const calculateLayout = useCallback(() => {
     if (!containerRef.current || !measurementRef.current || childCount === 0) return;
 
-    // Get container width - account for any padding
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const containerWidth = containerRect.width;
-
-    // Get the total width needed for all buttons including gaps
-    const measurementRect = measurementRef.current.getBoundingClientRect();
-    const totalContentWidth = measurementRect.width;
-
-    // Add a small buffer to prevent premature switching (8px as a safety margin)
-    const shouldScroll = totalContentWidth > containerWidth;
-
-    setIsScrollable(shouldScroll);
+    const containerWidth = containerRef.current.getBoundingClientRect().width;
+    const totalContentWidth = measurementRef.current.getBoundingClientRect().width;
+    setIsScrollable(totalContentWidth > containerWidth);
   }, [childCount]);
 
   // Helper function to ensure last element is scrollable to view
   const adjustScrollableContainer = useCallback(() => {
     if (isScrollable && scrollableContainerRef.current) {
-      // Get the last child element
       const children = scrollableContainerRef.current.children;
       if (children.length > 0) {
         const lastChild = children[children.length - 1] as HTMLElement;
-
-        // Ensure the container has enough room to scroll to the end
-        // by adding right padding equal to container width minus last element width
         if (containerRef.current && lastChild) {
           const containerWidth = containerRef.current.offsetWidth;
           const lastChildWidth = lastChild.offsetWidth;
-
-          // Set padding to allow scrolling the last element fully into view
-          // Only apply if the last element is smaller than container (otherwise not needed)
           if (lastChildWidth < containerWidth) {
             scrollableContainerRef.current.style.paddingRight = `${containerWidth - lastChildWidth}px`;
           } else {
-            scrollableContainerRef.current.style.paddingRight = '16px'; // Minimum padding
+            scrollableContainerRef.current.style.paddingRight = '16px';
           }
         }
       }
     }
   }, [isScrollable]);
 
-  // Run calculation when component mounts and when container size changes
+  // Setup layout calculations
   useEffect(() => {
     if (isHidden) return;
 
-    // Initial calculation with a slight delay to ensure proper rendering
+    // Initial calculation
     const initialTimer = setTimeout(() => {
       calculateLayout();
       adjustScrollableContainer();
     }, 50);
 
-    // Use ResizeObserver for modern browsers
+    // ResizeObserver for layout changes
     let resizeObserver: ResizeObserver | null = null;
-
     if (typeof ResizeObserver !== 'undefined') {
       resizeObserver = new ResizeObserver(() => {
         calculateLayout();
@@ -96,40 +79,11 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
       }
     }
 
-    // Standard resize event as fallback
-    const handleResize = () => {
-      calculateLayout();
-      adjustScrollableContainer();
-    };
-
-    window.addEventListener('resize', handleResize);
-
     return () => {
       clearTimeout(initialTimer);
       resizeObserver?.disconnect();
-      window.removeEventListener('resize', handleResize);
     };
   }, [calculateLayout, adjustScrollableContainer, isHidden, childCount]);
-
-  // Adjustments after scrollable state changes
-  useEffect(() => {
-    if (isScrollable) {
-      adjustScrollableContainer();
-    }
-  }, [isScrollable, adjustScrollableContainer]);
-
-  // Recalculate when visibility changes
-  useEffect(() => {
-    if (!isHidden) {
-      // Delay to ensure proper rendering
-      const timer = setTimeout(() => {
-        calculateLayout();
-        adjustScrollableContainer();
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isHidden, calculateLayout, adjustScrollableContainer]);
 
   // Don't render anything when hidden
   if (isHidden) {
@@ -144,7 +98,7 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
         width: '100%',
         position: 'relative',
         transition: 'all 0.2s ease-in-out',
-        overflowX: 'hidden' // Ensures container doesn't cause horizontal scroll
+        overflowX: 'hidden'
       }}
     >
       {/* Hidden container for measurement */}
@@ -158,9 +112,7 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
           gap: '8px',
           pointerEvents: 'none',
           height: 0,
-          overflow: 'hidden',
-          padding: 0,
-          margin: 0
+          overflow: 'hidden'
         }}
       >
         {childArray.map((child, index) => (
@@ -185,8 +137,8 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
             msOverflowStyle: 'none',
             gap: '8px',
             width: '100%',
-            paddingRight: '16px', // Initial padding, will be adjusted by code
-            boxSizing: 'content-box', // Ensures padding doesn't affect width calculation
+            paddingRight: '16px',
+            boxSizing: 'content-box'
           }}
         >
           {childArray.map((child, index) => (
@@ -236,27 +188,6 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
           ))}
         </div>
       )}
-
-      <style jsx>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-          width: 0;
-          height: 0;
-        }
-
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-
-        .static-container {
-          width: 100%;
-        }
-
-        .static-item, .static-item > * {
-          width: 100% !important;
-        }
-      `}</style>
     </div>
   );
 };

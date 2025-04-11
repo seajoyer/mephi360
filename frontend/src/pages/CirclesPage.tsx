@@ -12,42 +12,42 @@ export const CirclesPage: React.FC = () => {
 
     return (
         <Page back={false}>
-            <div className="px-2">
-
-                <div
-                    className='pt-6 pb-1.5 px-1 flex place-content-between'
+            <div
+                className='px-3 pt-6 pb-1.5 flex place-content-between'
+            >
+                <LargeTitle
+                    weight='1'
                 >
-                    <LargeTitle
-                        weight='1'
-                    >
-                        Кружки
-                    </LargeTitle>
+                    Кружки
+                </LargeTitle>
 
-                    <Button
-                      className='mt-1'
-                      mode='bezeled'
-                      size='s'
-                    >
-                      Влиять
-                    </Button>
-                </div>
+                <Button
+                    className='mt-1'
+                    mode='bezeled'
+                    size='s'
+                >
+                    Влиять
+                </Button>
+            </div>
 
-                <CirclesSearchPanel
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    organizerFilter={organizerFilter}
-                    onOrganizerFilterChange={setOrganizerFilter}
-                    subjectFilter={subjectFilter}
-                    onSubjectFilterChange={setSubjectFilter}
-                />
+            <CirclesSearchPanel
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                organizerFilter={organizerFilter}
+                onOrganizerFilterChange={setOrganizerFilter}
+                subjectFilter={subjectFilter}
+                onSubjectFilterChange={setSubjectFilter}
+            />
 
+            <div
+                className='px-2'
+            >
                 <CirclesList
                     searchQuery={searchQuery}
                     organizerFilter={organizerFilter}
                     subjectFilter={subjectFilter}
                 />
             </div>
-
             <TabBar />
         </Page>
     );

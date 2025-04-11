@@ -6,6 +6,7 @@ import { ModalOverlay } from './ModalOverlay';
 import { getDepartmentOptions } from '@/services/apiService';
 import { FilterContainer, SearchPanelStyles } from './SearchPanelComponents';
 import { FilterButton } from './FilterButton';
+import { SearchPanelBase } from './SearchPanelBase';
 
 interface TutorsSearchPanelProps {
   searchQuery: string;
@@ -23,48 +24,13 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [departmentOptions, setDepartmentOptions] = useState<{ id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  // State for filter selection overlay
   const [filterOverlayVisible, setFilterOverlayVisible] = useState(false);
-
-  const [isSticky, setIsSticky] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
 
   // Find selected department name
   const selectedDepartmentName = departmentFilter
     ? departmentOptions.find(dept => dept.id === departmentFilter)?.name || ''
     : '';
-
-  // Set up IntersectionObserver to detect sticky state
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsSticky(!entry.isIntersecting);
-      },
-      { threshold: 0 }
-    );
-
-    // Create a sentinel element to observe
-    const sentinel = document.createElement('div');
-    sentinel.style.height = '1px';
-    sentinel.style.position = 'absolute';
-    sentinel.style.top = '0';
-    sentinel.style.left = '0';
-    sentinel.style.width = '100%';
-
-    if (panelRef.current && panelRef.current.parentNode) {
-      panelRef.current.parentNode.insertBefore(sentinel, panelRef.current);
-      observer.observe(sentinel);
-    }
-
-    return () => {
-      observer.disconnect();
-      if (sentinel.parentNode) {
-        sentinel.parentNode.removeChild(sentinel);
-      }
-    };
-  }, []);
 
   // Load department options
   useEffect(() => {
@@ -96,38 +62,26 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
     onSearchChange(''); // Clear search when collapsing
   };
 
-  // Open filter overlay
-  const openFilterOverlay = () => {
-    setFilterOverlayVisible(true);
-  };
-
-  // Close filter overlay
-  const closeFilterOverlay = () => {
-    setFilterOverlayVisible(false);
-  };
-
-  // Handle department selection
+  // Handle filter overlay
+  const openFilterOverlay = () => setFilterOverlayVisible(true);
+  const closeFilterOverlay = () => setFilterOverlayVisible(false);
   const handleDepartmentSelect = (departmentId: string | null) => {
     onDepartmentFilterChange(departmentId);
   };
 
   return (
     <>
-      <div
-        ref={panelRef}
-        className={`search-panel ${isSticky ? 'sticky' : ''}`}
-        data-searchpanel="tutors"
-      >
+      <SearchPanelBase dataAttr="tutors">
         <SearchPanelStyles />
 
-        <div className="flex gap-2 items-center">
-          {/* Search field container with transition */}
+        <div className="flex gap-2 items-center px-2">
+          {/* Search field */}
           <div
             className="flex-shrink-0 transition-all duration-200 ease-in-out"
             style={{
-              width:    isSearchExpanded ? 'calc(100%)' : '42px',
+              width: isSearchExpanded ? 'calc(100%)' : '42px',
               maxWidth: isSearchExpanded ? 'calc(100%)' : '42px',
-              zIndex: 2 // Ensure input is above filters during transition
+              zIndex: 2
             }}
           >
             {!isSearchExpanded ? (
@@ -192,7 +146,7 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
             )}
           </div>
 
-          {/* Department filter button */}
+          {/* Filter buttons */}
           <FilterContainer isHidden={isSearchExpanded}>
             <FilterButton
               label={departmentFilter ? selectedDepartmentName : 'Все кафедры'}
@@ -204,7 +158,7 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
             />
           </FilterContainer>
         </div>
-      </div>
+      </SearchPanelBase>
 
       {/* Modal Filter Overlay */}
       <ModalOverlay

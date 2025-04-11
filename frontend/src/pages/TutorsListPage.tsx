@@ -7,17 +7,14 @@ export const TutorsListPage: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [departmentFilter, setDepartmentFilter] = useState<string | null>(null);
 
-    // We're explicitly setting back=true to ensure the Page component properly shows the back button
     return (
         <Page back={true}>
-            <div className="px-2">
-                <TutorsSearchPanel
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    departmentFilter={departmentFilter}
-                    onDepartmentFilterChange={setDepartmentFilter}
-                />
-            </div>
+            <TutorsSearchPanel
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                departmentFilter={departmentFilter}
+                onDepartmentFilterChange={setDepartmentFilter}
+            />
 
             <TutorsList
                 searchQuery={searchQuery}

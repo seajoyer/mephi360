@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { backButton } from '@telegram-apps/sdk-react';
-import { PropsWithChildren, useEffect, useRef } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 import { ScrollUpButton } from '@/components/common/ScrollUpButton';
 
 export interface PageProps {
@@ -17,7 +17,7 @@ export interface PageProps {
 
 /**
  * Page component that handles back button functionality and provides
- * a consistent page structure with minimal scroll height.
+ * a consistent page structure.
  */
 export function Page({
   children,
@@ -25,7 +25,6 @@ export function Page({
   className = '',
 }: PropsWithChildren<PageProps>) {
   const navigate = useNavigate();
-  const backHandlerRef = useRef<(() => boolean) | null>(null);
 
   // Handle back button functionality
   useEffect(() => {
@@ -39,16 +38,12 @@ export function Page({
         return false; // Let default navigation happen
       };
 
-      // Save a reference to our handler
-      backHandlerRef.current = handleBack;
-
       // Set the handler in the SDK
       const cleanup = backButton.onClick(handleBack);
 
       return () => {
-        // Clean up handler and make sure we don't interfere with other handlers
+        // Clean up handler
         cleanup();
-        backHandlerRef.current = null;
       };
     } else {
       // Hide back button if not needed
@@ -78,7 +73,7 @@ export function Page({
         aria-hidden="true"
       />
 
-          {/* <ScrollUpButton /> */}
+      {/* <ScrollUpButton /> */}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { ModalOverlay } from './ModalOverlay';
 import { getCircleOrganizers, getCircleSubjects, DropdownOption } from '@/services/apiService';
 import { FilterContainer, SearchPanelStyles } from './SearchPanelComponents';
 import { FilterButton } from './FilterButton';
+import { SearchPanelBase } from './SearchPanelBase';
 
 interface CirclesSearchPanelProps {
     searchQuery: string;
@@ -38,41 +39,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
         isVisible: boolean;
     }>({ type: 'none', isVisible: false });
 
-    // State for sticky detection
-    const [isSticky, setIsSticky] = useState(false);
-
     const inputRef = useRef<HTMLInputElement>(null);
-    const panelRef = useRef<HTMLDivElement>(null);
-
-    // Set up IntersectionObserver to detect sticky state
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                setIsSticky(!entry.isIntersecting);
-            },
-            { threshold: 0 }
-        );
-
-        // Create a sentinel element to observe
-        const sentinel = document.createElement('div');
-        sentinel.style.height = '1px';
-        sentinel.style.position = 'absolute';
-        sentinel.style.top = '0';
-        sentinel.style.left = '0';
-        sentinel.style.width = '100%';
-
-        if (panelRef.current && panelRef.current.parentNode) {
-            panelRef.current.parentNode.insertBefore(sentinel, panelRef.current);
-            observer.observe(sentinel);
-        }
-
-        return () => {
-            observer.disconnect();
-            if (sentinel.parentNode) {
-                sentinel.parentNode.removeChild(sentinel);
-            }
-        };
-    }, []);
 
     // Load filter options
     useEffect(() => {
@@ -186,14 +153,10 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
 
     return (
         <>
-            <div
-                ref={panelRef}
-                className={`search-panel ${isSticky ? 'sticky' : ''}`}
-                data-searchpanel="circles"
-            >
+            <SearchPanelBase dataAttr="circles">
                 <SearchPanelStyles />
 
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-2 items-center px-2">
                     {/* Search field container with transition */}
                     <div
                         className="flex-shrink-0 transition-all duration-200 ease-in-out"
@@ -213,7 +176,6 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
                                         tabIndex={0}
                                     />
                                 )}
-
 
                                 <Input
                                     ref={inputRef}
@@ -275,7 +237,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
                         />
                     </FilterContainer>
                 </div>
-            </div>
+            </SearchPanelBase>
 
             {/* Modal Filter Overlay */}
             <ModalOverlay
