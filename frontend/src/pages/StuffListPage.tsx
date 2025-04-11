@@ -2,7 +2,6 @@ import React from 'react';
 import { Page } from '@/components/Page';
 import { StuffList } from '@/components/list/StuffList';
 import { StuffSearchPanel } from '@/components/search/StuffSearchPanel';
-import { TabBar } from '@/components/layout/TabBar';
 import { useFilters } from '@/contexts/FilterContext';
 
 export const StuffListPage: React.FC = () => {
@@ -43,8 +42,6 @@ export const StuffListPage: React.FC = () => {
           activeInstitute={stuffFilters.institute}
         />
       </div>
-
-      <TabBar />
     </Page>
   );
 };

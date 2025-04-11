@@ -64,7 +64,8 @@ export const TabBar: FC = () => {
     ];
 
     const handleTabClick = (tabId: string, path: string) => {
-        navigate(path);
+        // Pass special state to indicate this is TabBar navigation (to skip transitions)
+        navigate(path, { state: { skipTransition: true } });
     };
 
     return (

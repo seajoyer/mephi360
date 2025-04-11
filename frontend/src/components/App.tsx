@@ -5,6 +5,7 @@ import { Navigate, Route, Routes, HashRouter } from 'react-router-dom';
 import { routes } from '@/navigation/routes.tsx';
 import { ScrollReset } from '@/components/common/ScrollReset';
 import { FilterProvider } from '@/contexts/FilterContext';
+import { PageTransition } from '@/components/common/PageTransition';
 
 export function App() {
     const lp = retrieveLaunchParams();
@@ -22,10 +23,12 @@ export function App() {
                 <HashRouter>
                     {/* ScrollReset needs to be inside the Router context */}
                     <ScrollReset />
-                    <Routes>
-                        {routes.map((route) => <Route key={route.path} {...route} />)}
-                        <Route path="*" element={<Navigate to="/wiki"/>}/>
-                    </Routes>
+                    <PageTransition>
+                        <Routes>
+                            {routes.map((route) => <Route key={route.path} {...route} />)}
+                            <Route path="*" element={<Navigate to="/wiki"/>}/>
+                        </Routes>
+                    </PageTransition>
                 </HashRouter>
             </FilterProvider>
         </AppRoot>
