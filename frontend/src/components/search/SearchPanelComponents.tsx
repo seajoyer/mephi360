@@ -23,6 +23,7 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const measurementRef = useRef<HTMLDivElement>(null);
+  const scrollableContainerRef = useRef<HTMLDivElement>(null);
   const [isScrollable, setIsScrollable] = useState(false);
   const childArray = React.Children.toArray(children);
   const childCount = childArray.length;
@@ -31,24 +32,55 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
   const calculateLayout = useCallback(() => {
     if (!containerRef.current || !measurementRef.current || childCount === 0) return;
 
-    // Get container width
-    const containerWidth = containerRef.current.offsetWidth;
+    // Get container width - account for any padding
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const containerWidth = containerRect.width;
 
-    // Get the total width when buttons have their natural size
-    const totalButtonsWidth = measurementRef.current.scrollWidth;
+    // Get the total width needed for all buttons including gaps
+    const measurementRect = measurementRef.current.getBoundingClientRect();
+    const totalContentWidth = measurementRect.width;
 
-    // Determine if scrollable mode is needed
-    const shouldScroll = totalButtonsWidth > containerWidth;
+    // Add a small buffer to prevent premature switching (8px as a safety margin)
+    const shouldScroll = totalContentWidth > containerWidth;
 
     setIsScrollable(shouldScroll);
   }, [childCount]);
+
+  // Helper function to ensure last element is scrollable to view
+  const adjustScrollableContainer = useCallback(() => {
+    if (isScrollable && scrollableContainerRef.current) {
+      // Get the last child element
+      const children = scrollableContainerRef.current.children;
+      if (children.length > 0) {
+        const lastChild = children[children.length - 1] as HTMLElement;
+
+        // Ensure the container has enough room to scroll to the end
+        // by adding right padding equal to container width minus last element width
+        if (containerRef.current && lastChild) {
+          const containerWidth = containerRef.current.offsetWidth;
+          const lastChildWidth = lastChild.offsetWidth;
+
+          // Set padding to allow scrolling the last element fully into view
+          // Only apply if the last element is smaller than container (otherwise not needed)
+          if (lastChildWidth < containerWidth) {
+            scrollableContainerRef.current.style.paddingRight = `${containerWidth - lastChildWidth}px`;
+          } else {
+            scrollableContainerRef.current.style.paddingRight = '16px'; // Minimum padding
+          }
+        }
+      }
+    }
+  }, [isScrollable]);
 
   // Run calculation when component mounts and when container size changes
   useEffect(() => {
     if (isHidden) return;
 
-    // Initial calculation
-    calculateLayout();
+    // Initial calculation with a slight delay to ensure proper rendering
+    const initialTimer = setTimeout(() => {
+      calculateLayout();
+      adjustScrollableContainer();
+    }, 50);
 
     // Use ResizeObserver for modern browsers
     let resizeObserver: ResizeObserver | null = null;
@@ -56,31 +88,48 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
     if (typeof ResizeObserver !== 'undefined') {
       resizeObserver = new ResizeObserver(() => {
         calculateLayout();
+        adjustScrollableContainer();
       });
 
       if (containerRef.current) {
         resizeObserver.observe(containerRef.current);
-        // Also observe body for layout changes
-        document.body.clientWidth && resizeObserver.observe(document.body);
       }
     }
 
     // Standard resize event as fallback
-    window.addEventListener('resize', calculateLayout);
+    const handleResize = () => {
+      calculateLayout();
+      adjustScrollableContainer();
+    };
+
+    window.addEventListener('resize', handleResize);
 
     return () => {
+      clearTimeout(initialTimer);
       resizeObserver?.disconnect();
-      window.removeEventListener('resize', calculateLayout);
+      window.removeEventListener('resize', handleResize);
     };
-  }, [calculateLayout, isHidden, childCount]);
+  }, [calculateLayout, adjustScrollableContainer, isHidden, childCount]);
+
+  // Adjustments after scrollable state changes
+  useEffect(() => {
+    if (isScrollable) {
+      adjustScrollableContainer();
+    }
+  }, [isScrollable, adjustScrollableContainer]);
 
   // Recalculate when visibility changes
   useEffect(() => {
     if (!isHidden) {
       // Delay to ensure proper rendering
-      setTimeout(calculateLayout, 100);
+      const timer = setTimeout(() => {
+        calculateLayout();
+        adjustScrollableContainer();
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
-  }, [isHidden, calculateLayout]);
+  }, [isHidden, calculateLayout, adjustScrollableContainer]);
 
   // Don't render anything when hidden
   if (isHidden) {
@@ -94,7 +143,8 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
       style={{
         width: '100%',
         position: 'relative',
-        transition: 'all 0.2s ease-in-out'
+        transition: 'all 0.2s ease-in-out',
+        overflowX: 'hidden' // Ensures container doesn't cause horizontal scroll
       }}
     >
       {/* Hidden container for measurement */}
@@ -123,17 +173,20 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
       {isScrollable ? (
         // Scrollable layout
         <div
-          className="scrollable-container"
+          ref={scrollableContainerRef}
+          className="scrollable-container no-scrollbar"
           style={{
             display: 'flex',
             overflowX: 'auto',
+            overflowY: 'hidden',
             whiteSpace: 'nowrap',
             WebkitOverflowScrolling: 'touch',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
             gap: '8px',
             width: '100%',
-            overflowY: 'hidden'
+            paddingRight: '16px', // Initial padding, will be adjusted by code
+            boxSizing: 'content-box', // Ensures padding doesn't affect width calculation
           }}
         >
           {childArray.map((child, index) => (
@@ -185,10 +238,15 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
       )}
 
       <style jsx>{`
-        .scrollable-container::-webkit-scrollbar {
+        .no-scrollbar::-webkit-scrollbar {
           display: none;
           width: 0;
           height: 0;
+        }
+
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
 
         .static-container {

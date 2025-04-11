@@ -46,6 +46,7 @@ export const SearchPanelGlobalStyles = () => (
     /* ENHANCED SCROLLING SUPPORT */
     /* Remove scrollbars but maintain scrollability */
     .scrollable-container::-webkit-scrollbar,
+    .no-scrollbar::-webkit-scrollbar,
     [data-searchpanel] *::-webkit-scrollbar {
       display: none !important;
       width: 0 !important;
@@ -54,6 +55,7 @@ export const SearchPanelGlobalStyles = () => (
 
     /* Ensure proper scrolling behavior */
     .scrollable-container,
+    .no-scrollbar,
     [data-searchpanel] .scrollable-container {
       -ms-overflow-style: none !important;
       scrollbar-width: none !important;
@@ -63,7 +65,9 @@ export const SearchPanelGlobalStyles = () => (
       scroll-behavior: smooth !important;
       touch-action: pan-x !important;
       width: 100% !important;
-      max-width: 100vw !important;
+
+      /* Remove the max-width constraint that limits scrolling */
+      /* max-width: 100vw !important; */
 
       /* Force horizontal scrolling */
       overflow-wrap: normal !important;
@@ -105,11 +109,33 @@ export const SearchPanelGlobalStyles = () => (
       justify-content: flex-start;
     }
 
+    /* Institute button animation */
+    .institute-button-animate {
+      animation: fadeSlideIn 0.3s ease-in-out forwards;
+      opacity: 0;
+      transform: translateY(5px);
+    }
+
+    .institute-button-animate-first {
+      animation: fadeSlideIn 0.2s ease-in-out forwards;
+      opacity: 0;
+      transform: translateY(5px);
+    }
+
+    @keyframes fadeSlideIn {
+      0% {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     /* Fix for iOS/Safari scrolling issues */
     @supports (-webkit-touch-callout: none) {
       .scrollable-container {
-        -webkit-padding-before: 1px;
-        -webkit-padding-after: 1px;
         -webkit-overflow-scrolling: touch !important;
       }
     }
