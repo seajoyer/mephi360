@@ -22,62 +22,54 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
   isHidden = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const measurementRef = useRef<HTMLDivElement>(null);
   const [isScrollable, setIsScrollable] = useState(false);
   const childArray = React.Children.toArray(children);
   const childCount = childArray.length;
 
-  // Function to calculate if content should be scrollable
+  // Function to accurately calculate if content should be scrollable
   const calculateLayout = useCallback(() => {
-    if (!containerRef.current || childCount === 0) return;
+    if (!containerRef.current || !measurementRef.current || childCount === 0) return;
 
     // Get container width
     const containerWidth = containerRef.current.offsetWidth;
 
-    // First render content in scrollable layout to measure natural widths
-    setIsScrollable(true);
+    // Get the total width when buttons have their natural size
+    const totalButtonsWidth = measurementRef.current.scrollWidth;
 
-    // Give time for the DOM to update
-    setTimeout(() => {
-      if (!scrollContainerRef.current) return;
+    // Determine if scrollable mode is needed
+    const shouldScroll = totalButtonsWidth > containerWidth;
 
-      // Measure actual content width when buttons have their natural size
-      const contentWidth = scrollContainerRef.current.scrollWidth;
-
-      // Add a larger buffer (20px) to avoid frequent switching
-      const shouldScroll = contentWidth > containerWidth;
-
-      console.log(`contentWidth: ${contentWidth}`)
-      console.log(`containerWidth: ${containerWidth}`)
-      console.log(`shouldScroll: ${shouldScroll}`)
-
-      // Update layout based on actual measurements
-      setIsScrollable(shouldScroll);
-    }, 50);
+    setIsScrollable(shouldScroll);
   }, [childCount]);
 
   // Run calculation when component mounts and when container size changes
   useEffect(() => {
     if (isHidden) return;
 
+    // Initial calculation
     calculateLayout();
 
-    // Set up resize observer
-    const resizeObserver = new ResizeObserver(() => {
-      calculateLayout();
-    });
+    // Use ResizeObserver for modern browsers
+    let resizeObserver: ResizeObserver | null = null;
 
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-      // Also observe body for layout changes
-      resizeObserver.observe(document.body);
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        calculateLayout();
+      });
+
+      if (containerRef.current) {
+        resizeObserver.observe(containerRef.current);
+        // Also observe body for layout changes
+        document.body.clientWidth && resizeObserver.observe(document.body);
+      }
     }
 
     // Standard resize event as fallback
     window.addEventListener('resize', calculateLayout);
 
     return () => {
-      resizeObserver.disconnect();
+      resizeObserver?.disconnect();
       window.removeEventListener('resize', calculateLayout);
     };
   }, [calculateLayout, isHidden, childCount]);
@@ -105,10 +97,32 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
         transition: 'all 0.2s ease-in-out'
       }}
     >
+      {/* Hidden container for measurement */}
+      <div
+        ref={measurementRef}
+        style={{
+          position: 'absolute',
+          visibility: 'hidden',
+          display: 'flex',
+          whiteSpace: 'nowrap',
+          gap: '8px',
+          pointerEvents: 'none',
+          height: 0,
+          overflow: 'hidden',
+          padding: 0,
+          margin: 0
+        }}
+      >
+        {childArray.map((child, index) => (
+          <div key={`measure-${index}`} style={{ flexShrink: 0 }}>
+            {child}
+          </div>
+        ))}
+      </div>
+
       {isScrollable ? (
         // Scrollable layout
         <div
-          ref={scrollContainerRef}
           className="scrollable-container"
           style={{
             display: 'flex',

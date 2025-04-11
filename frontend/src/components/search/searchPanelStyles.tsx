@@ -69,10 +69,6 @@ export const SearchPanelGlobalStyles = () => (
       overflow-wrap: normal !important;
       flex-wrap: nowrap !important;
       white-space: nowrap !important;
-
-      /* Add overscroll to ensure scrolling to the end */
-      padding-right: 20px !important;
-      margin-right: -20px !important;
     }
 
     /* Make sure scrollable items don't shrink */
