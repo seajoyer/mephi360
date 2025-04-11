@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Page } from '@/components/Page';
 import { CirclesList } from '@/components/list/CirclesList';
 import { CirclesSearchPanel } from '@/components/search/CirclesSearchPanel';
@@ -9,10 +9,12 @@ export const CirclesPage: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [organizerFilter, setOrganizerFilter] = useState<string | null>(null);
     const [subjectFilter, setSubjectFilter] = useState<string | null>(null);
+    const headerRef = useRef<HTMLDivElement>(null); // Create reference for the header
 
     return (
         <Page back={false}>
             <div
+                ref={headerRef} // Attach reference to the header element
                 className='px-3 pt-6 pb-1.5 flex place-content-between'
             >
                 <LargeTitle
@@ -37,6 +39,7 @@ export const CirclesPage: React.FC = () => {
                 onOrganizerFilterChange={setOrganizerFilter}
                 subjectFilter={subjectFilter}
                 onSubjectFilterChange={setSubjectFilter}
+                shadowReferenceElement={headerRef} // Pass the reference element
             />
 
             <div

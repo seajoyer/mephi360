@@ -15,6 +15,7 @@ interface CirclesSearchPanelProps {
     onOrganizerFilterChange: (organizer: string | null) => void;
     subjectFilter: string | null;
     onSubjectFilterChange: (subject: string | null) => void;
+    shadowReferenceElement?: React.RefObject<HTMLElement>; // Add this prop
 }
 
 export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
@@ -23,7 +24,8 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
     organizerFilter,
     onOrganizerFilterChange,
     subjectFilter,
-    onSubjectFilterChange
+    onSubjectFilterChange,
+    shadowReferenceElement // Add this to destructured props
 }) => {
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
     const [organizerOptions, setOrganizerOptions] = useState<DropdownOption[]>([]);
@@ -153,7 +155,10 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
 
     return (
         <>
-            <SearchPanelBase dataAttr="circles">
+            <SearchPanelBase
+                dataAttr="circles"
+                shadowReferenceElement={shadowReferenceElement} // Pass reference to SearchPanelBase
+            >
                 <SearchPanelStyles />
 
                 <div className="flex gap-2 items-center px-2">
