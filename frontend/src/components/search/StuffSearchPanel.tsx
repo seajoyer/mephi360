@@ -414,7 +414,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
 
                                 <Input
                                     ref={inputRef}
-                                    placeholder={isSearchExpanded ? "Поиск материалов..." : ""}
+                                    placeholder={isSearchExpanded ? "Поиск по материалам" : ""}
                                     value={searchQuery}
                                     onChange={(e) => onSearchChange(e.target.value)}
                                     aria-label="Search"
@@ -424,7 +424,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                                     }}
                                     before={
                                         <div
-                                            className="translate-x-[calc(50%-12px)]"
+                                            className="translate-x-[calc(50%-12px)] search-icon-transition"
                                             style={{
                                                 color: isSearchExpanded ? 'var(--tgui--hint_color)' : ''
                                             }}

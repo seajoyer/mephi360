@@ -46,8 +46,6 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
           <Icon16Cancel
             style={{
               cursor: 'pointer',
-              transition: 'opacity 0.15s ease-in-out',
-              flexShrink: 0,
             }}
             onClick={onClear ? (e) => {
               e.stopPropagation();
@@ -56,12 +54,7 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
           />
         ) : (
           expandable && (
-            <Icon16Chevron
-              style={{
-                transition: 'opacity 0.15s ease-in-out',
-                flexShrink: 0,
-              }}
-            />
+            <Icon16Chevron />
           )
         )
       }
@@ -69,7 +62,6 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
       <div
         style={{
           color: selected ? 'var(--tgui--text_color)' : 'var(--tgui--hint_color)',
-          fontWeight: !selected ? 'normal' : '',
           transition: 'color 0.15s ease-in-out, font-weight 0.15s ease-in-out',
           overflow: 'hidden',
           textOverflow: 'ellipsis',

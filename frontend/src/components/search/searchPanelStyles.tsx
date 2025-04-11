@@ -74,6 +74,11 @@ export const SearchPanelGlobalStyles = () => (
       transition: transform 0.2s ease-in-out;
     }
 
+    /* Search icon color transition */
+    .search-icon-transition {
+      transition: color 0.2s ease-in-out;
+    }
+
     /* Institute button animation */
     .institute-button-animate {
       animation: fadeSlideIn 0.2s ease-in-out forwards;

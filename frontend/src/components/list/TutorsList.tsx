@@ -161,7 +161,6 @@ export const TutorsList: React.FC<TutorsListProps> = ({
                 WebkitOverflowScrolling: 'touch'
             }}
         >
-            <Section>
                 {tutors.map((tutor, index) => (
                     <div key={tutor.id}>
                         <Link to={`/tutor/${tutor.id}`}>
@@ -220,7 +219,6 @@ export const TutorsList: React.FC<TutorsListProps> = ({
                         Больше преподавателей нет
                     </div>
                 )}
-            </Section>
         </div>
     );
 };

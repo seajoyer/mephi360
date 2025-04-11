@@ -15,7 +15,7 @@ interface CirclesSearchPanelProps {
     onOrganizerFilterChange: (organizer: string | null) => void;
     subjectFilter: string | null;
     onSubjectFilterChange: (subject: string | null) => void;
-    shadowReferenceElement?: React.RefObject<HTMLElement>; // Add this prop
+    shadowReferenceElement?: React.RefObject<HTMLElement>;
 }
 
 export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
@@ -25,7 +25,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
     onOrganizerFilterChange,
     subjectFilter,
     onSubjectFilterChange,
-    shadowReferenceElement // Add this to destructured props
+    shadowReferenceElement
 }) => {
     const [isSearchExpanded, setIsSearchExpanded] = useState(false);
     const [organizerOptions, setOrganizerOptions] = useState<DropdownOption[]>([]);
@@ -157,7 +157,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
         <>
             <SearchPanelBase
                 dataAttr="circles"
-                shadowReferenceElement={shadowReferenceElement} // Pass reference to SearchPanelBase
+                shadowReferenceElement={shadowReferenceElement}
             >
                 <SearchPanelStyles />
 
@@ -184,7 +184,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
 
                                 <Input
                                     ref={inputRef}
-                                    placeholder={isSearchExpanded ? "Поиск материалов..." : ""}
+                                    placeholder={isSearchExpanded ? "Поиск по кружкам" : ""}
                                     value={searchQuery}
                                     onChange={(e) => onSearchChange(e.target.value)}
                                     aria-label="Search"
@@ -194,7 +194,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
                                     }}
                                     before={
                                         <div
-                                            className="translate-x-[calc(50%-12px)]"
+                                            className="translate-x-[calc(50%-12px)] search-icon-transition"
                                             style={{
                                                 color: isSearchExpanded ? 'var(--tgui--hint_color)' : ''
                                             }}

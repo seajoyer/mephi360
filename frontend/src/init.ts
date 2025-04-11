@@ -54,7 +54,6 @@ export function init(debug: boolean): void {
     }
   })();
 
-
   if (backButton.mount.isAvailable()) backButton.mount();
   if (swipeBehavior.mount.isAvailable()) {
     swipeBehavior.mount();

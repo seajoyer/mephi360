@@ -25,7 +25,7 @@ export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
     <SearchPanelBase dataAttr="departments">
       <SearchPanelStyles />
 
-      <div className="flex-1 px-2">
+      <div className="flex-1 px-3">
         <Input
           ref={inputRef}
           placeholder="Грибоведение..."
@@ -34,6 +34,7 @@ export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
           aria-label="Search"
           before={
             <Icon24Search
+              className="search-icon-transition"
               style={{
                 color: 'var(--tgui--hint_color)'
               }}

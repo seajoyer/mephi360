@@ -214,3 +214,20 @@ button,
   padding: var(--input-padding, 10px);
   transition: all 0.2s ease-in-out;
 }
+
+/* Page transition styles */
+.page-transition-wrapper {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
