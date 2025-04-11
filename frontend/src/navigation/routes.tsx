@@ -5,6 +5,7 @@ import { TutorsListPage } from '@/pages/TutorsListPage';
 import { DepartmentPage } from '@/pages/DepartmentPage';
 import { DepartmentsListPage } from '@/pages/DepartmentsListPage';
 import { CirclesPage } from '@/pages/CirclesPage';
+import { ActivePage } from '@/pages/ActivePage'; // Import the new ActivePage
 import { StuffPage } from '@/pages/StuffPage';
 import { StuffListPage } from '@/pages/StuffListPage';
 import { EnvUnsupported } from '@/components/EnvUnsupported';
@@ -21,7 +22,7 @@ export const routes: RouteProps[] = [
     },
     {
         path: '/active',
-        element: <WikiPage /> // Will be replaced with dedicated page
+        element: <ActivePage />
     },
     {
         path: '/stuff',

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "person.d.ts",
+  "sourceRoot": "",
+  "sources": [
+    "../../../src/icons/16/person.tsx"
+  ],
+  "names": [],
+  "mappings": ";AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,YAAY,CAAC;AAElC,eAAO,MAAM,iBAAiB,qBAAsB,IAAI,gBAMvD,CAAC"
+}

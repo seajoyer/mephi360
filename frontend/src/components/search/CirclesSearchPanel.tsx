@@ -161,7 +161,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
             >
                 <SearchPanelStyles />
 
-                <div className="flex gap-2 items-center px-2">
+                <div className="flex gap-2 items-center px-3">
                     {/* Search field container with transition */}
                     <div
                         className="flex-shrink-0 transition-all duration-200 ease-in-out"

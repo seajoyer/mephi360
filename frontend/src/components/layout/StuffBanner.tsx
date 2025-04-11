@@ -30,11 +30,15 @@ export const StuffBanner: React.FC<StuffBannerProps> = ({
         <Section className="overflow-hidden">
             <Link to={telegramLink} className="block">
                 <Tappable Component="div">
-                    <div className="p-4">
+                    <div className="px-4 py-3">
                         <div className="flex-1">
                             <div className='mb-0.25'>
-                                <Text weight="2">
-                                    <span style={{ color: 'var(--tgui--link_color)' }}>{title}</span>
+                                <Text weight="3">
+                                    <span
+                                        style={{ color: 'var(--tgui--link_color)' }}
+                                    >
+                                        {title}
+                                    </span>
                                 </Text>
                             </div>
                             <div

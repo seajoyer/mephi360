@@ -1,66 +1,56 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Section } from '@telegram-apps/telegram-ui';
-import { CircleBanner } from '@/components/layout/CircleBanner';
-import { getCircles } from '@/services/apiService';
-import { useFilters } from '@/contexts/FilterContext';
+import { Badge, Cell, Section } from '@telegram-apps/telegram-ui';
+import { getActivities } from '@/services/apiService';
+import { Icon16Person } from '@/icons/16/person';
 
 // Types
-interface Circle {
+interface Activity {
     id: number;
-    name: string;
+    title: string;
     description: string;
-    image: string;
-    tags: string[];
     memberCount: number;
-    department: string;
-    subject: string;
-    organizer: string;
+    telegramLink: string;
+    type: string;
 }
 
-interface CirclesListProps {
+interface ActiveListProps {
     searchQuery?: string;
-    organizerFilter?: string | null;
-    subjectFilter?: string | null;
 }
 
 // Loading skeleton component
-const CircleBannerSkeleton: React.FC = () => (
+const ActiveBannerSkeleton: React.FC = () => (
     <div className="p-4 animate-pulse">
-        <div className="flex items-start justify-between">
-            <div className="flex-1 pr-3">
-                <div className="h-5 bg-gray-200 rounded w-40 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-full"></div>
-            </div>
-            <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-gray-200 rounded"></div>
-            </div>
+        <div className="flex-1">
+            <div className="h-4.5 rounded w-55 mb-3.5 mt-0.75"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
+            <div className="h-3.5 rounded w-full"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
+            <div className="h-3.5 rounded w-full mt-2.5"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
+            <div className="h-3.5 rounded w-3/4 mt-2.5"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-            <div className="h-6 bg-gray-200 rounded w-16"></div>
-            <div className="h-6 bg-gray-200 rounded w-20"></div>
+        <div className="mt-3.75 flex items-center">
+            <div className="h-5 rounded-lg w-24"
+                 style={{ backgroundColor: 'var(--tgui--quartenary_bg_color)' }}></div>
         </div>
     </div>
 );
 
 const LoadingState: React.FC = () => (
     <>
-        {Array.from({ length: 3 }).map((_, index) => (
-            <Section key={`skeleton-${index}`} className="mb-2">
-                <CircleBannerSkeleton />
+        {Array.from({ length: 5 }).map((_, index) => (
+            <Section key={`skeleton-${index}`} className="mb-3">
+                <ActiveBannerSkeleton />
             </Section>
         ))}
     </>
 );
 
-export const CirclesList: React.FC<CirclesListProps> = ({
-    searchQuery = '',
-    organizerFilter = null,
-    subjectFilter = null
+export const ActiveList: React.FC<ActiveListProps> = ({
+    searchQuery = ''
 }) => {
-    // Access filter context to get and update filters
-    const { setCircleOrganizer, setCircleSubject } = useFilters();
-
-    const [circles, setCircles] = useState<Circle[]>([]);
+    const [activities, setActivities] = useState<Activity[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -71,53 +61,51 @@ export const CirclesList: React.FC<CirclesListProps> = ({
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadTriggerRef = useRef<HTMLDivElement>(null);
 
-    // Load circles function with filters
-    const loadMoreCircles = useCallback(async () => {
+    // Load activities function
+    const loadMoreActivities = useCallback(async () => {
         if (loadingRef.current || !hasMore || error) return;
 
         loadingRef.current = true;
         setIsLoading(true);
 
         try {
-            const response = await getCircles({
+            const response = await getActivities({
                 search: searchQuery,
-                organizer: organizerFilter || undefined,
-                subject: subjectFilter || undefined,
                 cursor: cursor || undefined,
                 limit: 12
             });
 
             if (response.items.length > 0) {
-                setCircles(prev => [...prev, ...response.items]);
+                setActivities(prev => [...prev, ...response.items]);
                 setCursor(response.nextCursor);
                 setHasMore(!!response.nextCursor);
             } else {
                 setHasMore(false);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Error loading circles');
+            setError(err instanceof Error ? err.message : 'Error loading activities');
             console.error(err);
         } finally {
             setIsLoading(false);
             loadingRef.current = false;
         }
-    }, [cursor, hasMore, error, searchQuery, organizerFilter, subjectFilter]);
+    }, [cursor, hasMore, error, searchQuery]);
 
-    // Reset list when filters change
+    // Reset list when search query changes
     useEffect(() => {
-        setCircles([]);
+        setActivities([]);
         setCursor(null);
         setHasMore(true);
         setError(null);
         loadingRef.current = false;
-    }, [searchQuery, organizerFilter, subjectFilter]);
+    }, [searchQuery]);
 
     // Initial load
     useEffect(() => {
-        if (circles.length === 0 && !error) {
-            loadMoreCircles();
+        if (activities.length === 0 && !error) {
+            loadMoreActivities();
         }
-    }, [loadMoreCircles, error, circles.length]);
+    }, [loadMoreActivities, error, activities.length]);
 
     // Set up Intersection Observer for infinite scroll
     useEffect(() => {
@@ -130,14 +118,14 @@ export const CirclesList: React.FC<CirclesListProps> = ({
         const observer = new IntersectionObserver((entries) => {
             const [entry] = entries;
             if (entry.isIntersecting && !loadingRef.current && hasMore) {
-                loadMoreCircles();
+                loadMoreActivities();
             }
         }, options);
 
         observerRef.current = observer;
 
         return () => observer.disconnect();
-    }, [loadMoreCircles, hasMore]);
+    }, [loadMoreActivities, hasMore]);
 
     // Observe load trigger element
     useEffect(() => {
@@ -148,28 +136,7 @@ export const CirclesList: React.FC<CirclesListProps> = ({
             observer.observe(trigger);
             return () => observer.unobserve(trigger);
         }
-    }, [circles]);
-
-    // Handle tag click to set filter
-    const handleTagClick = (tag: string) => {
-        // Determine if this tag is a subject or organizer
-        const isSubject = circles.some(circle => circle.subject === tag);
-        const isOrganizer = circles.some(circle => circle.organizer === tag);
-
-        if (isSubject) {
-            setCircleSubject(tag);
-        } else if (isOrganizer) {
-            setCircleOrganizer(tag);
-        }
-    };
-
-    // Filter tags to only show those that aren't already applied as filters
-    const filterVisibleTags = (tags: string[]) => {
-        return tags.filter(tag =>
-            (subjectFilter && tag === subjectFilter) ||
-            (organizerFilter && tag === organizerFilter) ? false : true
-        );
-    };
+    }, [activities]);
 
     // Error state
     if (error) {
@@ -180,7 +147,7 @@ export const CirclesList: React.FC<CirclesListProps> = ({
                     className="block mx-auto mt-2 p-2 bg-gray-200 rounded"
                     onClick={() => {
                         setError(null);
-                        loadMoreCircles();
+                        loadMoreActivities();
                     }}
                 >
                     Повторить
@@ -198,20 +165,33 @@ export const CirclesList: React.FC<CirclesListProps> = ({
             }}
         >
             <div className="space-y-3">
-                {circles.map((circle) => (
-                    <div key={circle.id}>
-                        <CircleBanner
-                            title={circle.name}
-                            description={circle.description}
-                            imageSrc={circle.image}
-                            tags={filterVisibleTags(circle.tags)}
-                            buttonText="Перейти"
-                            onTagClick={handleTagClick}
-                            onNavigate={() => {
-                                // In a real app, navigate to circle page
-                                console.log(`Navigate to circle ${circle.id}`);
-                            }}
-                        />
+                {activities.map((activity) => (
+                    <div key={activity.id}>
+                        <Section className='mb-3'>
+                            <Cell
+                                description={activity.description}
+                                titleBadge={
+                                    <Badge
+                                        type='number'
+                                        mode='gray'
+                                    >
+                                        <div className='flex'>
+                                            <Icon16Person
+                                                style={{
+                                                    marginRight: '4px',
+                                                }}
+                                            />
+                                            {activity.memberCount}
+                                        </div>
+                                    </Badge>
+                                }
+                                multiline
+                            >
+                                <span style={{color: 'var(--tgui--accent_text_color)'}}>
+                                    {activity.title}
+                                </span>
+                            </Cell>
+                        </Section>
                     </div>
                 ))}
 
@@ -225,27 +205,31 @@ export const CirclesList: React.FC<CirclesListProps> = ({
                 )}
 
                 {/* Show loading state when initially loading */}
-                {isLoading && circles.length === 0 && <LoadingState />}
+                {isLoading && activities.length === 0 && (
+                    <div className='-mt-4'>
+                        <LoadingState />
+                    </div>
+                )}
 
                 {/* Show loading indicator when loading more */}
-                {isLoading && circles.length > 0 && (
+                {isLoading && activities.length > 0 && (
                     <div className="py-4 text-center">
                         <div className="inline-block h-6 w-6 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
                     </div>
                 )}
 
                 {/* Empty state when no results */}
-                {!isLoading && circles.length === 0 && (
+                {!isLoading && activities.length === 0 && (
                     <div className="text-center py-8">
-                        <p className="text-gray-500">Кружки не найдены</p>
+                        <p className="text-gray-500">Сообщества не найдены</p>
                         <p className="text-gray-400 text-sm mt-2">Попробуйте изменить параметры поиска</p>
                     </div>
                 )}
 
                 {/* End of list message */}
-                {!hasMore && circles.length > 0 && (
+                {!hasMore && activities.length > 0 && (
                     <div className="text-center py-4 text-gray-500">
-                        Все кружки загружены
+                        Больше сообществ нет
                     </div>
                 )}
             </div>

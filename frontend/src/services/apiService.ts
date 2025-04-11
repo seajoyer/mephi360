@@ -99,6 +99,63 @@ const mockMaterials = Array.from({ length: 50 }, (_, index) => {
   };
 });
 
+// Mock activities data
+const mockActivities = Array.from({ length: 20 }, (_, index) => {
+  const activityTypes = [
+    'Киберспорт', 'Настольные игры', 'Кулинария',
+    'Кино', 'Музыка', 'Спорт', 'Фотография'
+  ];
+
+  const namesByType: Record<string, string[]> = {
+    'Киберспорт': ['CS:GO', 'Dota 2', 'League of Legends', 'Valorant'],
+    'Настольные игры': ['Монополия', 'Мафия', 'D&D', 'Манчкин'],
+    'Кулинария': ['Кулинарный клуб', 'Выпечка', 'Вегетарианство'],
+    'Кино': ['Киноклуб', 'Аниме', 'Марвел'],
+    'Музыка': ['Гитара', 'Вокал', 'Рок-клуб'],
+    'Спорт': ['Футбол', 'Баскетбол', 'Волейбол', 'Шахматы'],
+    'Фотография': ['Фотоклуб', 'Пленочная фотография']
+  };
+
+  const type = activityTypes[index % activityTypes.length];
+  const nameOptions = namesByType[type] || ['Сообщество'];
+  const name = nameOptions[index % nameOptions.length];
+
+  return {
+    id: index + 1,
+    title: `${name} сообщество`,
+    description: `Сообщество для всех любителей ${type.toLowerCase()}. Здесь мы обсуждаем новости, делимся опытом, организуем совместные мероприятия и просто хорошо проводим время.`,
+    memberCount: Math.floor(Math.random() * 120) + 10,
+    telegramLink: `https://t.me/c/1234567890/${index + 100}`,
+    type
+  };
+});
+
+/**
+ * Get filtered activities list
+ */
+export const getActivities = async (filter: Record<string, any> = {}): Promise<PaginatedResponse<any>> => {
+  if (currentDataSource === DataSource.MOCK) {
+    console.log('Getting activities with filter:', filter);
+    return createMockPaginatedResponse(mockActivities, filter);
+  }
+
+  const url = new URL(`${API_BASE_URL}/api/activities`);
+
+  // Add filter parameters
+  Object.entries(filter).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, String(value));
+    }
+  });
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Failed to fetch activities: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
 /**
  * Filter array with search text
  * Improved implementation that works with any nested object structure

@@ -46,11 +46,11 @@ export const CircleBanner: React.FC<CircleBannerProps> = ({
     return (
         <Section className="overflow-hidden">
             <div onClick={handleToggle} className="block cursor-pointer">
-                <div className="p-4 transition-all duration-200 ease-in-out">
+                <div className="px-4 py-3 transition-all duration-200 ease-in-out">
                     <div className="flex items-start justify-between">
                         <div className="flex-1 pr-3">
                             <div className='mb-0.25'>
-                                <Text weight="2">
+                                <Text weight="3">
                                     {title}
                                 </Text>
                             </div>
