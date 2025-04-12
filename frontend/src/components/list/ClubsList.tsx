@@ -3,14 +3,8 @@ import { Cell, Image, Divider } from '@telegram-apps/telegram-ui';
 import { Icon16Chevron_right } from '@/icons/16/chevron_right';
 import { Icon24Group } from '@/icons/24/group';
 import { Link } from '@/components/common/Link';
-import { getCircles } from '@/services/apiService';
-
-interface Club {
-    id: number;
-    name: string;
-    description: string;
-    organizer: string;
-}
+import { getClubs } from '@/services/apiService';
+import { Club } from '@/types/club';
 
 interface ClubsListProps {
     searchQuery?: string;
@@ -53,7 +47,7 @@ export const ClubsList: React.FC<ClubsListProps> = ({
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadTriggerRef = useRef<HTMLDivElement>(null);
 
-    // Load clubs function - we're reusing the circles API since they represent the same data
+    // Load clubs from the dedicated clubs API
     const loadMoreClubs = useCallback(async () => {
         if (loadingRef.current || !hasMore || error) return;
 
@@ -61,7 +55,7 @@ export const ClubsList: React.FC<ClubsListProps> = ({
         setIsLoading(true);
 
         try {
-            const response = await getCircles({
+            const response = await getClubs({
                 search: searchQuery,
                 cursor: cursor || undefined,
                 limit: 20
@@ -158,7 +152,7 @@ export const ClubsList: React.FC<ClubsListProps> = ({
         >
             {clubs.map((club, index) => (
                 <div key={club.id}>
-                    <Link to={`/club/${club.id}`}>
+                    <Link to={club.link}>
                         <Cell
                             before={
                                 <Image

@@ -6,6 +6,7 @@ import { DepartmentPage } from '@/pages/DepartmentPage';
 import { DepartmentsListPage } from '@/pages/DepartmentsListPage';
 import { CirclesPage } from '@/pages/CirclesPage';
 import { ClubsPage } from '@/pages/ClubsPage';
+import { ClubPage } from '@/pages/ClubPage';
 import { StuffPage } from '@/pages/StuffPage';
 import { StuffListPage } from '@/pages/StuffListPage';
 import { EnvUnsupported } from '@/components/EnvUnsupported';
@@ -52,6 +53,10 @@ export const routes: RouteProps[] = [
     {
         path: '/department/:id',
         element: <DepartmentPage />
+    },
+    {
+        path: '/club/:id',
+        element: <ClubPage />
     },
     {
         path: '/env-unsupported',

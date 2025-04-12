@@ -1,5 +1,6 @@
 import { mockTutors } from '@/data/mockTutors';
 import { mockDepartments } from '@/data/mockDepartments';
+import { mockClubs } from '@/data/mockClubs';
 
 // API base URL - can be configured from environment
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -348,6 +349,32 @@ export const getCircles = async (filter: Record<string, any> = {}): Promise<Pagi
   const response = await fetch(url.toString());
   if (!response.ok) {
     throw new Error(`Failed to fetch circles: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get filtered clubs list
+ */
+export const getClubs = async (filter: Record<string, any> = {}): Promise<PaginatedResponse<any>> => {
+  if (currentDataSource === DataSource.MOCK) {
+    console.log('Getting clubs with filter:', filter);
+    return createMockPaginatedResponse(mockClubs, filter);
+  }
+
+  const url = new URL(`${API_BASE_URL}/api/clubs`);
+
+  // Add filter parameters
+  Object.entries(filter).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, String(value));
+    }
+  });
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Failed to fetch clubs: ${response.status}`);
   }
 
   return await response.json();
