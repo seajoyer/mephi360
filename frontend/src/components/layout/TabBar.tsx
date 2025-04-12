@@ -20,9 +20,36 @@ import { Icon28Lightning_fill } from '@/icons/28/lightning_fill';
 export const TabBar: FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const currentPath = location.pathname.split('/')[1] || 'wiki';
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
     const prevHeightRef = useRef<number>(window.innerHeight);
+
+    // Define a mapping of subpages to their parent main pages
+    const mainPageMapping: Record<string, string> = {
+        'tutors': 'wiki',      // /tutors -> /wiki
+        'tutor': 'wiki',       // /tutor/:id -> /wiki
+        'departments': 'wiki', // /departments -> /wiki
+        'department': 'wiki',  // /department/:id -> /wiki
+        'list': 'stuff',       // /stuff/list -> /stuff
+    };
+
+    // Get the first segment of the current path
+    const pathSegment = location.pathname.split('/')[1] || 'wiki';
+
+    // For subpaths like 'stuff/list', we need to check if the second segment is a subpage
+    const secondSegment = location.pathname.split('/')[2];
+
+    // If this is a multi-segment path and the second segment is in our mapping, use that
+    // Otherwise, check if the first segment is in our mapping
+    // If not found in either case, use the first segment as is
+    let currentPath = pathSegment;
+
+    if (mainPageMapping[pathSegment]) {
+        // The first segment is a mapped subpage
+        currentPath = mainPageMapping[pathSegment];
+    } else if (secondSegment && mainPageMapping[secondSegment]) {
+        // The second segment is a mapped subpage
+        currentPath = mainPageMapping[secondSegment];
+    }
 
     useEffect(() => {
         // Function to detect keyboard visibility
