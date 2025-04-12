@@ -77,7 +77,7 @@ export const WikiPage: FC = () => {
                                         style={{ color: `var(--tgui--hint_color)` }}
                                     />
                                 }
-                                onClick={() => handleCellClick('/circles')}
+                                onClick={() => handleCellClick('/clubs')}
                             >
                                 Клубы
                             </Cell>

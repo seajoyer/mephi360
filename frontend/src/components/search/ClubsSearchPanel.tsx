@@ -5,12 +5,12 @@ import { Icon24Close } from '@/icons/24/close';
 import { SearchPanelStyles } from './SearchPanelComponents';
 import { SearchPanelBase } from './SearchPanelBase';
 
-interface DepartmentsSearchPanelProps {
+interface ClubsSearchPanelProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
 
-export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
+export const ClubsSearchPanel: React.FC<ClubsSearchPanelProps> = ({
   searchQuery,
   onSearchChange
 }) => {
@@ -22,13 +22,13 @@ export const DepartmentsSearchPanel: React.FC<DepartmentsSearchPanelProps> = ({
   };
 
   return (
-    <SearchPanelBase dataAttr="departments">
+    <SearchPanelBase dataAttr="clubs">
       <SearchPanelStyles />
 
       <div className="flex-1 px-3">
         <Input
           ref={inputRef}
-          placeholder="Грибоведение..."
+          placeholder="Поиск по клубам"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           aria-label="Search"

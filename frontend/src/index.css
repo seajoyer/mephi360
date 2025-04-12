@@ -229,7 +229,7 @@ button,
 
 /* Initial state of page (at lower position) */
 .page-entering {
-  transform: translateY(5px);
+  transform: translateY(3px);
   opacity: 0.5;
   transition: none; /* No transition initially */
 }

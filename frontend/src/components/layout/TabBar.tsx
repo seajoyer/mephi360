@@ -29,6 +29,7 @@ export const TabBar: FC = () => {
         'tutor': 'wiki',       // /tutor/:id -> /wiki
         'departments': 'wiki', // /departments -> /wiki
         'department': 'wiki',  // /department/:id -> /wiki
+        'clubs': 'wiki',        // /clubs -> /wiki
         'list': 'stuff',       // /stuff/list -> /stuff
     };
 

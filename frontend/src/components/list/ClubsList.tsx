@@ -1,22 +1,23 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Cell, Image, Divider } from '@telegram-apps/telegram-ui';
 import { Icon16Chevron_right } from '@/icons/16/chevron_right';
-import { Icon24Home } from '@/icons/24/home';
+import { Icon24Group } from '@/icons/24/group';
 import { Link } from '@/components/common/Link';
-import { getDepartments } from '@/services/apiService';
+import { getCircles } from '@/services/apiService';
 
-interface Department {
+interface Club {
     id: number;
-    number: string;
     name: string;
+    description: string;
+    organizer: string;
 }
 
-interface DepartmentsListProps {
+interface ClubsListProps {
     searchQuery?: string;
 }
 
 // Loading skeleton component
-const DepartmentCellSkeleton: React.FC = () => (
+const ClubCellSkeleton: React.FC = () => (
     <div className="flex items-center p-4 w-full">
         <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
         <div className="ml-3 flex-1">
@@ -31,17 +32,17 @@ const LoadingState: React.FC = () => (
     <>
         {Array.from({ length: 5 }).map((_, index) => (
             <React.Fragment key={`skeleton-${index}`}>
-                <DepartmentCellSkeleton />
+                <ClubCellSkeleton />
                 {index < 4 && <Divider />}
             </React.Fragment>
         ))}
     </>
 );
 
-export const DepartmentList: React.FC<DepartmentsListProps> = ({
+export const ClubsList: React.FC<ClubsListProps> = ({
     searchQuery = ''
 }) => {
-    const [departments, setDepartments] = useState<Department[]>([]);
+    const [clubs, setClubs] = useState<Club[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -52,29 +53,29 @@ export const DepartmentList: React.FC<DepartmentsListProps> = ({
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadTriggerRef = useRef<HTMLDivElement>(null);
 
-    // Load departments function
-    const loadMoreDepartments = useCallback(async () => {
+    // Load clubs function - we're reusing the circles API since they represent the same data
+    const loadMoreClubs = useCallback(async () => {
         if (loadingRef.current || !hasMore || error) return;
 
         loadingRef.current = true;
         setIsLoading(true);
 
         try {
-            const response = await getDepartments({
+            const response = await getCircles({
                 search: searchQuery,
                 cursor: cursor || undefined,
                 limit: 20
             });
 
             if (response.items.length > 0) {
-                setDepartments(prev => [...prev, ...response.items]);
+                setClubs(prev => [...prev, ...response.items]);
                 setCursor(response.nextCursor);
                 setHasMore(!!response.nextCursor);
             } else {
                 setHasMore(false);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Error loading departments');
+            setError(err instanceof Error ? err.message : 'Error loading clubs');
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -84,7 +85,7 @@ export const DepartmentList: React.FC<DepartmentsListProps> = ({
 
     // Reset when search query changes
     useEffect(() => {
-        setDepartments([]);
+        setClubs([]);
         setCursor(null);
         setHasMore(true);
         setError(null);
@@ -93,10 +94,10 @@ export const DepartmentList: React.FC<DepartmentsListProps> = ({
 
     // Initial load
     useEffect(() => {
-        if (departments.length === 0 && !error) {
-            loadMoreDepartments();
+        if (clubs.length === 0 && !error) {
+            loadMoreClubs();
         }
-    }, [loadMoreDepartments, error, departments.length]);
+    }, [loadMoreClubs, error, clubs.length]);
 
     // Set up Intersection Observer
     useEffect(() => {
@@ -109,14 +110,14 @@ export const DepartmentList: React.FC<DepartmentsListProps> = ({
         const observer = new IntersectionObserver((entries) => {
             const [entry] = entries;
             if (entry.isIntersecting && !loadingRef.current && hasMore) {
-                loadMoreDepartments();
+                loadMoreClubs();
             }
         }, options);
 
         observerRef.current = observer;
 
         return () => observer.disconnect();
-    }, [loadMoreDepartments, hasMore]);
+    }, [loadMoreClubs, hasMore]);
 
     // Observe load trigger element
     useEffect(() => {
@@ -127,7 +128,7 @@ export const DepartmentList: React.FC<DepartmentsListProps> = ({
             observer.observe(trigger);
             return () => observer.unobserve(trigger);
         }
-    }, [departments]);
+    }, [clubs]);
 
     // Error state
     if (error) {
@@ -138,7 +139,7 @@ export const DepartmentList: React.FC<DepartmentsListProps> = ({
                     className="block mx-auto mt-2 p-2 bg-gray-200 rounded"
                     onClick={() => {
                         setError(null);
-                        loadMoreDepartments();
+                        loadMoreClubs();
                     }}
                 >
                     Повторить
@@ -155,15 +156,15 @@ export const DepartmentList: React.FC<DepartmentsListProps> = ({
                 WebkitOverflowScrolling: 'touch'
             }}
         >
-            {departments.map((department, index) => (
-                <div key={department.id}>
-                    <Link to={`/department/${department.id}`}>
+            {clubs.map((club, index) => (
+                <div key={club.id}>
+                    <Link to={`/club/${club.id}`}>
                         <Cell
                             before={
                                 <Image
                                     size={40}
-                                    src={`/assets/departments/department${department.id % 5 + 1}.jpg`}
-                                    fallbackIcon={<span><Icon24Home /></span>}
+                                    src={`/assets/circles/circle${club.id % 5 + 1}.jpg`}
+                                    fallbackIcon={<span><Icon24Group /></span>}
                                 />
                             }
                             after={
@@ -171,12 +172,12 @@ export const DepartmentList: React.FC<DepartmentsListProps> = ({
                                     style={{ color: 'var(--tgui--hint_color)' }}
                                 />
                             }
-                            description={department.name}
+                            description={club.description}
                         >
-                            {`Кафедра ${department.number}`}
+                            {club.name}
                         </Cell>
                     </Link>
-                    {index < departments.length - 1 && <Divider />}
+                    {index < clubs.length - 1 && <Divider />}
                 </div>
             ))}
 
@@ -190,19 +191,27 @@ export const DepartmentList: React.FC<DepartmentsListProps> = ({
             )}
 
             {/* Show loading state when initially loading */}
-            {isLoading && departments.length === 0 && <LoadingState />}
+            {isLoading && clubs.length === 0 && <LoadingState />}
 
             {/* Show loading indicator when loading more */}
-            {isLoading && departments.length > 0 && (
+            {isLoading && clubs.length > 0 && (
                 <div className="py-4 text-center">
                     <div className="inline-block h-6 w-6 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
                 </div>
             )}
 
+            {/* Empty state when no results */}
+            {!isLoading && clubs.length === 0 && (
+                <div className="text-center py-8">
+                    <p className="text-gray-500">Клубы не найдены</p>
+                    <p className="text-gray-400 text-sm mt-2">Попробуйте изменить параметры поиска</p>
+                </div>
+            )}
+
             {/* End of list message */}
-            {!hasMore && departments.length > 0 && (
+            {!hasMore && clubs.length > 0 && (
                 <div className="text-center py-4 text-gray-500">
-                    Больше кафедр нет
+                    Больше клубов нет
                 </div>
             )}
         </div>

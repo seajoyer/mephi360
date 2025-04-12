@@ -5,10 +5,11 @@ import { TutorsListPage } from '@/pages/TutorsListPage';
 import { DepartmentPage } from '@/pages/DepartmentPage';
 import { DepartmentsListPage } from '@/pages/DepartmentsListPage';
 import { CirclesPage } from '@/pages/CirclesPage';
-import { ActivePage } from '@/pages/ActivePage'; // Import the new ActivePage
+import { ClubsPage } from '@/pages/ClubsPage';
 import { StuffPage } from '@/pages/StuffPage';
 import { StuffListPage } from '@/pages/StuffListPage';
 import { EnvUnsupported } from '@/components/EnvUnsupported';
+import { ActivePage } from '@/pages/ActivePage';
 
 // Define app routes with optional query parameters in paths
 export const routes: RouteProps[] = [
@@ -19,6 +20,10 @@ export const routes: RouteProps[] = [
     {
         path: '/circles',
         element: <CirclesPage />
+    },
+    {
+        path: '/clubs',
+        element: <ClubsPage />
     },
     {
         path: '/active',
