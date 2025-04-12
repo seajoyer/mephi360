@@ -92,6 +92,11 @@ export const SearchPanelGlobalStyles = () => (
       transform: translateY(5px);
     }
 
+    /* Institute container transition */
+    .institute-container {
+      transition: all 0.2s ease-in-out !important;
+    }
+
     @keyframes fadeSlideIn {
       0% {
         opacity: 0;

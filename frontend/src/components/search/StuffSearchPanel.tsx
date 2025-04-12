@@ -86,21 +86,56 @@ const InstituteButton: React.FC<InstituteButtonProps> = ({
     );
 };
 
-// Institute Selector component with responsive behavior
+// Institute Selector component with improved scrollability
 interface InstituteSelectorProps {
     activeInstitute: string | null;
     onSelect: (institute: string | null) => void;
     disableAnimation?: boolean;
+    expanded: boolean;
 }
 
 const InstituteSelector: React.FC<InstituteSelectorProps> = ({
     activeInstitute,
     onSelect,
-    disableAnimation = false
+    disableAnimation = false,
+    expanded
 }) => {
-    // Use the FilterContainer to handle responsive behavior
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Smooth scroll to selected item when expanded
+    useEffect(() => {
+        if (expanded && containerRef.current) {
+            const container = containerRef.current;
+            const selectedButton = container.querySelector('button[aria-selected="true"]');
+
+            if (selectedButton) {
+                // Calculate position to scroll the selected button to center
+                const containerWidth = container.offsetWidth;
+                const buttonLeft = (selectedButton as HTMLElement).offsetLeft;
+                const buttonWidth = (selectedButton as HTMLElement).offsetWidth;
+                const scrollPosition = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
+
+                // Smooth scroll to position
+                container.scrollTo({
+                    left: Math.max(0, scrollPosition),
+                    behavior: 'smooth'
+                });
+            }
+        }
+    }, [expanded]);
+
     return (
-        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+        <div
+            ref={containerRef}
+            className="flex gap-2 overflow-x-auto no-scrollbar"
+            style={{
+                scrollbarWidth: 'none',
+                WebkitOverflowScrolling: 'touch',
+                transition: 'all 0.2s ease-in-out',
+                width: '100%',
+                paddingRight: '4px' // Add some padding for visual comfort
+            }}
+        >
             <InstituteButton
                 onClick={() => onSelect(null)}
                 isSelected={activeInstitute === null}
@@ -173,6 +208,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
     }>({ type: 'none', isVisible: false });
 
     const inputRef = useRef<HTMLInputElement>(null);
+    const instituteSelectorRef = useRef<HTMLDivElement>(null);
     const [shouldAnimateInstitute, setShouldAnimateInstitute] = useState(false);
 
     // Load filter options
@@ -260,7 +296,11 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
         // Enable animations for user interaction
         setShouldAnimateInstitute(true);
         onInstituteFilterChange(institute);
-        setIsInstituteExpanded(false);
+
+        // Add a small delay before collapsing to make transition smoother
+        setTimeout(() => {
+            setIsInstituteExpanded(false);
+        }, 50);
     }, [onInstituteFilterChange]);
 
     // Check if filters should be shown (not when search or institute is expanded)
@@ -360,44 +400,27 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
             <SearchPanelBase dataAttr="stuff">
                 <SearchPanelStyles />
 
-                <div className="px-2 flex gap-2 items-center">
-                    {/* Institute button or selector */}
-                    <div
-                        className="institute-container"
-                        style={{
-                            zIndex: isInstituteExpanded ? 3 : 1,
-                            position: 'relative',
-                            flexShrink: 0
-                        }}
-                    >
-                        {isInstituteExpanded ? (
-                            <div className="flex-1 overflow-x-auto no-scrollbar transition-all duration-200 ease-in-out">
-                                <InstituteSelector
-                                    activeInstitute={instituteFilter}
-                                    onSelect={handleInstituteSelect}
-                                    disableAnimation={!shouldAnimateInstitute}
-                                />
-                            </div>
-                        ) : (
-                            <div className="flex-shrink-0 transition-all duration-200 ease-in-out">
-                                <InstituteButton
-                                    institute={selectedInstitute}
-                                    isSelected={!!selectedInstitute || instituteFilter === null}
-                                    onClick={handleInstituteExpand}
-                                    disableAnimation={!shouldAnimateInstitute}
-                                />
-                            </div>
-                        )}
-                    </div>
+                <div className="px-2 relative">
+                    <div className="flex gap-2 items-center">
+                        {/* Institute Button - Always visible in normal flow */}
+                        <div className="flex-shrink-0 z-10" style={{ width: '42px', height: '42px' }}>
+                            <InstituteButton
+                                institute={selectedInstitute}
+                                isSelected={!!selectedInstitute || instituteFilter === null}
+                                onClick={handleInstituteExpand}
+                                disableAnimation={!shouldAnimateInstitute}
+                            />
+                        </div>
 
-                    {/* Search Input - only collapsed when institute is expanded */}
-                    {!isInstituteExpanded && (
+                        {/* Search Input */}
                         <div
                             className="transition-all duration-200 ease-in-out flex-shrink-0"
                             style={{
-                                width:    isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
+                                width: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
                                 maxWidth: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
-                                zIndex: 2, // Above filter buttons but below expanded institute
+                                zIndex: 2,
+                                opacity: isInstituteExpanded ? 0 : 1,
+                                pointerEvents: isInstituteExpanded ? 'none' : 'auto'
                             }}
                         >
                             <div className="relative">
@@ -410,7 +433,6 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                                         tabIndex={0}
                                     />
                                 )}
-
 
                                 <Input
                                     ref={inputRef}
@@ -450,46 +472,76 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                                 />
                             </div>
                         </div>
+
+                        {/* Filter buttons */}
+                        <div
+                            style={{
+                                flex: 1,
+                                opacity: areFiltersHidden ? 0 : 1,
+                                transition: 'opacity 0.2s ease-in-out',
+                                pointerEvents: areFiltersHidden ? 'none' : 'auto'
+                            }}
+                        >
+                            <FilterContainer isHidden={areFiltersHidden}>
+                                {/* Type filter button */}
+                                <FilterButton
+                                    label={typeFilter ? typeOptionName : 'Тип'}
+                                    selected={!!typeFilter}
+                                    onClick={() => openFilterOverlay('type')}
+                                    onClear={() => onTypeFilterChange(null)}
+                                    className="filter-button"
+                                />
+
+                                {/* Teacher filter button */}
+                                <FilterButton
+                                    label={teacherFilter ? teacherOptionName : 'Препод'}
+                                    selected={!!teacherFilter}
+                                    onClick={() => openFilterOverlay('teacher')}
+                                    onClear={() => onTeacherFilterChange(null)}
+                                    className="filter-button"
+                                />
+
+                                {/* Subject filter button */}
+                                <FilterButton
+                                    label={subjectFilter ? subjectOptionName : 'Предмет'}
+                                    selected={!!subjectFilter}
+                                    onClick={() => openFilterOverlay('subject')}
+                                    onClear={() => onSubjectFilterChange(null)}
+                                    className="filter-button"
+                                />
+
+                                {/* Semester filter button */}
+                                <FilterButton
+                                    label={semesterFilter ? semesterOptionName : 'Семестр'}
+                                    selected={!!semesterFilter}
+                                    onClick={() => openFilterOverlay('semester')}
+                                    onClear={() => onSemesterFilterChange(null)}
+                                    className="filter-button"
+                                />
+                            </FilterContainer>
+                        </div>
+                    </div>
+
+                    {/* Expanded Institute Selector - Absolute positioned overlay */}
+                    {isInstituteExpanded && (
+                        <div
+                            ref={instituteSelectorRef}
+                            className="institute-container absolute top-0 left-2 right-2"
+                            style={{
+                                zIndex: 20,
+                                transition: 'all 0.2s ease-in-out',
+                                background: 'var(--tgui--secondary_bg_color)',
+                                opacity: 1
+                            }}
+                        >
+                            <InstituteSelector
+                                activeInstitute={instituteFilter}
+                                onSelect={handleInstituteSelect}
+                                disableAnimation={!shouldAnimateInstitute}
+                                expanded={isInstituteExpanded}
+                            />
+                        </div>
                     )}
-
-                    {/* Filter buttons */}
-                    <FilterContainer isHidden={areFiltersHidden}>
-                        {/* Type filter button */}
-                        <FilterButton
-                            label={typeFilter ? typeOptionName : 'Тип'}
-                            selected={!!typeFilter}
-                            onClick={() => openFilterOverlay('type')}
-                            onClear={() => onTypeFilterChange(null)}
-                            className="filter-button"
-                        />
-
-                        {/* Teacher filter button */}
-                        <FilterButton
-                            label={teacherFilter ? teacherOptionName : 'Препод'}
-                            selected={!!teacherFilter}
-                            onClick={() => openFilterOverlay('teacher')}
-                            onClear={() => onTeacherFilterChange(null)}
-                            className="filter-button"
-                        />
-
-                        {/* Subject filter button */}
-                        <FilterButton
-                            label={subjectFilter ? subjectOptionName : 'Предмет'}
-                            selected={!!subjectFilter}
-                            onClick={() => openFilterOverlay('subject')}
-                            onClear={() => onSubjectFilterChange(null)}
-                            className="filter-button"
-                        />
-
-                        {/* Semester filter button */}
-                        <FilterButton
-                            label={semesterFilter ? semesterOptionName : 'Семестр'}
-                            selected={!!semesterFilter}
-                            onClick={() => openFilterOverlay('semester')}
-                            onClear={() => onSemesterFilterChange(null)}
-                            className="filter-button"
-                        />
-                    </FilterContainer>
                 </div>
             </SearchPanelBase>
 
