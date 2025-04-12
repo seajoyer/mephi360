@@ -6,7 +6,7 @@ import { routes } from '@/navigation/routes.tsx';
 import { ScrollReset } from '@/components/common/ScrollReset';
 import { FilterProvider } from '@/contexts/FilterContext';
 import { TabBar } from '@/components/layout/TabBar';
-import { PageTransition } from '@/components/layout/PageTransition';
+import { PageTransition } from '@/components/common/PageTransition';
 
 export function App() {
     const lp = retrieveLaunchParams();
