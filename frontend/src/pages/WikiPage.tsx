@@ -11,7 +11,6 @@ import { Icon24Home } from '@/icons/24/home';
 import { Icon24Group } from '@/icons/24/group';
 import { Icon24Channel } from '@/icons/24/channel';
 import { Icon24Questionmark } from '@/icons/24/questionmark';
-import { TabBar } from '@/components/layout/TabBar';
 import { WikiPageButtons } from '@/components/layout/WikiPageButtons';
 import { shareURL } from '@telegram-apps/sdk-react';
 import { getTelegramShareableUrl } from '@/config/appConfig';

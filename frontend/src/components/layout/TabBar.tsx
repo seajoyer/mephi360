@@ -113,7 +113,7 @@ export const TabBar: FC = () => {
     }
 
     return (
-        <FixedLayout vertical="bottom" style={{ zIndex: 10 }}>
+        <FixedLayout vertical="bottom" style={{ zIndex: 1000 }}>
             <Tabbar
                 style={{
                     backgroundColor: 'var(--tgui--secondary_bg_color)'

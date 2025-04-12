@@ -2,10 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Page } from '@/components/Page';
 import { CirclesList } from '@/components/list/CirclesList';
 import { CirclesSearchPanel } from '@/components/search/CirclesSearchPanel';
-import { TabBar } from '@/components/layout/TabBar';
 import { Button, LargeTitle } from '@telegram-apps/telegram-ui';
-import { Icon20Add } from '@/icons/20/Add';
-import { Icon20Alt_star_fill } from '@/icons/20/alt_star_fill';
 import { Icon24Add_circle_fill } from '@/icons/24/add_circle_fill';
 
 export const CirclesPage: React.FC = () => {
@@ -54,7 +51,6 @@ export const CirclesPage: React.FC = () => {
                     subjectFilter={subjectFilter}
                 />
             </div>
-            <TabBar />
         </Page>
     );
 };

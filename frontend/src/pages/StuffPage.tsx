@@ -11,7 +11,6 @@ import {
 } from '@telegram-apps/telegram-ui';
 import { TopButtons } from '@/components/layout/TopButtons';
 import { StuffPageButtons } from '@/components/layout/StuffPageButtons';
-import { TabBar } from '@/components/layout/TabBar';
 import { ModalOverlay } from '@/components/search/ModalOverlay';
 import { useFilters } from '@/contexts/FilterContext';
 import {
@@ -295,8 +294,6 @@ export const StuffPage: React.FC = () => {
                 isVisible={filterOverlay.isVisible}
                 parentHasBackButton={false}
             />
-
-            <TabBar />
-        </Page >
+        </Page>
     );
 };

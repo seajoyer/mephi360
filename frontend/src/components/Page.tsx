@@ -75,7 +75,6 @@ export function Page({
       />
 
       {/* <ScrollUpButton /> */}
-    <TabBar />
     </div>
   );
 }

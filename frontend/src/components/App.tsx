@@ -5,7 +5,8 @@ import { Navigate, Route, Routes, HashRouter } from 'react-router-dom';
 import { routes } from '@/navigation/routes.tsx';
 import { ScrollReset } from '@/components/common/ScrollReset';
 import { FilterProvider } from '@/contexts/FilterContext';
-import { PageTransition } from '@/components/common/PageTransition';
+import { TabBar } from '@/components/layout/TabBar';
+import { PageTransition } from '@/components/layout/PageTransition';
 
 export function App() {
     const lp = retrieveLaunchParams();
@@ -23,12 +24,35 @@ export function App() {
                 <HashRouter>
                     {/* ScrollReset needs to be inside the Router context */}
                     <ScrollReset />
-                    <PageTransition>
-                        <Routes>
-                            {routes.map((route) => <Route key={route.path} {...route} />)}
-                            <Route path="*" element={<Navigate to="/wiki"/>}/>
-                        </Routes>
-                    </PageTransition>
+
+                    <div className="app-container relative">
+                        <div className="app-content">
+                            <Routes>
+                                {routes.map((route) => (
+                                    <Route
+                                        key={route.path}
+                                        path={route.path}
+                                        element={
+                                            <PageTransition>
+                                                {route.element}
+                                            </PageTransition>
+                                        }
+                                    />
+                                ))}
+                                <Route
+                                    path="*"
+                                    element={
+                                        <PageTransition>
+                                            <Navigate to="/wiki"/>
+                                        </PageTransition>
+                                    }
+                                />
+                            </Routes>
+                        </div>
+
+                        {/* TabBar now at app level, outside of routes */}
+                        <TabBar />
+                    </div>
                 </HashRouter>
             </FilterProvider>
         </AppRoot>
