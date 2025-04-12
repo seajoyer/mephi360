@@ -1,8 +1,11 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect, useRef } from 'react';
 import { Tappable, Subheadline } from '@telegram-apps/telegram-ui';
 import { classNames } from '@telegram-apps/telegram-ui/dist/helpers/classNames';
 import { hasReactNode } from '@telegram-apps/telegram-ui/dist/helpers/react/node';
 import { usePlatform } from '@telegram-apps/telegram-ui/dist/hooks/usePlatform';
+
+// Create a module-level flag to track if styles have been added
+let stylesInjected = false;
 
 /**
  * CustomCell is an extension of the Cell component with additional features:
@@ -42,6 +45,80 @@ export const CustomCell = forwardRef((props, ref) => {
   } = props;
 
   const platform = usePlatform();
+  const styleInjectionRef = useRef(false);
+
+  // Inject styles once per session
+  useEffect(() => {
+    if (!stylesInjected && !styleInjectionRef.current) {
+      const style = document.createElement('style');
+      style.id = 'custom-cell-styles'; // Add an ID to make it identifiable
+
+      style.textContent = `
+        .custom-cell {
+          /* Override some of the original cell styles to ensure consistent padding */
+          padding: 12px 16px;
+        }
+
+        .custom-cell-content {
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
+          width: 100%;
+          gap: 2px;
+          overflow: hidden;
+        }
+
+        .custom-cell-row {
+          display: flex;
+          width: 100%;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .custom-cell-left {
+          flex: 1;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .custom-cell-right {
+          text-align: right;
+          flex-shrink: 0;
+          min-width: 0;
+        }
+
+        .custom-cell-description {
+          margin-top: 4px;
+        }
+
+        .custom-cell-bottom {
+          margin-top: 12px;
+        }
+
+        .custom-cell-with-bottom {
+          padding-bottom: 12px;
+        }
+
+        /* Adjust padding if there's a before element */
+        .custom-cell-before {
+          margin-right: 12px;
+        }
+      `;
+
+      // Check if the style already exists before adding
+      if (!document.getElementById('custom-cell-styles')) {
+        document.head.appendChild(style);
+        stylesInjected = true;
+        styleInjectionRef.current = true;
+      }
+    }
+
+    return () => {
+      // No need to clean up styles on component unmount
+      // as they should persist for all instances
+    };
+  }, []);
 
   // Check if we have content for the different sections
   const hasLeftTitle = hasReactNode(children) || hasReactNode(hint) || hasReactNode(titleBadge);
@@ -154,60 +231,3 @@ export const CustomCell = forwardRef((props, ref) => {
     </Tappable>
   );
 });
-
-// Add some inline styles for the custom classes
-const style = document.createElement('style');
-style.textContent = `
-  .custom-cell {
-    /* Override some of the original cell styles to ensure consistent padding */
-    padding: 12px 16px;
-  }
-
-  .custom-cell-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    width: 100%;
-    gap: 2px;
-    overflow: hidden;
-  }
-
-  .custom-cell-row {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .custom-cell-left {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .custom-cell-right {
-    text-align: right;
-    flex-shrink: 0;
-    min-width: 0;
-  }
-
-  .custom-cell-description {
-    margin-top: 4px;
-  }
-
-  .custom-cell-bottom {
-    margin-top: 12px;
-  }
-
-  .custom-cell-with-bottom {
-    padding-bottom: 12px;
-  }
-
-  /* Adjust padding if there's a before element */
-  .custom-cell-before {
-    margin-right: 12px;
-  }
-`;
-
-document.head.appendChild(style);
