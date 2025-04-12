@@ -50,7 +50,7 @@ export const PageTransition: React.FC<{ children: React.ReactNode }> = ({ childr
     // Clear transition class after animation completes
     const endTimer = setTimeout(() => {
       setTransitionClass('');
-    }, 300); // Match to your CSS transition duration
+    }, 100); // Match to your CSS transition duration
 
     // Update previous path reference
     prevPathRef.current = currentPath;

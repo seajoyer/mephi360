@@ -95,7 +95,7 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
 
                             <Input
                                 ref={inputRef}
-                                placeholder={isSearchExpanded ? "Поиск по преподавателям" : ""}
+                                placeholder={isSearchExpanded ? "Поиск преподавателей..." : ""}
                                 value={searchQuery}
                                 onChange={(e) => onSearchChange(e.target.value)}
                                 aria-label="Search"

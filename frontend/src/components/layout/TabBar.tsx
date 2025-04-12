@@ -1,72 +1,116 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
 import type { FC } from 'react';
 import { FixedLayout } from '@telegram-apps/telegram-ui';
 import { Tabbar } from '@telegram-apps/telegram-ui';
-import { Icon24Folder } from '@/icons/24/folder';
-import { Icon24Globe } from '@/icons/24/globe';
-import { Icon24Lifebuoy } from '@/icons/24/lifebuoy';
-import { Icon24Lightning_alt } from '@/icons/24/lightning_alt';
+import { viewport } from '@telegram-apps/sdk-react';
+
+// Regular icons
+import { Icon28Folder } from '@/icons/28/folder';
+import { Icon28Globe } from '@/icons/28/globe';
+import { Icon28Lifebuoy } from '@/icons/28/lifebuoy';
+import { Icon28Lightning } from '@/icons/28/lightning';
+
+// Filled variants for selected state
+import { Icon28Folder_fill } from '@/icons/28/folder_fill';
+import { Icon28Globe_fill } from '@/icons/28/globe_fill';
+import { Icon28Lifebuoy_fill } from '@/icons/28/lifebuoy_fill';
+import { Icon28Lightning_fill } from '@/icons/28/lightning_fill';
 
 export const TabBar: FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const currentPath = location.pathname.split('/')[1] || 'wiki';
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const prevHeightRef = useRef<number>(window.innerHeight);
+
+    useEffect(() => {
+        // Function to detect keyboard visibility
+        const checkKeyboardVisibility = () => {
+            // Get the current viewport height
+            const currentHeight = window.innerHeight;
+
+            // If viewport height significantly decreased (by more than 20%),
+            // we assume keyboard is open
+            const heightDifference = prevHeightRef.current - currentHeight;
+            const heightChangePercent = (heightDifference / prevHeightRef.current) * 100;
+
+            if (heightChangePercent > 20) {
+                setIsKeyboardVisible(true);
+            } else {
+                setIsKeyboardVisible(false);
+            }
+        };
+
+        // Store initial viewport height on first render
+        prevHeightRef.current = window.innerHeight;
+
+        // Check for Telegram viewport events if available
+        if (viewport && viewport.isStable && viewport.isStable.subscribe) {
+            const unsubscribe = viewport.isStable.subscribe(isStable => {
+                if (isStable) {
+                    checkKeyboardVisibility();
+                }
+            });
+            return unsubscribe;
+        } else {
+            // Fallback to window resize event
+            window.addEventListener('resize', checkKeyboardVisibility);
+            return () => {
+                window.removeEventListener('resize', checkKeyboardVisibility);
+            };
+        }
+    }, []);
+
+    // Used to prevent layout shifts during transitions
+    useEffect(() => {
+        // Add a class to the body when keyboard is visible
+        if (isKeyboardVisible) {
+            document.body.classList.add('keyboard-visible');
+        } else {
+            document.body.classList.remove('keyboard-visible');
+        }
+    }, [isKeyboardVisible]);
 
     const tabs = [
         {
             id: 'wiki',
             path: '/wiki',
-            icon: (
-                <div className="flex flex-col items-center">
-                    <div className="mb-0 min-h-6">
-                        <Icon24Globe />
-                    </div>
-                    <span className="text-xs">{"Wiki"}</span>
-                </div>
-            )
+            label: "Wiki",
+            regularIcon: Icon28Globe,
+            filledIcon: Icon28Globe_fill
         },
         {
             id: 'circles',
             path: '/circles',
-            icon: (
-                <div className="flex flex-col items-center">
-                    <div className="mb-0 min-h-6">
-                        <Icon24Lifebuoy />
-                    </div>
-                    <span className="text-xs">{"Кружки"}</span>
-                </div>
-            )
+            label: "Кружки",
+            regularIcon: Icon28Lifebuoy,
+            filledIcon: Icon28Lifebuoy_fill
         },
         {
             id: 'active',
             path: '/active',
-            icon: (
-                <div className="flex flex-col items-center">
-                    <div className="mb-0 min-h-6">
-                        <Icon24Lightning_alt />
-                    </div>
-                    <span className="text-xs">{"Движ"}</span>
-                </div>
-            )
+            label: "Движ",
+            regularIcon: Icon28Lightning,
+            filledIcon: Icon28Lightning_fill
         },
         {
             id: 'stuff',
             path: '/stuff',
-            icon: (
-                <div className="flex flex-col items-center">
-                    <div className="mb-0 min-h-6">
-                        <Icon24Folder />
-                    </div>
-                    <span className="text-xs">{"Материалы"}</span>
-                </div>
-            )
+            label: "Материалы",
+            regularIcon: Icon28Folder,
+            filledIcon: Icon28Folder_fill
         },
     ];
 
-    const handleTabClick = (tabId: string, path: string) => {
-        // Pass special state to indicate this is TabBar navigation (to skip transitions)
-        navigate(path, { state: { skipTransition: true } });
+    const handleTabClick = (path: string) => {
+        navigate(path);
     };
+
+    // Don't render the TabBar if keyboard is visible
+    if (isKeyboardVisible) {
+        return null;
+    }
 
     return (
         <FixedLayout vertical="bottom" style={{ zIndex: 10 }}>
@@ -75,15 +119,23 @@ export const TabBar: FC = () => {
                     backgroundColor: 'var(--tgui--secondary_bg_color)'
                 }}
             >
-                {tabs.map(({ id, path, icon }) => (
-                    <Tabbar.Item
-                        key={id}
-                        selected={id === currentPath}
-                        onClick={() => handleTabClick(id, path)}
-                    >
-                        {icon}
-                    </Tabbar.Item>
-                ))}
+                {tabs.map(({ id, path, label, regularIcon: RegularIcon, filledIcon: FilledIcon }) => {
+                    const isSelected = id === currentPath;
+                    const IconComponent = isSelected ? FilledIcon : RegularIcon;
+
+                    return (
+                        <Tabbar.Item
+                            key={id}
+                            selected={isSelected}
+                            text={label}
+                            onClick={() => handleTabClick(path)}
+                        >
+                            <div className="mb-0 min-h-6">
+                                <IconComponent />
+                            </div>
+                        </Tabbar.Item>
+                    );
+                })}
             </Tabbar>
         </FixedLayout>
     );

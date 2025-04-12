@@ -231,3 +231,13 @@ button,
   transform: translateY(0);
   transition: opacity 0.1s ease-out, transform 0.1s ease-out;
 }
+
+/* Adjust bottom padding when keyboard is visible to prevent content jump */
+.keyboard-visible {
+  padding-bottom: 0 !important;
+}
+
+/* Ensure additional bottom space for content when TabBar is visible */
+.page-bottom-space {
+  height: calc(70px + var(--tgui--safe_area_inset_bottom, 0px));
+}

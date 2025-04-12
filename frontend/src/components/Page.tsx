@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { backButton } from '@telegram-apps/sdk-react';
 import { PropsWithChildren, useEffect } from 'react';
 import { ScrollUpButton } from '@/components/common/ScrollUpButton';
+import { TabBar } from './layout/TabBar';
 
 export interface PageProps {
   /**
@@ -74,6 +75,7 @@ export function Page({
       />
 
       {/* <ScrollUpButton /> */}
+    <TabBar />
     </div>
   );
 }

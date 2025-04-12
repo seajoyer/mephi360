@@ -27,10 +27,10 @@ export default defineConfig({
   server: {
     // Exposes your dev server and makes it accessible for the devices in the same network.
     host: true,
-    https: {
-      cert: readFileSync(resolve(os.homedir(),'tma.internal.pem')),
-      key: readFileSync(resolve(os.homedir(), 'tma.internal-key.pem')),
-    },
+    // https: {
+    //   cert: readFileSync(resolve(os.homedir(),'tma.internal.pem')),
+    //   key: readFileSync(resolve(os.homedir(), 'tma.internal-key.pem')),
+    // },
     allowedHosts: ["pleasing-louse-dynamic.ngrok-free.app", "alesanrad1.loca.lt"] //
   },
 });

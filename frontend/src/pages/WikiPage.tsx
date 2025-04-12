@@ -122,7 +122,6 @@ export const WikiPage: FC = () => {
                         </Button>
                     </List>
                 </div>
-                <TabBar />
             </div>
         </Page>
     );

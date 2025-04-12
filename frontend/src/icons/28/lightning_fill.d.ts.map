@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "lightning_fill.d.ts",
+  "sourceRoot": "",
+  "sources": [
+    "../../../src/icons/28/lightning_fill.tsx"
+  ],
+  "names": [],
+  "mappings": ";AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,YAAY,CAAC;AAElC,eAAO,MAAM,iBAAiB,qBAAsB,IAAI,gBAMvD,CAAC"
+}
