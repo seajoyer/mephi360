@@ -19,7 +19,7 @@ export const SearchPanelStyles = SearchPanelGlobalStyles;
 export const FilterContainer: React.FC<FilterContainerProps> = ({
   children,
   className = '',
-  isHidden = false
+  isHidden = false,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const measurementRef = useRef<HTMLDivElement>(null);

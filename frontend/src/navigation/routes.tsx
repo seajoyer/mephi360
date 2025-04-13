@@ -55,10 +55,6 @@ export const routes: RouteProps[] = [
         element: <DepartmentPage />
     },
     {
-        path: '/club/:id',
-        element: <ClubPage />
-    },
-    {
         path: '/env-unsupported',
         element: <EnvUnsupported />
     }

@@ -473,16 +473,17 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                             </div>
                         </div>
 
-                        {/* Filter buttons */}
+                        {/* Filter buttons with proper container */}
                         <div
+                            className="flex-1"
                             style={{
-                                flex: 1,
                                 opacity: areFiltersHidden ? 0 : 1,
                                 transition: 'opacity 0.2s ease-in-out',
-                                pointerEvents: areFiltersHidden ? 'none' : 'auto'
+                                pointerEvents: areFiltersHidden ? 'none' : 'auto',
+                                overflow: 'hidden' // Hide overflow but don't block scrolling
                             }}
                         >
-                            <FilterContainer isHidden={areFiltersHidden}>
+                            <FilterContainer isHidden={areFiltersHidden} className="filter-scroll-container">
                                 {/* Type filter button */}
                                 <FilterButton
                                     label={typeFilter ? typeOptionName : 'Тип'}
@@ -490,6 +491,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                                     onClick={() => openFilterOverlay('type')}
                                     onClear={() => onTypeFilterChange(null)}
                                     className="filter-button"
+                                    style={{ flexShrink: 0 }}
                                 />
 
                                 {/* Teacher filter button */}
@@ -499,6 +501,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                                     onClick={() => openFilterOverlay('teacher')}
                                     onClear={() => onTeacherFilterChange(null)}
                                     className="filter-button"
+                                    style={{ flexShrink: 0 }}
                                 />
 
                                 {/* Subject filter button */}
@@ -508,6 +511,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                                     onClick={() => openFilterOverlay('subject')}
                                     onClear={() => onSubjectFilterChange(null)}
                                     className="filter-button"
+                                    style={{ flexShrink: 0 }}
                                 />
 
                                 {/* Semester filter button */}
@@ -517,6 +521,7 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                                     onClick={() => openFilterOverlay('semester')}
                                     onClear={() => onSemesterFilterChange(null)}
                                     className="filter-button"
+                                    style={{ flexShrink: 0 }}
                                 />
                             </FilterContainer>
                         </div>
