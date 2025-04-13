@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, FixedLayout, IconButton } from '@telegram-apps/telegram-ui';
-import { Icon32Chevron_up } from '@/icons/32/chevron_up';
+import { FixedLayout, IconButton } from '@telegram-apps/telegram-ui';
 import { Icon24Chevron_up } from '@/icons/24/chevron_up';
 
 interface ScrollUpButtonProps {

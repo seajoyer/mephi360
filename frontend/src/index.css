@@ -11,10 +11,10 @@ body {
   font-size: var(--tgui--subheadline--font-size, pink);
 }
 
-.tgui-0f5050defacbf813 {
-  padding: var(--input-padding, 10px);
-  transition: padding 0.3s ease-in-out;
-}
+/* .tgui-0f5050defacbf813 { */
+/*   padding: var(--input-padding, 10px); */
+/*   transition: padding 0.3s ease-in-out; */
+/* } */
 
 .tgui-9b2ad13855aef059 {
   min-height: unset !important;
@@ -213,11 +213,6 @@ button,
   top: 0 !important;
   z-index: 1000 !important; /* Higher z-index to appear above other elements */
   background-color: var(--tgui--secondary_bg_color) !important; /* Ensure background is solid */
-}
-
-.tgui-0f5050defacbf813 {
-  padding: var(--input-padding, 10px);
-  transition: all 0.2s ease-in-out;
 }
 
 /* Page transition styles */
