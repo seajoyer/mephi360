@@ -419,7 +419,6 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                                 width: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
                                 maxWidth: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
                                 zIndex: 2,
-                                opacity: isInstituteExpanded ? 0 : 1,
                                 pointerEvents: isInstituteExpanded ? 'none' : 'auto'
                             }}
                         >
@@ -473,58 +472,47 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                             </div>
                         </div>
 
-                        {/* Filter buttons with proper container */}
-                        <div
-                            className="flex-1"
-                            style={{
-                                opacity: areFiltersHidden ? 0 : 1,
-                                transition: 'opacity 0.2s ease-in-out',
-                                pointerEvents: areFiltersHidden ? 'none' : 'auto',
-                                overflow: 'hidden' // Hide overflow but don't block scrolling
-                            }}
-                        >
-                            <FilterContainer isHidden={areFiltersHidden} className="filter-scroll-container">
-                                {/* Type filter button */}
-                                <FilterButton
-                                    label={typeFilter ? typeOptionName : 'Тип'}
-                                    selected={!!typeFilter}
-                                    onClick={() => openFilterOverlay('type')}
-                                    onClear={() => onTypeFilterChange(null)}
-                                    className="filter-button"
-                                    style={{ flexShrink: 0 }}
-                                />
+                        <FilterContainer isHidden={areFiltersHidden}>
+                            {/* Type filter button */}
+                            <FilterButton
+                                label={typeFilter ? typeOptionName : 'Тип'}
+                                selected={!!typeFilter}
+                                onClick={() => openFilterOverlay('type')}
+                                onClear={() => onTypeFilterChange(null)}
+                                className="filter-button"
+                                style={{ flexShrink: 0 }}
+                            />
 
-                                {/* Teacher filter button */}
-                                <FilterButton
-                                    label={teacherFilter ? teacherOptionName : 'Препод'}
-                                    selected={!!teacherFilter}
-                                    onClick={() => openFilterOverlay('teacher')}
-                                    onClear={() => onTeacherFilterChange(null)}
-                                    className="filter-button"
-                                    style={{ flexShrink: 0 }}
-                                />
+                            {/* Teacher filter button */}
+                            <FilterButton
+                                label={teacherFilter ? teacherOptionName : 'Препод'}
+                                selected={!!teacherFilter}
+                                onClick={() => openFilterOverlay('teacher')}
+                                onClear={() => onTeacherFilterChange(null)}
+                                className="filter-button"
+                                style={{ flexShrink: 0 }}
+                            />
 
-                                {/* Subject filter button */}
-                                <FilterButton
-                                    label={subjectFilter ? subjectOptionName : 'Предмет'}
-                                    selected={!!subjectFilter}
-                                    onClick={() => openFilterOverlay('subject')}
-                                    onClear={() => onSubjectFilterChange(null)}
-                                    className="filter-button"
-                                    style={{ flexShrink: 0 }}
-                                />
+                            {/* Subject filter button */}
+                            <FilterButton
+                                label={subjectFilter ? subjectOptionName : 'Предмет'}
+                                selected={!!subjectFilter}
+                                onClick={() => openFilterOverlay('subject')}
+                                onClear={() => onSubjectFilterChange(null)}
+                                className="filter-button"
+                                style={{ flexShrink: 0 }}
+                            />
 
-                                {/* Semester filter button */}
-                                <FilterButton
-                                    label={semesterFilter ? semesterOptionName : 'Семестр'}
-                                    selected={!!semesterFilter}
-                                    onClick={() => openFilterOverlay('semester')}
-                                    onClear={() => onSemesterFilterChange(null)}
-                                    className="filter-button"
-                                    style={{ flexShrink: 0 }}
-                                />
-                            </FilterContainer>
-                        </div>
+                            {/* Semester filter button */}
+                            <FilterButton
+                                label={semesterFilter ? semesterOptionName : 'Семестр'}
+                                selected={!!semesterFilter}
+                                onClick={() => openFilterOverlay('semester')}
+                                onClear={() => onSemesterFilterChange(null)}
+                                className="filter-button"
+                                style={{ flexShrink: 0 }}
+                            />
+                        </FilterContainer>
                     </div>
 
                     {/* Expanded Institute Selector - Absolute positioned overlay */}

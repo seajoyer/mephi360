@@ -97,26 +97,6 @@ export const SearchPanelGlobalStyles = () => (
       transition: all 0.2s ease-in-out !important;
     }
 
-    /* Add custom class for filter scroll container */
-    .filter-scroll-container {
-      overflow-x: auto !important;
-      overflow-y: hidden !important;
-      scrollbar-width: none !important;
-      -ms-overflow-style: none !important;
-      -webkit-overflow-scrolling: touch !important;
-    }
-
-    .filter-scroll-container::-webkit-scrollbar {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
-    }
-
-    /* Ensure buttons in scrollable filter container don't shrink */
-    .filter-scroll-container > div {
-      flex-shrink: 0 !important;
-    }
-
     @keyframes fadeSlideIn {
       0% {
         opacity: 0;
