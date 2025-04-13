@@ -43,35 +43,7 @@ export const ActivePage: React.FC = () => {
                 shadowReferenceElement={headerRef} // Pass the reference element
             />
 
-            <div className='px-2'>
-                <Section>
-                    <Cell
-                        description='Сообщество для всех любителей киберспорт. Здесь мы обсуждаем новости, делимся опытом, организуем совместные мероприятия и просто хорошо проводим время.'
-                        titleBadge={
-                            <Badge
-                                type='number'
-                                mode='gray'
-                            >
-                                <div className='flex'>
-                                    <Icon16Person
-                                        style={{
-                                            marginRight: '4px',
-                                        }}
-                                    />
-                                    112
-                                </div>
-                            </Badge>
-                        }
-                        multiline
-                    >
-                        <span style={{color: 'var(--tgui--accent_text_color)'}}>
-                            CS:GO сообщество
-                        </span>
-                    </Cell>
-                </Section>
-
-                <div className='py-1.5' />
-
+            <div className='px-3'>
                 <ActiveList
                     searchQuery={searchQuery}
                 />

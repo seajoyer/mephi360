@@ -184,7 +184,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
 
                                 <Input
                                     ref={inputRef}
-                                    placeholder={isSearchExpanded ? "Поиск кружков..." : ""}
+                                    placeholder={isSearchExpanded ? "Поиск..." : ""}
                                     value={searchQuery}
                                     onChange={(e) => onSearchChange(e.target.value)}
                                     aria-label="Search"

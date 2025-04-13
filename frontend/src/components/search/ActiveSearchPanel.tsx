@@ -33,7 +33,7 @@ export const ActiveSearchPanel: React.FC<ActiveSearchPanelProps> = ({
       <div className="flex-1 px-3">
         <Input
           ref={inputRef}
-          placeholder="Поиск сообществ..."
+          placeholder="Поиск..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           aria-label="Search"

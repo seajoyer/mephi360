@@ -433,32 +433,53 @@ const StuffForm = () => {
     return (
         <>
             <div className='flex gap-2'>
-                <Select
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                >
-                    <option value="test">Контрольная</option>
-                    <option value="lab">Лабораторная</option>
-                    <option value="course">Курсовая</option>
-                    <option value="bdz">БДЗ</option>
-                    <option value="exam">Экзамен</option>
-                    <option value="etc">Прочее</option>
-                </Select>
+                <div className="flex-1 min-w-[190px]">
+                    <Select
+                        value={type}
+                        onChange={(e) => setType(e.target.value)}
+                        className="w-full"
+                    >
+                        <option value="test">Контрольная</option>
+                        <option value="lab">Лабораторная</option>
+                        <option value="course">Курсовая</option>
+                        <option value="bdz">БДЗ</option>
+                        <option value="exam">Экзамен</option>
+                        <option value="etc">Прочее</option>
+                    </Select>
+                </div>
 
-                <Select
-                    value={semester}
-                    onChange={(e) => setSemester(e.target.value)}
-                >
-                    <option value="1">1 сем</option>
-                    <option value="2">2 сем</option>
-                    <option value="3">3 сем</option>
-                    <option value="4">4 сем</option>
-                    <option value="5">5 сем</option>
-                    <option value="6">6 сем</option>
-                    <option value="7">7 сем</option>
-                    <option value="8">8 сем</option>
-                </Select>
+                <div className="flex-1">
+                    <Select
+                        value={semester}
+                        onChange={(e) => setSemester(e.target.value)}
+                        className="w-full"
+                    >
+                        <option value="1">1 сем</option>
+                        <option value="2">2 сем</option>
+                        <option value="3">3 сем</option>
+                        <option value="4">4 сем</option>
+                        <option value="5">5 сем</option>
+                        <option value="6">6 сем</option>
+                        <option value="7">7 сем</option>
+                        <option value="8">8 сем</option>
+                    </Select>
+                </div>
             </div>
+
+            <Section>
+                <Input
+                    placeholder="Заголовок"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                />
+                <Textarea
+                    placeholder="Описание (опционально)"
+                    rows={3}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                />
+            </Section>
+
 
             {/* Teacher input with special handling for non-existent teachers */}
             {!showTeacherForm && (
@@ -563,20 +584,6 @@ const StuffForm = () => {
                     </div>
                 </>
             )}
-
-            <Section header="Заголовок и описание">
-                <Input
-                    placeholder="Допы на экзамене"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-                <Textarea
-                    placeholder="Любимые доп. вопросы лектора Грибоедова"
-                    rows={3}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
-            </Section>
 
             <Button
                 onClick={handleSubmit}
