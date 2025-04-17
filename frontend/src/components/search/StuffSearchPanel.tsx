@@ -414,11 +414,12 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
 
                         {/* Search Input */}
                         <div
-                            className="transition-all duration-200 ease-in-out flex-shrink-0"
+                            className={`transition-all duration-200 ease-in-out flex-shrink-0 ${!isSearchExpanded ? 'search-input-collapsed' : ''}`}
                             style={{
                                 width: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
                                 maxWidth: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
-                                zIndex: 2,
+                                zIndex: isSearchExpanded ? 10 : 2, // Higher z-index when expanded to cover filters
+                                opacity: isInstituteExpanded ? 0 : 1,
                                 pointerEvents: isInstituteExpanded ? 'none' : 'auto'
                             }}
                         >

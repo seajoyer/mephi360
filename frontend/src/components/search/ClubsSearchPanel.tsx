@@ -21,6 +21,10 @@ export const ClubsSearchPanel: React.FC<ClubsSearchPanelProps> = ({
     inputRef.current?.focus();
   };
 
+  // For this component, we always consider the search as expanded
+  // since it doesn't have a collapsed state
+  const isExpanded = true;
+
   return (
     <SearchPanelBase dataAttr="clubs">
       <SearchPanelStyles />

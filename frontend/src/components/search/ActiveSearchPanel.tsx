@@ -23,6 +23,10 @@ export const ActiveSearchPanel: React.FC<ActiveSearchPanelProps> = ({
     inputRef.current?.focus();
   };
 
+  // For this component, we always consider the search as expanded
+  // since it doesn't have a collapsed state
+  const isExpanded = true;
+
   return (
     <SearchPanelBase
       dataAttr="active"
@@ -33,7 +37,7 @@ export const ActiveSearchPanel: React.FC<ActiveSearchPanelProps> = ({
       <div className="flex-1 px-3">
         <Input
           ref={inputRef}
-          placeholder="Поиск..."
+          placeholder="Поиск сообществ..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           aria-label="Search"

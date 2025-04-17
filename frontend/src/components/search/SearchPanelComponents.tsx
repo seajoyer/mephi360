@@ -58,8 +58,6 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
 
   // Setup layout calculations
   useEffect(() => {
-    if (isHidden) return;
-
     // Initial calculation
     const initialTimer = setTimeout(() => {
       calculateLayout();
@@ -83,12 +81,7 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
       clearTimeout(initialTimer);
       resizeObserver?.disconnect();
     };
-  }, [calculateLayout, adjustScrollableContainer, isHidden, childCount]);
-
-  // Don't render anything when hidden
-  if (isHidden) {
-    return null;
-  }
+  }, [calculateLayout, adjustScrollableContainer, childCount]);
 
   return (
     <div
@@ -98,7 +91,10 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
         width: '100%',
         position: 'relative',
         transition: 'all 0.2s ease-in-out',
-        overflowX: 'hidden'
+        overflowX: 'hidden',
+        opacity: isHidden ? 0 : 1,
+        visibility: isHidden ? 'hidden' : 'visible',
+        pointerEvents: isHidden ? 'none' : 'auto'
       }}
     >
       {/* Hidden container for measurement */}

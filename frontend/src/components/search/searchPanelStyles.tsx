@@ -21,11 +21,27 @@ export const SearchPanelGlobalStyles = () => (
       box-shadow: 0 1px 0 var(--tgui--divider);
     }
 
+    /* Input field transition styling */
+    .tgui-0f5050defacbf813 {
+      transition: padding 0.2s ease-in-out;
+    }
+
+    /* Apply specific padding only when input is collapsed (max-width: 42px) */
+    .search-input-collapsed .tgui-0f5050defacbf813 {
+      padding: var(--input-padding, 10px);
+    }
+
     /* Filter button styling */
     .filter-button {
       width: 100%;
       max-width: 100%;
       overflow: hidden;
+      transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+
+    /* Filter container transition */
+    .filter-container {
+      transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out, max-height 0.2s ease-in-out, visibility 0.2s ease-in-out !important;
     }
 
     /* Force buttons to fill containers in static layout */
@@ -83,13 +99,10 @@ export const SearchPanelGlobalStyles = () => (
     .institute-button-animate {
       animation: fadeSlideIn 0.2s ease-in-out forwards;
       opacity: 0;
-      transform: translateY(5px);
     }
 
     .institute-button-animate-first {
-      animation: fadeSlideIn 0.2s ease-in-out forwards;
-      opacity: 0;
-      transform: translateY(5px);
+      animation: 0.2s ease-in-out forwards;
     }
 
     /* Institute container transition */
@@ -100,11 +113,11 @@ export const SearchPanelGlobalStyles = () => (
     @keyframes fadeSlideIn {
       0% {
         opacity: 0;
-        transform: translateY(5px);
+        transform: translateX(-4px);
       }
       100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
       }
     }
   `}</style>

@@ -2,7 +2,9 @@ import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import path from 'path';
+import { readFileSync } from 'fs';
+import path, { resolve } from 'path';
+import os from 'os';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -21,6 +23,12 @@ export default defineConfig(({ mode }) => {
     ],
     publicDir: './public',
     server: {
+      // https: {
+      //   cert: readFileSync(resolve(os.homedir(), 'tma.internal.pem')),
+      //   key: readFileSync(resolve(os.homedir(), 'tma.internal-key.pem')),
+      // },
+      // allowedHosts: ["pleasing-louse-dynamic.ngrok-free.app", "alesanrad1.loca.lt"],
+
       // Development-only settings
       host: true,
       // Remove HTTPS configuration for Vercel deployment

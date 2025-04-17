@@ -77,11 +77,11 @@ export const TutorsSearchPanel: React.FC<TutorsSearchPanelProps> = ({
                 <div className="flex gap-2 items-center px-3">
                     {/* Search field */}
                     <div
-                        className="flex-shrink-0 transition-all duration-200 ease-in-out"
+                        className={`flex-shrink-0 transition-all duration-200 ease-in-out ${!isSearchExpanded ? 'search-input-collapsed' : ''}`}
                         style={{
                             width: isSearchExpanded ? 'calc(100%)' : '42px',
                             maxWidth: isSearchExpanded ? 'calc(100%)' : '42px',
-                            zIndex: 2
+                            zIndex: isSearchExpanded ? 10 : 2 // Higher z-index when expanded to cover filters
                         }}
                     >
                         <div className="relative">

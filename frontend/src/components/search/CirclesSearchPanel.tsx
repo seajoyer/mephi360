@@ -164,11 +164,11 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
                 <div className="flex gap-2 items-center px-3">
                     {/* Search field container with transition */}
                     <div
-                        className="flex-shrink-0 transition-all duration-200 ease-in-out"
+                        className={`flex-shrink-0 transition-all duration-200 ease-in-out ${!isSearchExpanded ? 'search-input-collapsed' : ''}`}
                         style={{
                             width:    isSearchExpanded ? 'calc(100%)' : '42px',
                             maxWidth: isSearchExpanded ? 'calc(100%)' : '42px',
-                            zIndex: 2 // Ensure input is above filters during transition
+                            zIndex: isSearchExpanded ? 10 : 2 // Higher z-index when expanded to cover filters
                         }}
                     >
                             <div className="relative">
@@ -184,7 +184,7 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
 
                                 <Input
                                     ref={inputRef}
-                                    placeholder={isSearchExpanded ? "Поиск..." : ""}
+                                    placeholder={isSearchExpanded ? "Поиск кружков..." : ""}
                                     value={searchQuery}
                                     onChange={(e) => onSearchChange(e.target.value)}
                                     aria-label="Search"

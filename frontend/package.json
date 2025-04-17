@@ -23,6 +23,7 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.23.0",
     "styled-components": "^6.1.15",
+    "terser": "^5.39.0",
     "vercel": "^41.6.1",
     "vite-plugin-mkcert": "^1.17.6"
   },
@@ -47,7 +48,7 @@
     "dev": "vite",
     "dev:https": "cross-env HTTPS=true vite",
     "build": "tsc --noEmit && vite build",
-    "vercel-build": "node vercel-build.js",
+    "vercel-build": "node vercel-build.cjs",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
     "preview": "vite preview",
