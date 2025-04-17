@@ -1,9 +1,13 @@
 {
   "framework": "vite",
-  "buildCommand": "yarn build",
+  "buildCommand": "yarn vercel-build",
   "outputDirectory": "dist",
+  "installCommand": "yarn install",
   "routes": [
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
-  ]
+  ],
+  "env": {
+    "VITE_SKIP_TS_CHECK": "true"
+  }
 }

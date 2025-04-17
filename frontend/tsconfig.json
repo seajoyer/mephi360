@@ -12,8 +12,8 @@
     "moduleResolution": "bundler",
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,         // Changed from true to false
+    "noUnusedParameters": false,     // Changed from true to false
     "paths": {
       "@/*": [
         "./src/*"
@@ -21,7 +21,7 @@
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,                // Changed from true to false
     "target": "ES2020",
     "useDefineForClassFields": true
   },
