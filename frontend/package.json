@@ -23,6 +23,7 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.23.0",
     "styled-components": "^6.1.15",
+    "vercel": "^41.6.1",
     "vite-plugin-mkcert": "^1.17.6"
   },
   "devDependencies": {
