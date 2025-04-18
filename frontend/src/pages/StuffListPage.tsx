@@ -32,7 +32,7 @@ export const StuffListPage: React.FC = () => {
           onInstituteFilterChange={setStuffInstitute}
         />
 
-      <div className="px-2">
+      <div className="px-2 pt-1">
         <StuffList
           searchQuery={stuffFilters.search}
           typeFilter={stuffFilters.type}

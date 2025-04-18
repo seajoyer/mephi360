@@ -64,16 +64,6 @@ export function Page({
         {children}
       </div>
 
-      {/* Add sufficient bottom padding to prevent scroll jumps */}
-      <div
-        className="page-bottom-space"
-        style={{
-          height: '300px',
-          width: '100%'
-        }}
-        aria-hidden="true"
-      />
-
       {/* <ScrollUpButton /> */}
     </div>
   );

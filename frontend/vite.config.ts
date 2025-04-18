@@ -23,11 +23,11 @@ export default defineConfig(({ mode }) => {
     ],
     publicDir: './public',
     server: {
-      // https: {
-      //   cert: readFileSync(resolve(os.homedir(), 'tma.internal.pem')),
-      //   key: readFileSync(resolve(os.homedir(), 'tma.internal-key.pem')),
-      // },
-      // allowedHosts: ["pleasing-louse-dynamic.ngrok-free.app", "alesanrad1.loca.lt"],
+      https: {
+        cert: readFileSync(resolve(os.homedir(), 'tma.internal.pem')),
+        key: readFileSync(resolve(os.homedir(), 'tma.internal-key.pem')),
+      },
+      allowedHosts: ["pleasing-louse-dynamic.ngrok-free.app", "alesanrad1.loca.lt"],
 
       // Development-only settings
       host: true,

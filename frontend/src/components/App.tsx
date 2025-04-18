@@ -8,6 +8,8 @@ import { FilterProvider } from '@/contexts/FilterContext';
 import { TabBar } from '@/components/layout/TabBar';
 import { PageTransition } from '@/components/common/PageTransition';
 
+import styles from './styles.module.css'
+
 export function App() {
     const lp = retrieveLaunchParams();
     const isDark = useSignal(miniApp.isDark);
@@ -15,10 +17,13 @@ export function App() {
     // Use platform from launch params or fall back to iOS
     const platform = lp?.tgWebAppPlatform === 'base' ? 'base' : 'ios';
 
+    console.log(lp.tgWebAppThemeParams)
+
     return (
         <AppRoot
             appearance={isDark?.valueOf() ? 'dark' : 'light'}
             platform='ios'
+            className={styles.custom_theme}
         >
             <FilterProvider>
                 <HashRouter>

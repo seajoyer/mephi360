@@ -43,7 +43,7 @@ export const CirclesPage: React.FC = () => {
             />
 
             <div
-                className='px-3'
+                className='px-3 pt-1'
             >
                 <CirclesList
                     searchQuery={searchQuery}

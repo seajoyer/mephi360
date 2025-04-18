@@ -43,7 +43,7 @@ export const ActivePage: React.FC = () => {
                 shadowReferenceElement={headerRef} // Pass the reference element
             />
 
-            <div className='px-3'>
+            <div className='px-3 pt-1'>
                 <ActiveList
                     searchQuery={searchQuery}
                 />

@@ -32,8 +32,6 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
       className={`filter-button ${selected ? 'filter-button-selected' : ''} ${className}`}
       style={{
         justifyContent: "space-between",
-        paddingLeft: '10px',
-        paddingRight: '10px',
         background: 'var(--tgui--section_bg_color)',
         // When in scrollable mode, set natural width based on content
         transition: 'all 0.2s ease-in-out',

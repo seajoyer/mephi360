@@ -22,10 +22,10 @@ body {
 }
 
 /* General page container with minimum height */
-.page-container {
-  min-height: calc(100vh + 300px);
-  width: 100%;
-}
+/* .page-container { */
+/*   min-height: calc(100vh + 300px); */
+/*   width: 100%; */
+/* } */
 
 /* Ensure page content has proper spacing */
 .page-content {
@@ -51,10 +51,10 @@ body {
 }
 
 /* Bottom space to ensure sufficient content height */
-.page-bottom-space {
-  height: 300px;
-  width: 100%;
-}
+/* .page-bottom-space { */
+/*   height: 300px; */
+/*   width: 100%; */
+/* } */
 
 /* Smooth transitions for accordions */
 .tgui-947b927060015de8 {
@@ -69,9 +69,9 @@ body {
 }
 
 /* Additional padding at page bottom to ensure sufficient scroll space */
-.app-content-wrapper {
-  padding-bottom: 300px;
-}
+/* .app-content-wrapper { */
+/*   padding-bottom: 300px; */
+/* } */
 
 /* ======================================
    Shared Entity Styles (Tutor & Department)
