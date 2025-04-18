@@ -419,11 +419,13 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
                                 width: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
                                 maxWidth: isSearchExpanded ? 'calc(100% - 42px - 8px)' : '42px',
                                 zIndex: isSearchExpanded ? 10 : 2, // Higher z-index when expanded to cover filters
-                                opacity: isInstituteExpanded ? 0 : 1,
-                                pointerEvents: isInstituteExpanded ? 'none' : 'auto'
+                                pointerEvents: isInstituteExpanded ? 'none' : 'auto',
+                                opacity: isInstituteExpanded ? 0.7 : 1,
                             }}
                         >
-                            <div className="relative">
+                            <div
+                                className="relative"
+                            >
                                 {!isSearchExpanded && (
                                     <div
                                         className="absolute inset-0 z-10 cursor-pointer"

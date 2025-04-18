@@ -28,6 +28,7 @@ import { Icon16Chevron_right } from '@/icons/16/chevron_right';
 // Import sticker
 import stuff_512 from '@/stickers/stuff_512.gif';
 import { Icon24Close } from '@/icons/24/close';
+import { Icon16Cancel } from '@/icons/16/cancel';
 
 export const StuffPage: React.FC = () => {
     const navigate = useNavigate();
@@ -185,8 +186,11 @@ export const StuffPage: React.FC = () => {
                             before={<Icon24Actions />}
                             after={
                                 stuffFilters.type ? (
-                                    <Icon24Close
-                                        className='-mr-0.5'
+                                    <Icon16Cancel
+                                        className='mr-0.5'
+                                        style={{
+                                            color: `var(--tgui--hint_color)`
+                                        }}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setStuffType(null);
@@ -207,8 +211,11 @@ export const StuffPage: React.FC = () => {
                             before={<Icon24Tutor_hat />}
                             after={
                                 stuffFilters.teacher ? (
-                                    <Icon24Close
-                                        className='-mr-0.5'
+                                    <Icon16Cancel
+                                        className='mr-0.5'
+                                        style={{
+                                            color: `var(--tgui--hint_color)`
+                                        }}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setStuffTeacher(null);
@@ -229,8 +236,11 @@ export const StuffPage: React.FC = () => {
                             before={<Icon24Atom />}
                             after={
                                 stuffFilters.subject ? (
-                                    <Icon24Close
-                                        className='-mr-0.5'
+                                    <Icon16Cancel
+                                        className='mr-0.5'
+                                        style={{
+                                            color: `var(--tgui--hint_color)`
+                                        }}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setStuffSubject(null);
@@ -251,8 +261,11 @@ export const StuffPage: React.FC = () => {
                             before={<Icon24Clock />}
                             after={
                                 stuffFilters.semester ? (
-                                    <Icon24Close
-                                        className='-mr-0.5'
+                                    <Icon16Cancel
+                                        className='mr-0.5'
+                                        style={{
+                                            color: `var(--tgui--hint_color)`
+                                        }}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setStuffSemester(null);

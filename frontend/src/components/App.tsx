@@ -16,14 +16,15 @@ export function App() {
 
     // Use platform from launch params or fall back to iOS
     const platform = lp?.tgWebAppPlatform === 'base' ? 'base' : 'ios';
+    const theme = isDark?.valueOf() ? 'dark' : 'light';
 
     console.log(lp.tgWebAppThemeParams)
 
     return (
         <AppRoot
-            appearance={isDark?.valueOf() ? 'dark' : 'light'}
+            appearance={theme}
             platform='ios'
-            className={styles.custom_theme}
+            className={theme === 'dark' ? styles.custom_theme : ''}
         >
             <FilterProvider>
                 <HashRouter>

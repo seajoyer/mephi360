@@ -60,10 +60,9 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
       <div
         style={{
           color: selected ? 'var(--tgui--text_color)' : 'var(--tgui--hint_color)',
-          transition: 'color 0.15s ease-in-out, font-weight 0.15s ease-in-out',
+          transition: 'color 0.2s ease-in-out, font-weight 0.15s ease-in-out',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          marginRight: '4px',
           flexShrink: 1,
         }}
       >

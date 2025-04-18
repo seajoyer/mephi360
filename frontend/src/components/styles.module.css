@@ -1,17 +1,17 @@
 /* styles.module.css */
 
 .custom_theme {
-    --tgui-accent_text_color: "#8774e1"
-    --tgui-bg_color: "#212121"
-    --tgui-button_color: "#8774e1"
-    --tgui-button_text_color: "#ffffff"
-    --tgui-destructive_text_color: "#e53935"
-    --tgui-header_bg_color: "#212121"
-    --tgui-hint_color: "#aaaaaa"
-    --tgui-link_color: "#8774e1"
-    --tgui-secondary_bg_color: "#0f0f0f"
-    --tgui-section_bg_color: "#212121"
-    --tgui-section_header_text_color: "#aaaaaa"
-    --tgui-subtitle_text_color: "#aaaaaa"
-    --tgui-text_color: "#ffffff"
+    --tgui--link_color: #8774e1 !important;
+    --tgui--accent_text_color: #8774e1 !important;
+    --tgui--section_header_text_color: #aaaaaa !important;
+    --tgui--subtitle_text_color: #aaaaaa !important;
+    --tgui--button_color: #8774e1 !important;
+    --tgui--button_text_color: #ffffff !important;
+    --tgui--destructive_text_color: #e53935 !important;
+    --tgui--hint_color: #aaaaaa !important;
+    --tgui--text_color: #ffffff !important;
+    /* --tgui--bg_color: #212121 !important; */
+    /* --tgui--header_bg_color: #212121 !important; */
+    /* --tgui--secondary_bg_color: #0f0f0f !important; */
+    /* --tgui--section_bg_color: #212121 !important; */
 }

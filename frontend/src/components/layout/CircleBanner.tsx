@@ -80,11 +80,12 @@ export const CircleBanner: React.FC<CircleBannerProps> = ({
                         </div>
                     </div>
 
-                    <div className="mt-3 relative">
+                    <div className={`relative`}>
                         <div className="flex flex-wrap gap-2 pr-10 relative">
                             {/* Display only filter values as chips */}
                             {tags.map((tag, index) => (
                                 <Chip
+                                    className='mt-3'
                                     key={index}
                                     mode="outline"
                                     onClick={(e) => handleTagClick(e, tag)}
@@ -95,14 +96,16 @@ export const CircleBanner: React.FC<CircleBannerProps> = ({
                                 </Chip>
                             ))}
                             <div
-                                className="absolute right-0 bottom-0 transform transition-transform duration-200 ease-in-out"
+                                className={`absolute transition-all duration-200 ease-in-out`}
                                 style={{
                                     transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
                                     marginBottom: '6px',
                                     marginRight: '8px',
+                                    right:  (tags.length == 0 && !expanded) ? '44px' : 0,
+                                    bottom: (tags.length == 0 && !expanded) ? '4px' : 0,
                                 }}
                             >
-                                <Icon24Chevron_down color='var(--tg-theme-link-color)' />
+                                <Icon24Chevron_down color='var(--tgui--link_color)' />
                             </div>
                         </div>
                     </div>

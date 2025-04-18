@@ -9,6 +9,7 @@ import { viewport } from '@telegram-apps/sdk-react';
 import { Icon28Folder } from '@/icons/28/folder';
 import { Icon28Globe } from '@/icons/28/globe';
 import { Icon28Lifebuoy } from '@/icons/28/lifebuoy';
+import { Icon28Largegroup } from '@/icons/28/largegroup';
 import { Icon28Lightning } from '@/icons/28/lightning';
 
 // Filled variants for selected state
@@ -16,6 +17,9 @@ import { Icon28Folder_fill } from '@/icons/28/folder_fill';
 import { Icon28Globe_fill } from '@/icons/28/globe_fill';
 import { Icon28Lifebuoy_fill } from '@/icons/28/lifebuoy_fill';
 import { Icon28Lightning_fill } from '@/icons/28/lightning_fill';
+import { Icon28Flash } from '@/icons/28/flash';
+import { Icon28Flash_fill } from '@/icons/28/flash_fill';
+import { Icon28Largegroup_fill } from '@/icons/28/largegroup_fill';
 
 export const TabBar: FC = () => {
     const navigate = useNavigate();
@@ -112,15 +116,15 @@ export const TabBar: FC = () => {
             id: 'circles',
             path: '/circles',
             label: "Кружки",
-            regularIcon: Icon28Lifebuoy,
-            filledIcon: Icon28Lifebuoy_fill
+            regularIcon: Icon28Largegroup,
+            filledIcon: Icon28Largegroup_fill,
         },
         {
             id: 'active',
             path: '/active',
             label: "Движ",
-            regularIcon: Icon28Lightning,
-            filledIcon: Icon28Lightning_fill
+            regularIcon: Icon28Flash,
+            filledIcon: Icon28Flash_fill
         },
         {
             id: 'stuff',

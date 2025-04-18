@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { List, Cell, Title, Input, Text, Select, Section, Textarea, Button, Divider } from '@telegram-apps/telegram-ui';
+import { List, Cell, Title, Input, Text, Select, Section, Textarea, Button, Divider, FixedLayout } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
 
 const AddingPage = () => {
@@ -103,13 +103,21 @@ const TeacherForm = () => {
                     onChange={(e) => setProofLink(e.target.value)}
                 />
             </Section>
-            <Button
-                onClick={handleSubmit}
-                className="mt-4 w-full"
-                size='m'
+            <FixedLayout
+                vertical="bottom"
+                className='px-3'
+                style={{ zIndex: 2000 }}
             >
-                Добавить
-            </Button>
+                <Button
+                    onClick={handleSubmit}
+                    className='w-full'
+                    size='l'
+                    disabled
+                >
+                    Добавить
+                </Button>
+                <div className='py-9.25'/>
+            </FixedLayout>
         </>
     );
 };
@@ -147,13 +155,21 @@ const DepartmentForm = () => {
                     onChange={(e) => setProofLink(e.target.value)}
                 />
             </Section>
-            <Button
-                onClick={handleSubmit}
-                className="mt-4 w-full"
-                size='m'
+            <FixedLayout
+                vertical="bottom"
+                className='px-3'
+                style={{ zIndex: 2000 }}
             >
-                Добавить
-            </Button>
+                <Button
+                    onClick={handleSubmit}
+                    className='w-full'
+                    size='l'
+                    disabled
+                >
+                    Добавить
+                </Button>
+                <div className='py-9.25'/>
+            </FixedLayout>
         </>
     );
 };
@@ -192,13 +208,21 @@ const ClubForm = () => {
                     onChange={(e) => setLink(e.target.value)}
                 />
             </Section>
-            <Button
-                onClick={handleSubmit}
-                className="mt-4 w-full"
-                size='m'
+            <FixedLayout
+                vertical="bottom"
+                className='px-3'
+                style={{ zIndex: 2000 }}
             >
-                Добавить
-            </Button>
+                <Button
+                    onClick={handleSubmit}
+                    className='w-full'
+                    size='l'
+                    disabled
+                >
+                    Добавить
+                </Button>
+                <div className='py-9.25'/>
+            </FixedLayout>
         </>
     );
 };
@@ -266,13 +290,21 @@ const CircleForm = () => {
                     onChange={(e) => setLink(e.target.value)}
                 />
             </Section>
-            <Button
-                onClick={handleSubmit}
-                className="mt-4 w-full"
-                size='m'
+            <FixedLayout
+                vertical="bottom"
+                className='px-3'
+                style={{ zIndex: 2000 }}
             >
-                Добавить
-            </Button>
+                <Button
+                    onClick={handleSubmit}
+                    className='w-full'
+                    size='l'
+                    disabled
+                >
+                    Добавить
+                </Button>
+                <div className='py-9.25'/>
+            </FixedLayout>
         </>
     );
 };
@@ -310,13 +342,21 @@ const ActiveForm = () => {
                     onChange={(e) => setLink(e.target.value)}
                 />
             </Section>
-              <Button
-                  onClick={handleSubmit}
-                  className="mt-4 w-full"
-                  size='m'
-              >
-                  Добавить
-              </Button>
+            <FixedLayout
+                vertical="bottom"
+                className='px-3'
+                style={{ zIndex: 2000 }}
+            >
+                <Button
+                    onClick={handleSubmit}
+                    className='w-full'
+                    size='l'
+                    disabled
+                >
+                    Добавить
+                </Button>
+                <div className='py-9.25'/>
+            </FixedLayout>
         </>
     );
 };
@@ -585,13 +625,21 @@ const StuffForm = () => {
                 </>
             )}
 
-            <Button
-                onClick={handleSubmit}
-                className="mt-4 w-full"
-                size='m'
+            <FixedLayout
+                vertical="bottom"
+                className='px-3'
+                style={{ zIndex: 2000 }}
             >
-                Добавить
-            </Button>
+                <Button
+                    onClick={handleSubmit}
+                    className='w-full'
+                    size='l'
+                    disabled
+                >
+                    Добавить
+                </Button>
+                <div className='py-9.25'/>
+            </FixedLayout>
         </>
     );
 };

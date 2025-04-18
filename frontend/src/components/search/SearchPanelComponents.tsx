@@ -92,7 +92,7 @@ export const FilterContainer: React.FC<FilterContainerProps> = ({
         position: 'relative',
         transition: 'all 0.2s ease-in-out',
         overflowX: 'hidden',
-        opacity: isHidden ? 0 : 1,
+        opacity: isHidden ? 0.7 : 1,
         visibility: isHidden ? 'hidden' : 'visible',
         pointerEvents: isHidden ? 'none' : 'auto'
       }}

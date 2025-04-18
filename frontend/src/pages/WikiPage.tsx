@@ -111,14 +111,14 @@ export const WikiPage: FC = () => {
                             </Cell>
                         </Section>
 
-                        <Button
+                        {/* <Button
                             className="w-full"
                             mode="plain"
                             size="m"
                             onClick={handleShare}
                         >
-                            Поделиться
-                        </Button>
+                            Поддержать
+                        </Button> */}
                     </List>
                 </div>
             </div>
