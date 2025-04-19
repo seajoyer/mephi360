@@ -15,7 +15,7 @@ export const CirclesPage: React.FC = () => {
         <Page back={false}>
             <div
                 ref={headerRef} // Attach reference to the header element
-                className='px-3 pt-6 pb-1.5 flex place-content-between'
+                className='px-3.5 pt-6 pb-1.5 flex place-content-between'
             >
                 <LargeTitle
                     weight='1'

@@ -367,13 +367,13 @@ export const StuffSearchPanel: React.FC<StuffSearchPanelProps> = ({
     const getFilterTitle = () => {
         switch (filterOverlay.type) {
             case 'type':
-                return "Выберите тип";
+                return "Тип материала";
             case 'teacher':
-                return "Выберите преподавателя";
+                return "Преподаватель";
             case 'subject':
-                return "Выберите предмет";
+                return "Предмет";
             case 'semester':
-                return "Выберите семестр";
+                return "Cеместр";
             default:
                 return "";
         }

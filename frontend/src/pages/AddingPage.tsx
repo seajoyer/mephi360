@@ -1,31 +1,107 @@
 import React, { useState } from 'react';
-import { List, Input, Text, Select, Section, Textarea, Button, Divider, FixedLayout } from '@telegram-apps/telegram-ui';
+import { List, Input, Text, Select, Section, Textarea, Button, Divider } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
+import { KeyboardAwareFixedLayout } from '@/components/common/KeyboardAwareFixedLayout';
+import { TabBar } from '@/components/layout/TabBar';
 
 const AddingPage = () => {
     const [entityType, setEntityType] = useState('Teacher');
+    const [formData, setFormData] = useState({});
+    const [formIsValid, setFormIsValid] = useState(false);
 
     const handleEntityChange = (e) => {
         setEntityType(e.target.value);
+        // Reset form data and validation when entity type changes
+        setFormData({});
+        setFormIsValid(false);
+    };
+
+    // Generic function to update form data
+    const updateFormData = (newData) => {
+        setFormData(prev => ({ ...prev, ...newData }));
+    };
+
+    // Generic function to handle form submission
+    const handleSubmit = () => {
+        console.log(`Submitting ${entityType} form:`, formData);
+
+        // Here you would implement your API call to submit the data
+        // Different actions based on entity type
+        switch (entityType) {
+            case 'Teacher':
+                console.log('Adding new teacher...');
+                // Teacher-specific submission logic
+                break;
+            case 'Department':
+                console.log('Adding new department...');
+                // Department-specific submission logic
+                break;
+            case 'Club':
+                console.log('Adding new club...');
+                // Club-specific submission logic
+                break;
+            case 'Circle':
+                console.log('Adding new circle...');
+                // Circle-specific submission logic
+                break;
+            case 'Active':
+                console.log('Adding new active...');
+                // Active-specific submission logic
+                break;
+            case 'Stuff':
+                console.log('Adding new stuff...');
+                // Stuff-specific submission logic
+                break;
+            default:
+                console.log('Unknown entity type:', entityType);
+        }
     };
 
     // Render the appropriate form based on the selected entity type
     const renderForm = () => {
         switch (entityType) {
             case 'Teacher':
-                return <TeacherForm />;
+                return <TeacherForm
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    setFormIsValid={setFormIsValid}
+                />;
             case 'Department':
-                return <DepartmentForm />;
+                return <DepartmentForm
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    setFormIsValid={setFormIsValid}
+                />;
             case 'Club':
-                return <ClubForm />;
+                return <ClubForm
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    setFormIsValid={setFormIsValid}
+                />;
             case 'Circle':
-                return <CircleForm />;
+                return <CircleForm
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    setFormIsValid={setFormIsValid}
+                />;
             case 'Active':
-                return <ActiveForm />;
+                return <ActiveForm
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    setFormIsValid={setFormIsValid}
+                />;
             case 'Stuff':
-                return <StuffForm />;
+                return <StuffForm
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    setFormIsValid={setFormIsValid}
+                />;
             default:
-                return <TeacherForm />;
+                return <TeacherForm
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    setFormIsValid={setFormIsValid}
+                />;
         }
     };
 
@@ -33,44 +109,48 @@ const AddingPage = () => {
         <Page back={true}>
             <List>
                 <Select
-                    before={
-                        <div
-                            className='pl-4'
-                        >
-                            <Text weight='3'>
-                                Добавить
-                            </Text>
-                        </div>
-                    }
                     value={entityType}
                     onChange={handleEntityChange}
                 >
-                    <option value="Teacher">преподавателя</option>
-                    <option value="Department">кафедру</option>
-                    <option value="Club">клуб</option>
-                    <option value="Circle">кружок</option>
-                    <option value="Active">актив</option>
-                    <option value="Stuff">материал</option>
+                    <option value="Teacher">Добавить преподавателя</option>
+                    <option value="Department">Добавить кафедру</option>
+                    <option value="Club">Добавить клуб</option>
+                    <option value="Circle">Добавить кружок</option>
+                    <option value="Active">Добавить актив</option>
+                    <option value="Stuff">Добавить материал</option>
                 </Select>
 
                 {renderForm()}
 
             </List>
+
+            {/* Single "Добавить" button for all forms */}
+            <KeyboardAwareFixedLayout
+                vertical="bottom"
+                className='px-3 mb-5'
+            >
+                <Button
+                    onClick={handleSubmit}
+                    stretched
+                    size='l'
+                    disabled={!formIsValid}
+                >
+                    Добавить
+                </Button>
+            </KeyboardAwareFixedLayout>
         </Page>
     );
 };
 
 // Teacher Form Component
-const TeacherForm = () => {
-    const [name, setName] = useState('');
-    const [department, setDepartment] = useState('');
-    const [proofLink, setProofLink] = useState('');
+const TeacherForm = ({ formData, updateFormData, setFormIsValid }) => {
+    const { name = '', department = '', proofLink = '' } = formData;
 
-    const handleSubmit = () => {
-        // Handle form submission
-        console.log({ name, department, proofLink });
-        // Add API call or state update logic here
-    };
+    // Update validation state whenever inputs change
+    React.useEffect(() => {
+        const isValid = name.trim() !== '' && department !== '';
+        setFormIsValid(isValid);
+    }, [name, department, setFormIsValid]);
 
     return (
         <>
@@ -78,13 +158,14 @@ const TeacherForm = () => {
                 <Textarea
                     placeholder="ФИО (полностью)"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => updateFormData({ name: e.target.value })}
                 />
                 <Divider />
                 <Select
                     value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
+                    onChange={(e) => updateFormData({ department: e.target.value })}
                 >
+                    <option value="">Выберите кафедру</option>
                     <option value="1">Кафедра №1</option>
                     <option value="2">Кафедра №2</option>
                     <option value="3">Кафедра №3</option>
@@ -100,38 +181,22 @@ const TeacherForm = () => {
                 <Textarea
                     placeholder="home.mephi.ru/..."
                     value={proofLink}
-                    onChange={(e) => setProofLink(e.target.value)}
+                    onChange={(e) => updateFormData({ proofLink: e.target.value })}
                 />
             </Section>
-            <FixedLayout
-                vertical="bottom"
-                className='px-3'
-                style={{ zIndex: 2000 }}
-            >
-                <Button
-                    onClick={handleSubmit}
-                    className='w-full'
-                    size='l'
-                    disabled
-                >
-                    Добавить
-                </Button>
-                <div className='py-9.25' />
-            </FixedLayout>
         </>
     );
 };
 
 // Department Form Component
-const DepartmentForm = () => {
-    const [name, setName] = useState('');
-    const [number, setNumber] = useState('');
-    const [proofLink, setProofLink] = useState('');
+const DepartmentForm = ({ formData, updateFormData, setFormIsValid }) => {
+    const { name = '', number = '', proofLink = '' } = formData;
 
-    const handleSubmit = () => {
-        console.log({ name, number, proofLink });
-        // Add API call or state update logic here
-    };
+    // Update validation state whenever inputs change
+    React.useEffect(() => {
+        const isValid = name.trim() !== '' && number.trim() !== '';
+        setFormIsValid(isValid);
+    }, [name, number, setFormIsValid]);
 
     return (
         <>
@@ -139,51 +204,35 @@ const DepartmentForm = () => {
                 <Textarea
                     placeholder="Полное название кафедры"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => updateFormData({ name: e.target.value })}
                 />
                 <Divider />
                 <Input
                     placeholder="Номер кафедры"
                     value={number}
-                    onChange={(e) => setNumber(e.target.value)}
+                    onChange={(e) => updateFormData({ number: e.target.value })}
                 />
             </Section>
             <Section header="Подтверждающая ссылка">
                 <Textarea
                     placeholder="home.mephi.ru/..."
                     value={proofLink}
-                    onChange={(e) => setProofLink(e.target.value)}
+                    onChange={(e) => updateFormData({ proofLink: e.target.value })}
                 />
             </Section>
-            <FixedLayout
-                vertical="bottom"
-                className='px-3'
-                style={{ zIndex: 2000 }}
-            >
-                <Button
-                    onClick={handleSubmit}
-                    className='w-full'
-                    size='l'
-                    disabled
-                >
-                    Добавить
-                </Button>
-                <div className='py-9.25' />
-            </FixedLayout>
         </>
     );
 };
 
 // Club Form Component
-const ClubForm = () => {
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [link, setLink] = useState('');
+const ClubForm = ({ formData, updateFormData, setFormIsValid }) => {
+    const { name = '', description = '', link = '' } = formData;
 
-    const handleSubmit = () => {
-        console.log({ name, description, link });
-        // Add API call or state update logic here
-    };
+    // Update validation state whenever inputs change
+    React.useEffect(() => {
+        const isValid = name.trim() !== '';
+        setFormIsValid(isValid);
+    }, [name, setFormIsValid]);
 
     return (
         <>
@@ -191,55 +240,36 @@ const ClubForm = () => {
                 <Input
                     placeholder="Название клуба"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => updateFormData({ name: e.target.value })}
                 />
                 <Divider />
                 <Textarea
                     placeholder="Описание"
                     rows={3}
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) => updateFormData({ description: e.target.value })}
                 />
             </Section>
             <Section header="Ссылка">
                 <Textarea
                     placeholder="https://..."
                     value={link}
-                    onChange={(e) => setLink(e.target.value)}
+                    onChange={(e) => updateFormData({ link: e.target.value })}
                 />
             </Section>
-            <FixedLayout
-                vertical="bottom"
-                className='px-3'
-                style={{ zIndex: 2000 }}
-            >
-                <Button
-                    onClick={handleSubmit}
-                    className='w-full'
-                    size='l'
-                    disabled
-                >
-                    Добавить
-                </Button>
-                <div className='py-9.25' />
-            </FixedLayout>
         </>
     );
 };
 
 // Circle Form Component
-const CircleForm = () => {
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [subject, setSubject] = useState('');
-    const [organizer, setOrganizer] = useState('');
-    const [link, setLink] = useState('');
+const CircleForm = ({ formData, updateFormData, setFormIsValid }) => {
+    const { name = '', description = '', subject = '', organizer = '', link = '' } = formData;
 
-
-    const handleSubmit = () => {
-        console.log({ name, description, subject, organizer, link });
-        // Add API call or state update logic here
-    };
+    // Update validation state whenever inputs change
+    React.useEffect(() => {
+        const isValid = name.trim() !== '' && subject !== '';
+        setFormIsValid(isValid);
+    }, [name, subject, setFormIsValid]);
 
     return (
         <>
@@ -247,21 +277,22 @@ const CircleForm = () => {
                 <Input
                     placeholder="Название кружка"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => updateFormData({ name: e.target.value })}
                 />
                 <Divider />
                 <Textarea
                     placeholder="Описание"
                     rows={3}
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) => updateFormData({ description: e.target.value })}
                 />
             </Section>
             <Section header="Предмет и организатор">
                 <Select
                     value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
+                    onChange={(e) => updateFormData({ subject: e.target.value })}
                 >
+                    <option value="">Выберите предмет</option>
                     <option value="1">Математика</option>
                     <option value="2">Физика</option>
                     <option value="3">Химия</option>
@@ -273,8 +304,9 @@ const CircleForm = () => {
                 </Select>
                 <Select
                     value={organizer}
-                    onChange={(e) => setSubject(e.target.value)}
+                    onChange={(e) => updateFormData({ organizer: e.target.value })}
                 >
+                    <option value="">Выберите организатора</option>
                     <option value="4">МатЛига</option>
                     <option value="3">СНО</option>
                     <option value="2">ОСО</option>
@@ -287,38 +319,22 @@ const CircleForm = () => {
                 <Textarea
                     placeholder="https://..."
                     value={link}
-                    onChange={(e) => setLink(e.target.value)}
+                    onChange={(e) => updateFormData({ link: e.target.value })}
                 />
             </Section>
-            <FixedLayout
-                vertical="bottom"
-                className='px-3'
-                style={{ zIndex: 2000 }}
-            >
-                <Button
-                    onClick={handleSubmit}
-                    className='w-full'
-                    size='l'
-                    disabled
-                >
-                    Добавить
-                </Button>
-                <div className='py-9.25' />
-            </FixedLayout>
         </>
     );
 };
 
 // Active Form Component
-const ActiveForm = () => {
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [link, setLink] = useState('');
+const ActiveForm = ({ formData, updateFormData, setFormIsValid }) => {
+    const { name = '', description = '', link = '' } = formData;
 
-    const handleSubmit = () => {
-        console.log({ name, description, link });
-        // Add API call or state update logic here
-    };
+    // Update validation state whenever inputs change
+    React.useEffect(() => {
+        const isValid = name.trim() !== '';
+        setFormIsValid(isValid);
+    }, [name, setFormIsValid]);
 
     return (
         <>
@@ -326,49 +342,37 @@ const ActiveForm = () => {
                 <Input
                     placeholder="Название"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => updateFormData({ name: e.target.value })}
                 />
                 <Textarea
                     placeholder="Описание"
                     rows={3}
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) => updateFormData({ description: e.target.value })}
                 />
             </Section>
             <Section header="Ссылка">
                 <Textarea
                     placeholder="https://..."
                     value={link}
-                    onChange={(e) => setLink(e.target.value)}
+                    onChange={(e) => updateFormData({ link: e.target.value })}
                 />
             </Section>
-            <FixedLayout
-                vertical="bottom"
-                className='px-3'
-                style={{ zIndex: 2000 }}
-            >
-                <Button
-                    onClick={handleSubmit}
-                    className='w-full'
-                    size='l'
-                    disabled
-                >
-                    Добавить
-                </Button>
-                <div className='py-9.25' />
-            </FixedLayout>
         </>
     );
 };
 
 // Stuff Form Component with special logic for non-existent teachers/subjects
-const StuffForm = () => {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [type, setType] = useState('');
-    const [teacher, setTeacher] = useState('');
-    const [subject, setSubject] = useState('');
-    const [semester, setSemester] = useState('');
+const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
+    const {
+        title = '',
+        description = '',
+        type = '',
+        teacher = '',
+        subject = '',
+        semester = '',
+        newTeacherDepartment = ''
+    } = formData;
 
     // States for handling non-existent teachers/subjects
     const [teacherExists, setTeacherExists] = useState(true);
@@ -377,7 +381,12 @@ const StuffForm = () => {
     const [subjectInputDisabled, setSubjectInputDisabled] = useState(false);
     const [showTeacherForm, setShowTeacherForm] = useState(false);
     const [showSubjectForm, setShowSubjectForm] = useState(false);
-    const [newTeacherDepartment, setNewTeacherDepartment] = useState('');
+
+    // Update validation state whenever inputs change
+    React.useEffect(() => {
+        const isValid = title.trim() !== '' && type !== '' && teacher.trim() !== '' && subject.trim() !== '';
+        setFormIsValid(isValid);
+    }, [title, type, teacher, subject, setFormIsValid]);
 
     // Mock function to check if teacher exists (replace with actual API call)
     const checkTeacherExists = (teacherName) => {
@@ -404,7 +413,7 @@ const StuffForm = () => {
     // Handle teacher input change
     const handleTeacherChange = (e) => {
         const value = e.target.value;
-        setTeacher(value);
+        updateFormData({ teacher: value });
         if (value.trim()) {
             checkTeacherExists(value);
         } else {
@@ -415,7 +424,7 @@ const StuffForm = () => {
     // Handle subject input change
     const handleSubjectChange = (e) => {
         const value = e.target.value;
-        setSubject(value);
+        updateFormData({ subject: value });
         if (value.trim()) {
             checkSubjectExists(value);
         } else {
@@ -465,20 +474,16 @@ const StuffForm = () => {
         setSubjectInputDisabled(false);
     };
 
-    const handleSubmit = () => {
-        console.log({ title, description, type, teacher, subject, semester });
-        // Add API call or state update logic here
-    };
-
     return (
         <>
             <div className='flex gap-2'>
                 <div className="flex-1 min-w-[190px]">
                     <Select
                         value={type}
-                        onChange={(e) => setType(e.target.value)}
+                        onChange={(e) => updateFormData({ type: e.target.value })}
                         className="w-full"
                     >
+                        <option value="">Выберите тип</option>
                         <option value="test">Контрольная</option>
                         <option value="lab">Лабораторная</option>
                         <option value="course">Курсовая</option>
@@ -491,9 +496,10 @@ const StuffForm = () => {
                 <div className="flex-1">
                     <Select
                         value={semester}
-                        onChange={(e) => setSemester(e.target.value)}
+                        onChange={(e) => updateFormData({ semester: e.target.value })}
                         className="w-full"
                     >
+                        <option value="">Выберите семестр</option>
                         <option value="1">1 сем</option>
                         <option value="2">2 сем</option>
                         <option value="3">3 сем</option>
@@ -510,16 +516,15 @@ const StuffForm = () => {
                 <Input
                     placeholder="Заголовок"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => updateFormData({ title: e.target.value })}
                 />
                 <Textarea
                     placeholder="Описание (опционально)"
                     rows={3}
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) => updateFormData({ description: e.target.value })}
                 />
             </Section>
-
 
             {/* Teacher input with special handling for non-existent teachers */}
             {!showTeacherForm && (
@@ -545,11 +550,12 @@ const StuffForm = () => {
             {showTeacherForm && (
                 <>
                     <Section header="Новый преподаватель" className="transition-all duration-300">
-                        <Input placeholder="ФИО" value={teacher} />
+                        <Input placeholder="ФИО" value={teacher} disabled />
                         <Select
                             value={newTeacherDepartment}
-                            onChange={(e) => setNewTeacherDepartment(e.target.value)}
+                            onChange={(e) => updateFormData({ newTeacherDepartment: e.target.value })}
                         >
+                            <option value="">Выберите кафедру</option>
                             <option value="1">Кафедра №1</option>
                             <option value="2">Кафедра №2</option>
                             <option value="3">Кафедра №3</option>
@@ -624,21 +630,6 @@ const StuffForm = () => {
                     </div>
                 </>
             )}
-
-            <FixedLayout
-                vertical="bottom"
-                className='px-3'
-            >
-                <Button
-                    onClick={handleSubmit}
-                    className='w-full'
-                    size='l'
-                    disabled
-                >
-                    Добавить
-                </Button>
-                <div className='py-9.25' />
-            </FixedLayout>
         </>
     );
 };

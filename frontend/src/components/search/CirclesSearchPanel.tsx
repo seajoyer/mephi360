@@ -133,9 +133,9 @@ export const CirclesSearchPanel: React.FC<CirclesSearchPanelProps> = ({
     const getFilterTitle = () => {
         switch (filterOverlay.type) {
             case 'organizer':
-                return "Выберите организатора";
+                return "Организатор кружка";
             case 'subject':
-                return "Выберите предмет";
+                return "Направление кружка";
             default:
                 return "";
         }

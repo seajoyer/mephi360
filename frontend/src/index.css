@@ -249,3 +249,28 @@ button,
 .app-content {
   padding-bottom: 64px; /* Add padding to prevent content from being hidden behind TabBar */
 }
+
+/* Bottom button container styles */
+.bottom-button-container {
+  position: relative;
+  width: 100%;
+  margin-top: 20px;
+  height: 100px; /* Space for the button */
+}
+
+/* Button wrapper styles */
+.bottom-button-wrapper {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  background-color: var(--tgui--secondary_bg_color);
+  z-index: 1000;
+}
+
+/* Page content padding for pages with bottom buttons */
+.page-with-bottom-button {
+  padding-bottom: 120px; /* Ensure content isn't hidden by the button */
+}

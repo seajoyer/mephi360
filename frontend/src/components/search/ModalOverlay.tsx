@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { List, Cell, Section } from '@telegram-apps/telegram-ui';
+import { List, Cell, Section, Radio } from '@telegram-apps/telegram-ui';
 import { backButton } from '@telegram-apps/sdk-react';
 
 interface ModalOverlayProps {
@@ -157,15 +157,18 @@ export const ModalOverlay: React.FC<ModalOverlayProps> = ({
       }}
     >
       <List>
-        <Section
-            header={title}
-        >
+        <Section header={title}>
           {/* "All" option */}
           <Cell
-            onClick={() => handleSelect(null)}
-            after={selectedOption === null ? (
-              <span style={{ color: 'var(--tgui--link_color)' }}>✓</span>
-            ) : undefined}
+            Component="label"
+            before={
+              <Radio
+                name="selection"
+                value="all"
+                checked={selectedOption === null}
+                onChange={() => handleSelect(null)}
+              />
+            }
           >
             Все
           </Cell>
@@ -173,10 +176,15 @@ export const ModalOverlay: React.FC<ModalOverlayProps> = ({
           {options.map(option => (
             <Cell
               key={option.id}
-              onClick={() => handleSelect(option.id)}
-              after={selectedOption === option.id ? (
-                <span style={{ color: 'var(--tgui--link_color)' }}>✓</span>
-              ) : undefined}
+              Component="label"
+              before={
+                <Radio
+                  name="selection"
+                  value={option.id}
+                  checked={selectedOption === option.id}
+                  onChange={() => handleSelect(option.id)}
+                />
+              }
             >
               {option.name}
             </Cell>

@@ -1,6 +1,6 @@
 import { retrieveLaunchParams, miniApp, useSignal, initDataState as _initDataState } from '@telegram-apps/sdk-react';
 import { AppRoot } from '@telegram-apps/telegram-ui';
-import { Navigate, Route, Routes, HashRouter } from 'react-router-dom';
+import { Navigate, Route, Routes, HashRouter, useLocation } from 'react-router-dom';
 
 import { routes } from '@/navigation/routes.tsx';
 import { ScrollReset } from '@/components/common/ScrollReset';
@@ -78,11 +78,23 @@ export function App() {
                             </Routes>
                         </div>
 
-                        {/* TabBar now at app level, outside of routes */}
-                        <TabBar />
+                        {/* Conditionally render the TabBar */}
+                        <TabBarWrapper />
                     </div>
                 </HashRouter>
             </FilterProvider>
         </AppRoot>
     );
 }
+
+// TabBarWrapper component to conditionally render the TabBar
+const TabBarWrapper = () => {
+    const location = useLocation();
+    const hideTabBar = location.pathname === '/add';
+
+    if (hideTabBar) {
+        return null;
+    }
+
+    return <TabBar />;
+};
