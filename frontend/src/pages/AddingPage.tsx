@@ -1,107 +1,42 @@
-import React, { useState } from 'react';
-import { List, Input, Text, Select, Section, Textarea, Button, Divider } from '@telegram-apps/telegram-ui';
+import React, { useState, useEffect } from 'react';
+import { List, Input, Text, Select, Section, Textarea, Divider } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
-import { KeyboardAwareFixedLayout } from '@/components/common/KeyboardAwareFixedLayout';
-import { TabBar } from '@/components/layout/TabBar';
+import { useAddingPage, EntityType } from '@/contexts/AddingPageContext';
 
 const AddingPage = () => {
-    const [entityType, setEntityType] = useState('Teacher');
-    const [formData, setFormData] = useState({});
-    const [formIsValid, setFormIsValid] = useState(false);
+    const {
+        entityType,
+        setEntityType,
+        formData,
+        updateFormData,
+        setIsFormValid
+    } = useAddingPage();
 
-    const handleEntityChange = (e) => {
-        setEntityType(e.target.value);
-        // Reset form data and validation when entity type changes
-        setFormData({});
-        setFormIsValid(false);
-    };
+    const handleEntityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setEntityType(e.target.value as EntityType);
 
-    // Generic function to update form data
-    const updateFormData = (newData) => {
-        setFormData(prev => ({ ...prev, ...newData }));
-    };
-
-    // Generic function to handle form submission
-    const handleSubmit = () => {
-        console.log(`Submitting ${entityType} form:`, formData);
-
-        // Here you would implement your API call to submit the data
-        // Different actions based on entity type
-        switch (entityType) {
-            case 'Teacher':
-                console.log('Adding new teacher...');
-                // Teacher-specific submission logic
-                break;
-            case 'Department':
-                console.log('Adding new department...');
-                // Department-specific submission logic
-                break;
-            case 'Club':
-                console.log('Adding new club...');
-                // Club-specific submission logic
-                break;
-            case 'Circle':
-                console.log('Adding new circle...');
-                // Circle-specific submission logic
-                break;
-            case 'Active':
-                console.log('Adding new active...');
-                // Active-specific submission logic
-                break;
-            case 'Stuff':
-                console.log('Adding new stuff...');
-                // Stuff-specific submission logic
-                break;
-            default:
-                console.log('Unknown entity type:', entityType);
-        }
+        // Reset form data when entity type changes
+        updateFormData({});
+        setIsFormValid(false);
     };
 
     // Render the appropriate form based on the selected entity type
     const renderForm = () => {
         switch (entityType) {
             case 'Teacher':
-                return <TeacherForm
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    setFormIsValid={setFormIsValid}
-                />;
+                return <TeacherForm />;
             case 'Department':
-                return <DepartmentForm
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    setFormIsValid={setFormIsValid}
-                />;
+                return <DepartmentForm />;
             case 'Club':
-                return <ClubForm
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    setFormIsValid={setFormIsValid}
-                />;
+                return <ClubForm />;
             case 'Circle':
-                return <CircleForm
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    setFormIsValid={setFormIsValid}
-                />;
+                return <CircleForm />;
             case 'Active':
-                return <ActiveForm
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    setFormIsValid={setFormIsValid}
-                />;
+                return <ActiveForm />;
             case 'Stuff':
-                return <StuffForm
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    setFormIsValid={setFormIsValid}
-                />;
+                return <StuffForm />;
             default:
-                return <TeacherForm
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    setFormIsValid={setFormIsValid}
-                />;
+                return <TeacherForm />;
         }
     };
 
@@ -121,36 +56,25 @@ const AddingPage = () => {
                 </Select>
 
                 {renderForm()}
-
             </List>
-
-            {/* Single "Добавить" button for all forms */}
-            <KeyboardAwareFixedLayout
-                vertical="bottom"
-                className='px-3 mb-5'
-            >
-                <Button
-                    onClick={handleSubmit}
-                    stretched
-                    size='l'
-                    disabled={!formIsValid}
-                >
-                    Добавить
-                </Button>
-            </KeyboardAwareFixedLayout>
         </Page>
     );
 };
 
 // Teacher Form Component
-const TeacherForm = ({ formData, updateFormData, setFormIsValid }) => {
-    const { name = '', department = '', proofLink = '' } = formData;
+const TeacherForm = () => {
+    const { updateFormData, formData, setIsFormValid } = useAddingPage();
+    const [name, setName] = useState(formData.name || '');
+    const [department, setDepartment] = useState(formData.department || '');
+    const [proofLink, setProofLink] = useState(formData.proofLink || '');
 
-    // Update validation state whenever inputs change
-    React.useEffect(() => {
-        const isValid = name.trim() !== '' && department !== '';
-        setFormIsValid(isValid);
-    }, [name, department, setFormIsValid]);
+    // Update form data when inputs change
+    useEffect(() => {
+        updateFormData({ name, department, proofLink });
+
+        // Check if form is valid
+        setIsFormValid(name.trim() !== '' && department !== '');
+    }, [name, department, proofLink, updateFormData, setIsFormValid]);
 
     return (
         <>
@@ -158,14 +82,13 @@ const TeacherForm = ({ formData, updateFormData, setFormIsValid }) => {
                 <Textarea
                     placeholder="ФИО (полностью)"
                     value={name}
-                    onChange={(e) => updateFormData({ name: e.target.value })}
+                    onChange={(e) => setName(e.target.value)}
                 />
                 <Divider />
                 <Select
                     value={department}
-                    onChange={(e) => updateFormData({ department: e.target.value })}
+                    onChange={(e) => setDepartment(e.target.value)}
                 >
-                    <option value="">Выберите кафедру</option>
                     <option value="1">Кафедра №1</option>
                     <option value="2">Кафедра №2</option>
                     <option value="3">Кафедра №3</option>
@@ -181,7 +104,7 @@ const TeacherForm = ({ formData, updateFormData, setFormIsValid }) => {
                 <Textarea
                     placeholder="home.mephi.ru/..."
                     value={proofLink}
-                    onChange={(e) => updateFormData({ proofLink: e.target.value })}
+                    onChange={(e) => setProofLink(e.target.value)}
                 />
             </Section>
         </>
@@ -189,14 +112,19 @@ const TeacherForm = ({ formData, updateFormData, setFormIsValid }) => {
 };
 
 // Department Form Component
-const DepartmentForm = ({ formData, updateFormData, setFormIsValid }) => {
-    const { name = '', number = '', proofLink = '' } = formData;
+const DepartmentForm = () => {
+    const { updateFormData, formData, setIsFormValid } = useAddingPage();
+    const [name, setName] = useState(formData.name || '');
+    const [number, setNumber] = useState(formData.number || '');
+    const [proofLink, setProofLink] = useState(formData.proofLink || '');
 
-    // Update validation state whenever inputs change
-    React.useEffect(() => {
-        const isValid = name.trim() !== '' && number.trim() !== '';
-        setFormIsValid(isValid);
-    }, [name, number, setFormIsValid]);
+    // Update form data when inputs change
+    useEffect(() => {
+        updateFormData({ name, number, proofLink });
+
+        // Check if form is valid
+        setIsFormValid(name.trim() !== '' && number.trim() !== '');
+    }, [name, number, proofLink, updateFormData, setIsFormValid]);
 
     return (
         <>
@@ -204,20 +132,20 @@ const DepartmentForm = ({ formData, updateFormData, setFormIsValid }) => {
                 <Textarea
                     placeholder="Полное название кафедры"
                     value={name}
-                    onChange={(e) => updateFormData({ name: e.target.value })}
+                    onChange={(e) => setName(e.target.value)}
                 />
                 <Divider />
                 <Input
                     placeholder="Номер кафедры"
                     value={number}
-                    onChange={(e) => updateFormData({ number: e.target.value })}
+                    onChange={(e) => setNumber(e.target.value)}
                 />
             </Section>
             <Section header="Подтверждающая ссылка">
                 <Textarea
                     placeholder="home.mephi.ru/..."
                     value={proofLink}
-                    onChange={(e) => updateFormData({ proofLink: e.target.value })}
+                    onChange={(e) => setProofLink(e.target.value)}
                 />
             </Section>
         </>
@@ -225,14 +153,19 @@ const DepartmentForm = ({ formData, updateFormData, setFormIsValid }) => {
 };
 
 // Club Form Component
-const ClubForm = ({ formData, updateFormData, setFormIsValid }) => {
-    const { name = '', description = '', link = '' } = formData;
+const ClubForm = () => {
+    const { updateFormData, formData, setIsFormValid } = useAddingPage();
+    const [name, setName] = useState(formData.name || '');
+    const [description, setDescription] = useState(formData.description || '');
+    const [link, setLink] = useState(formData.link || '');
 
-    // Update validation state whenever inputs change
-    React.useEffect(() => {
-        const isValid = name.trim() !== '';
-        setFormIsValid(isValid);
-    }, [name, setFormIsValid]);
+    // Update form data when inputs change
+    useEffect(() => {
+        updateFormData({ name, description, link });
+
+        // Check if form is valid
+        setIsFormValid(name.trim() !== '');
+    }, [name, description, link, updateFormData, setIsFormValid]);
 
     return (
         <>
@@ -240,21 +173,21 @@ const ClubForm = ({ formData, updateFormData, setFormIsValid }) => {
                 <Input
                     placeholder="Название клуба"
                     value={name}
-                    onChange={(e) => updateFormData({ name: e.target.value })}
+                    onChange={(e) => setName(e.target.value)}
                 />
                 <Divider />
                 <Textarea
                     placeholder="Описание"
                     rows={3}
                     value={description}
-                    onChange={(e) => updateFormData({ description: e.target.value })}
+                    onChange={(e) => setDescription(e.target.value)}
                 />
             </Section>
             <Section header="Ссылка">
                 <Textarea
                     placeholder="https://..."
                     value={link}
-                    onChange={(e) => updateFormData({ link: e.target.value })}
+                    onChange={(e) => setLink(e.target.value)}
                 />
             </Section>
         </>
@@ -262,14 +195,21 @@ const ClubForm = ({ formData, updateFormData, setFormIsValid }) => {
 };
 
 // Circle Form Component
-const CircleForm = ({ formData, updateFormData, setFormIsValid }) => {
-    const { name = '', description = '', subject = '', organizer = '', link = '' } = formData;
+const CircleForm = () => {
+    const { updateFormData, formData, setIsFormValid } = useAddingPage();
+    const [name, setName] = useState(formData.name || '');
+    const [description, setDescription] = useState(formData.description || '');
+    const [subject, setSubject] = useState(formData.subject || '');
+    const [organizer, setOrganizer] = useState(formData.organizer || '');
+    const [link, setLink] = useState(formData.link || '');
 
-    // Update validation state whenever inputs change
-    React.useEffect(() => {
-        const isValid = name.trim() !== '' && subject !== '';
-        setFormIsValid(isValid);
-    }, [name, subject, setFormIsValid]);
+    // Update form data when inputs change
+    useEffect(() => {
+        updateFormData({ name, description, subject, organizer, link });
+
+        // Check if form is valid
+        setIsFormValid(name.trim() !== '' && subject !== '' && organizer !== '');
+    }, [name, description, subject, organizer, link, updateFormData, setIsFormValid]);
 
     return (
         <>
@@ -277,22 +217,21 @@ const CircleForm = ({ formData, updateFormData, setFormIsValid }) => {
                 <Input
                     placeholder="Название кружка"
                     value={name}
-                    onChange={(e) => updateFormData({ name: e.target.value })}
+                    onChange={(e) => setName(e.target.value)}
                 />
                 <Divider />
                 <Textarea
                     placeholder="Описание"
                     rows={3}
                     value={description}
-                    onChange={(e) => updateFormData({ description: e.target.value })}
+                    onChange={(e) => setDescription(e.target.value)}
                 />
             </Section>
             <Section header="Предмет и организатор">
                 <Select
                     value={subject}
-                    onChange={(e) => updateFormData({ subject: e.target.value })}
+                    onChange={(e) => setSubject(e.target.value)}
                 >
-                    <option value="">Выберите предмет</option>
                     <option value="1">Математика</option>
                     <option value="2">Физика</option>
                     <option value="3">Химия</option>
@@ -304,9 +243,9 @@ const CircleForm = ({ formData, updateFormData, setFormIsValid }) => {
                 </Select>
                 <Select
                     value={organizer}
-                    onChange={(e) => updateFormData({ organizer: e.target.value })}
+                    onChange={(e) => setOrganizer(e.target.value)}
                 >
-                    <option value="">Выберите организатора</option>
+                    <option value="">Организатор</option>
                     <option value="4">МатЛига</option>
                     <option value="3">СНО</option>
                     <option value="2">ОСО</option>
@@ -319,7 +258,7 @@ const CircleForm = ({ formData, updateFormData, setFormIsValid }) => {
                 <Textarea
                     placeholder="https://..."
                     value={link}
-                    onChange={(e) => updateFormData({ link: e.target.value })}
+                    onChange={(e) => setLink(e.target.value)}
                 />
             </Section>
         </>
@@ -327,14 +266,19 @@ const CircleForm = ({ formData, updateFormData, setFormIsValid }) => {
 };
 
 // Active Form Component
-const ActiveForm = ({ formData, updateFormData, setFormIsValid }) => {
-    const { name = '', description = '', link = '' } = formData;
+const ActiveForm = () => {
+    const { updateFormData, formData, setIsFormValid } = useAddingPage();
+    const [name, setName] = useState(formData.name || '');
+    const [description, setDescription] = useState(formData.description || '');
+    const [link, setLink] = useState(formData.link || '');
 
-    // Update validation state whenever inputs change
-    React.useEffect(() => {
-        const isValid = name.trim() !== '';
-        setFormIsValid(isValid);
-    }, [name, setFormIsValid]);
+    // Update form data when inputs change
+    useEffect(() => {
+        updateFormData({ name, description, link });
+
+        // Check if form is valid
+        setIsFormValid(name.trim() !== '');
+    }, [name, description, link, updateFormData, setIsFormValid]);
 
     return (
         <>
@@ -342,20 +286,20 @@ const ActiveForm = ({ formData, updateFormData, setFormIsValid }) => {
                 <Input
                     placeholder="Название"
                     value={name}
-                    onChange={(e) => updateFormData({ name: e.target.value })}
+                    onChange={(e) => setName(e.target.value)}
                 />
                 <Textarea
                     placeholder="Описание"
                     rows={3}
                     value={description}
-                    onChange={(e) => updateFormData({ description: e.target.value })}
+                    onChange={(e) => setDescription(e.target.value)}
                 />
             </Section>
             <Section header="Ссылка">
                 <Textarea
                     placeholder="https://..."
                     value={link}
-                    onChange={(e) => updateFormData({ link: e.target.value })}
+                    onChange={(e) => setLink(e.target.value)}
                 />
             </Section>
         </>
@@ -363,16 +307,14 @@ const ActiveForm = ({ formData, updateFormData, setFormIsValid }) => {
 };
 
 // Stuff Form Component with special logic for non-existent teachers/subjects
-const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
-    const {
-        title = '',
-        description = '',
-        type = '',
-        teacher = '',
-        subject = '',
-        semester = '',
-        newTeacherDepartment = ''
-    } = formData;
+const StuffForm = () => {
+    const { updateFormData, formData, setIsFormValid } = useAddingPage();
+    const [title, setTitle] = useState(formData.title || '');
+    const [description, setDescription] = useState(formData.description || '');
+    const [type, setType] = useState(formData.type || '');
+    const [teacher, setTeacher] = useState(formData.teacher || '');
+    const [subject, setSubject] = useState(formData.subject || '');
+    const [semester, setSemester] = useState(formData.semester || '');
 
     // States for handling non-existent teachers/subjects
     const [teacherExists, setTeacherExists] = useState(true);
@@ -381,15 +323,43 @@ const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
     const [subjectInputDisabled, setSubjectInputDisabled] = useState(false);
     const [showTeacherForm, setShowTeacherForm] = useState(false);
     const [showSubjectForm, setShowSubjectForm] = useState(false);
+    const [newTeacherDepartment, setNewTeacherDepartment] = useState(formData.newTeacherDepartment || '');
 
-    // Update validation state whenever inputs change
-    React.useEffect(() => {
-        const isValid = title.trim() !== '' && type !== '' && teacher.trim() !== '' && subject.trim() !== '';
-        setFormIsValid(isValid);
-    }, [title, type, teacher, subject, setFormIsValid]);
+    // Update form data when inputs change
+    useEffect(() => {
+        updateFormData({
+            title,
+            description,
+            type,
+            teacher,
+            subject,
+            semester,
+            newTeacherDepartment,
+            teacherExists,
+            subjectExists,
+            showTeacherForm,
+            showSubjectForm
+        });
+
+        // Check if form is valid
+        const isValid = title.trim() !== '' &&
+            type !== '' &&
+            teacher.trim() !== '' &&
+            subject.trim() !== '' &&
+            semester !== '' &&
+            teacherExists &&
+            subjectExists;
+
+        setIsFormValid(isValid);
+    }, [
+        title, description, type, teacher, subject, semester,
+        teacherExists, subjectExists, newTeacherDepartment,
+        showTeacherForm, showSubjectForm,
+        updateFormData, setIsFormValid
+    ]);
 
     // Mock function to check if teacher exists (replace with actual API call)
-    const checkTeacherExists = (teacherName) => {
+    const checkTeacherExists = (teacherName: string) => {
         // Simulate API call to check if teacher exists
         // For demo purposes, let's say a teacher doesn't exist if the name contains "new"
         if (teacherName.toLowerCase().includes('new')) {
@@ -400,7 +370,7 @@ const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
     };
 
     // Mock function to check if subject exists (replace with actual API call)
-    const checkSubjectExists = (subjectName) => {
+    const checkSubjectExists = (subjectName: string) => {
         // Simulate API call to check if subject exists
         // For demo purposes, let's say a subject doesn't exist if the name contains "new"
         if (subjectName.toLowerCase().includes('new')) {
@@ -411,9 +381,9 @@ const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
     };
 
     // Handle teacher input change
-    const handleTeacherChange = (e) => {
+    const handleTeacherChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        updateFormData({ teacher: value });
+        setTeacher(value);
         if (value.trim()) {
             checkTeacherExists(value);
         } else {
@@ -422,9 +392,9 @@ const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
     };
 
     // Handle subject input change
-    const handleSubjectChange = (e) => {
+    const handleSubjectChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const value = e.target.value;
-        updateFormData({ subject: value });
+        setSubject(value);
         if (value.trim()) {
             checkSubjectExists(value);
         } else {
@@ -480,10 +450,9 @@ const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
                 <div className="flex-1 min-w-[190px]">
                     <Select
                         value={type}
-                        onChange={(e) => updateFormData({ type: e.target.value })}
+                        onChange={(e) => setType(e.target.value)}
                         className="w-full"
                     >
-                        <option value="">Выберите тип</option>
                         <option value="test">Контрольная</option>
                         <option value="lab">Лабораторная</option>
                         <option value="course">Курсовая</option>
@@ -496,10 +465,9 @@ const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
                 <div className="flex-1">
                     <Select
                         value={semester}
-                        onChange={(e) => updateFormData({ semester: e.target.value })}
+                        onChange={(e) => setSemester(e.target.value)}
                         className="w-full"
                     >
-                        <option value="">Выберите семестр</option>
                         <option value="1">1 сем</option>
                         <option value="2">2 сем</option>
                         <option value="3">3 сем</option>
@@ -516,13 +484,13 @@ const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
                 <Input
                     placeholder="Заголовок"
                     value={title}
-                    onChange={(e) => updateFormData({ title: e.target.value })}
+                    onChange={(e) => setTitle(e.target.value)}
                 />
                 <Textarea
                     placeholder="Описание (опционально)"
                     rows={3}
                     value={description}
-                    onChange={(e) => updateFormData({ description: e.target.value })}
+                    onChange={(e) => setDescription(e.target.value)}
                 />
             </Section>
 
@@ -550,12 +518,12 @@ const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
             {showTeacherForm && (
                 <>
                     <Section header="Новый преподаватель" className="transition-all duration-300">
-                        <Input placeholder="ФИО" value={teacher} disabled />
+                        <Input placeholder="ФИО" value={teacher} />
                         <Select
                             value={newTeacherDepartment}
-                            onChange={(e) => updateFormData({ newTeacherDepartment: e.target.value })}
+                            onChange={(e) => setNewTeacherDepartment(e.target.value)}
                         >
-                            <option value="">Выберите кафедру</option>
+                            <option value="">Укажите кафедру</option>
                             <option value="1">Кафедра №1</option>
                             <option value="2">Кафедра №2</option>
                             <option value="3">Кафедра №3</option>
@@ -568,20 +536,22 @@ const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
                         </Select>
                     </Section>
                     <div className="flex justify-between mt-4">
-                        <Button
-                            onClick={handleConfirmTeacher}
-                            mode='bezeled'
-                            size='s'
-                        >
-                            Добавить
-                        </Button>
-                        <Button
-                            onClick={handleCancelTeacher}
-                            mode="plain"
-                            size='s'
-                        >
-                            Отмена
-                        </Button>
+                        <div>
+                            <button
+                                className="button button--s button--bezeled"
+                                onClick={handleConfirmTeacher}
+                            >
+                                Добавить
+                            </button>
+                        </div>
+                        <div>
+                            <button
+                                className="button button--s button--plain"
+                                onClick={handleCancelTeacher}
+                            >
+                                Отмена
+                            </button>
+                        </div>
                     </div>
                 </>
             )}
@@ -613,20 +583,22 @@ const StuffForm = ({ formData, updateFormData, setFormIsValid }) => {
                         <Textarea placeholder="Полное название, как в расписании" value={subject} disabled />
                     </Section>
                     <div className="flex justify-between mt-4">
-                        <Button
-                            onClick={handleConfirmSubject}
-                            mode='bezeled'
-                            size='s'
-                        >
-                            Добавить
-                        </Button>
-                        <Button
-                            onClick={handleCancelSubject}
-                            mode="plain"
-                            size='s'
-                        >
-                            Отмена
-                        </Button>
+                        <div>
+                            <button
+                                className="button button--s button--bezeled"
+                                onClick={handleConfirmSubject}
+                            >
+                                Добавить
+                            </button>
+                        </div>
+                        <div>
+                            <button
+                                className="button button--s button--plain"
+                                onClick={handleCancelSubject}
+                            >
+                                Отмена
+                            </button>
+                        </div>
                     </div>
                 </>
             )}

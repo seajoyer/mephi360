@@ -1,15 +1,16 @@
 import { retrieveLaunchParams, miniApp, useSignal, initDataState as _initDataState } from '@telegram-apps/sdk-react';
 import { AppRoot } from '@telegram-apps/telegram-ui';
-import { Navigate, Route, Routes, HashRouter, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, HashRouter } from 'react-router-dom';
 
 import { routes } from '@/navigation/routes.tsx';
 import { ScrollReset } from '@/components/common/ScrollReset';
 import { FilterProvider } from '@/contexts/FilterContext';
-import { TabBar } from '@/components/layout/TabBar';
-import { PageTransition } from '@/components/common/PageTransition';
+import { AddingPageProvider } from '@/contexts/AddingPageContext';
+import { AppContent } from '@/components/layout/AppContent';
 import { NoAccess } from '@/pages/NoAccess';
 
 import styles from './styles.module.css'
+import { PageTransition } from './common/PageTransition';
 
 const ALLOWED_USER_IDS = [
   653376416,
@@ -49,12 +50,13 @@ export function App() {
             className={theme === 'dark' ? styles.custom_theme : ''}
         >
             <FilterProvider>
-                <HashRouter>
-                    {/* ScrollReset needs to be inside the Router context */}
-                    <ScrollReset />
+                <AddingPageProvider>
+                    <HashRouter>
+                        {/* ScrollReset needs to be inside the Router context */}
+                        <ScrollReset />
 
-                    <div className="app-container relative">
-                        <div className="app-content">
+                        {/* AppContent contains all routes and navigation elements */}
+                        <AppContent>
                             <Routes>
                                 {routes.map((route) => (
                                     <Route
@@ -76,25 +78,10 @@ export function App() {
                                     }
                                 />
                             </Routes>
-                        </div>
-
-                        {/* Conditionally render the TabBar */}
-                        <TabBarWrapper />
-                    </div>
-                </HashRouter>
+                        </AppContent>
+                    </HashRouter>
+                </AddingPageProvider>
             </FilterProvider>
         </AppRoot>
     );
 }
-
-// TabBarWrapper component to conditionally render the TabBar
-const TabBarWrapper = () => {
-    const location = useLocation();
-    const hideTabBar = location.pathname === '/add';
-
-    if (hideTabBar) {
-        return null;
-    }
-
-    return <TabBar />;
-};
