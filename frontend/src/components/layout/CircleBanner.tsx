@@ -81,11 +81,10 @@ export const CircleBanner: React.FC<CircleBannerProps> = ({
                     </div>
 
                     <div className={`relative`}>
-                        <div className="flex flex-wrap gap-2 pr-10 relative">
+                        <div className={`flex ${tags.length != 0 && 'mt-3'} flex-wrap gap-2 pr-10 relative`}>
                             {/* Display only filter values as chips */}
                             {tags.map((tag, index) => (
                                 <Chip
-                                    className='mt-3'
                                     key={index}
                                     mode="outline"
                                     onClick={(e) => handleTagClick(e, tag)}

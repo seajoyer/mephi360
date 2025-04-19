@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { List, Cell, Title, Input, Text, Select, Section, Textarea, Button, Divider, FixedLayout } from '@telegram-apps/telegram-ui';
+import { List, Input, Text, Select, Section, Textarea, Button, Divider, FixedLayout } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
 
 const AddingPage = () => {
@@ -74,7 +74,7 @@ const TeacherForm = () => {
 
     return (
         <>
-          <Section>
+            <Section>
                 <Textarea
                     placeholder="ФИО (полностью)"
                     value={name}
@@ -116,7 +116,7 @@ const TeacherForm = () => {
                 >
                     Добавить
                 </Button>
-                <div className='py-9.25'/>
+                <div className='py-9.25' />
             </FixedLayout>
         </>
     );
@@ -135,7 +135,7 @@ const DepartmentForm = () => {
 
     return (
         <>
-          <Section>
+            <Section>
                 <Textarea
                     placeholder="Полное название кафедры"
                     value={name}
@@ -168,7 +168,7 @@ const DepartmentForm = () => {
                 >
                     Добавить
                 </Button>
-                <div className='py-9.25'/>
+                <div className='py-9.25' />
             </FixedLayout>
         </>
     );
@@ -187,7 +187,7 @@ const ClubForm = () => {
 
     return (
         <>
-          <Section>
+            <Section>
                 <Input
                     placeholder="Название клуба"
                     value={name}
@@ -221,7 +221,7 @@ const ClubForm = () => {
                 >
                     Добавить
                 </Button>
-                <div className='py-9.25'/>
+                <div className='py-9.25' />
             </FixedLayout>
         </>
     );
@@ -303,7 +303,7 @@ const CircleForm = () => {
                 >
                     Добавить
                 </Button>
-                <div className='py-9.25'/>
+                <div className='py-9.25' />
             </FixedLayout>
         </>
     );
@@ -355,7 +355,7 @@ const ActiveForm = () => {
                 >
                     Добавить
                 </Button>
-                <div className='py-9.25'/>
+                <div className='py-9.25' />
             </FixedLayout>
         </>
     );
@@ -628,7 +628,6 @@ const StuffForm = () => {
             <FixedLayout
                 vertical="bottom"
                 className='px-3'
-                style={{ zIndex: 2000 }}
             >
                 <Button
                     onClick={handleSubmit}
@@ -638,7 +637,7 @@ const StuffForm = () => {
                 >
                     Добавить
                 </Button>
-                <div className='py-9.25'/>
+                <div className='py-9.25' />
             </FixedLayout>
         </>
     );

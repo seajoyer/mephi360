@@ -54,7 +54,7 @@ export const StuffBanner: React.FC<StuffBannerProps> = ({
                         </div>
 
                         <div>
-                            <div className="flex mt-3 flex-wrap gap-2">
+                            <div className={`flex ${tags.length != 0 && 'mt-3'} flex-wrap gap-2`}>
                                 {/* Display tags as chips with click handler */}
                                 {tags.map((tag, index) => (
                                     <Chip
