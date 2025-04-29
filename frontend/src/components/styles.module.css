@@ -1,17 +1,17 @@
-/* styles.module.css */
+/* /\* styles.module.css *\/ */
 
-.custom_theme {
-    --tgui--link_color: #8774e1 !important;
-    --tgui--accent_text_color: #8774e1 !important;
-    --tgui--section_header_text_color: #aaaaaa !important;
-    --tgui--subtitle_text_color: #aaaaaa !important;
-    --tgui--button_color: #8774e1 !important;
-    --tgui--button_text_color: #ffffff !important;
-    --tgui--destructive_text_color: #e53935 !important;
-    --tgui--hint_color: #aaaaaa !important;
-    --tgui--text_color: #ffffff !important;
-    /* --tgui--bg_color: #212121 !important; */
-    /* --tgui--header_bg_color: #212121 !important; */
-    /* --tgui--secondary_bg_color: #0f0f0f !important; */
-    /* --tgui--section_bg_color: #212121 !important; */
-}
+/* .custom_theme { */
+/*     --tgui--link_color: #8774e1 !important; */
+/*     --tgui--accent_text_color: #8774e1 !important; */
+/*     --tgui--section_header_text_color: #aaaaaa !important; */
+/*     --tgui--subtitle_text_color: #aaaaaa !important; */
+/*     --tgui--button_color: #8774e1 !important; */
+/*     --tgui--button_text_color: #ffffff !important; */
+/*     --tgui--destructive_text_color: #e53935 !important; */
+/*     --tgui--hint_color: #aaaaaa !important; */
+/*     --tgui--text_color: #ffffff !important; */
+/*     /\* --tgui--bg_color: #212121 !important; *\/ */
+/*     /\* --tgui--header_bg_color: #212121 !important; *\/ */
+/*     /\* --tgui--secondary_bg_color: #0f0f0f !important; *\/ */
+/*     /\* --tgui--section_bg_color: #212121 !important; *\/ */
+/* } */

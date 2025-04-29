@@ -13,8 +13,9 @@ import styles from './styles.module.css'
 import { PageTransition } from './common/PageTransition';
 
 const ALLOWED_USER_IDS = [
-  653376416,
-  906861714,
+    653376416,
+    906861714,
+    500362898,
 ];
 
 export function App() {

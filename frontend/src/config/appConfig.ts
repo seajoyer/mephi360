@@ -8,7 +8,7 @@
  * The base URL for the Telegram Web App
  * This is used for constructing shareable links to the app
  */
-export const TELEGRAM_WEBAPP_URL = 'https://t.me/myDevAbuBot/webapp';
+export const TELEGRAM_WEBAPP_URL = 'https://t.me/mephi360bot/app';
 
 /**
  * Constructs a shareable URL for a specific path within the Telegram Web App
